@@ -1,0 +1,454 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Minimalist Habit Tracker & Analytics Dashboard</title>
+  <meta name="description" content="A high-performance, aesthetic monochrome Notion-style Habit Tracker & Task Manager with real-time analytics, wellness tracking, and monthly matrix.">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&family=JetBrains+Mono:wght@400;500;600;700&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="style.css">
+</head>
+<body class="theme-dark">
+  <div id="app" class="app-container">
+    
+    <!-- Top Global App Bar -->
+    <header class="app-header">
+      <div class="header-left">
+        <div class="app-logo">
+          <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
+            <rect x="3" y="3" width="18" height="18" rx="2" ry="2"></rect>
+            <polyline points="9 11 12 14 22 4"></polyline>
+            <line x1="21" y1="12" x2="21" y2="19"></line>
+            <line x1="3" y1="19" x2="3" y2="5"></line>
+          </svg>
+          <span>HABIT OS</span>
+        </div>
+        <div class="header-divider"></div>
+        <div class="calendar-controls">
+          <span class="label">MONTH:</span>
+          <select id="monthSelect" class="styled-select" aria-label="Select Month"></select>
+          <span class="label">YEAR:</span>
+          <select id="yearSelect" class="styled-select" aria-label="Select Year"></select>
+          <button id="todayBtn" class="btn btn-subtle" title="Jump to Current Date">Today</button>
+        </div>
+      </div>
+
+      <div class="header-center">
+        <h1 class="tracker-title">HABIT TRACKER <span class="title-sub" id="currentMonthDisplay">- March 2026 -</span></h1>
+      </div>
+
+      <div class="header-right">
+        <button id="addHabitBtn" class="btn btn-primary" title="Add New Habit">
+          <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><line x1="12" y1="5" x2="12" y2="19"></line><line x1="5" y1="12" x2="19" y2="12"></line></svg>
+          <span>Add Habit</span>
+        </button>
+        <button id="presetTemplatesBtn" class="btn btn-secondary" title="Load Preset Habit Routine">
+          <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"></path><polyline points="14 2 14 8 20 8"></polyline><line x1="16" y1="13" x2="8" y2="13"></line><line x1="16" y1="17" x2="8" y2="17"></line><polyline points="10 9 9 9 8 9"></polyline></svg>
+          <span>Presets</span>
+        </button>
+        <button id="notionGuideBtn" class="btn btn-secondary" title="Notion Setup Guide & Formula">
+          <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M4 19.5A2.5 2.5 0 0 1 6.5 17H20"></path><path d="M6.5 2H20v20H6.5A2.5 2.5 0 0 1 4 19.5v-15A2.5 2.5 0 0 1 6.5 2z"></path></svg>
+          <span>Notion Setup</span>
+        </button>
+        <button id="exportModalBtn" class="btn btn-secondary" title="Export to Notion / CSV / JSON">
+          <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"></path><polyline points="7 10 12 15 17 10"></polyline><line x1="12" y1="15" x2="12" y2="3"></line></svg>
+          <span>Export</span>
+        </button>
+        <button id="themeToggleBtn" class="btn btn-icon" title="Toggle Theme" aria-label="Toggle Theme">
+          <svg id="themeIcon" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="5"></circle><line x1="12" y1="1" x2="12" y2="3"></line><line x1="12" y1="21" x2="12" y2="23"></line><line x1="4.22" y1="4.22" x2="5.64" y2="5.64"></line><line x1="18.36" y1="18.36" x2="19.78" y2="19.78"></line><line x1="1" y1="12" x2="3" y2="12"></line><line x1="21" y1="12" x2="23" y2="12"></line><line x1="4.22" y1="19.78" x2="5.64" y2="18.36"></line><line x1="18.36" y1="5.64" x2="19.78" y2="4.22"></line></svg>
+        </button>
+      </div>
+    </header>
+
+    <!-- Main Content Dashboard -->
+    <main class="dashboard-layout">
+      
+      <!-- TOP ANALYTICS DECK (Matching screenshot 1 & 3) -->
+      <section class="analytics-deck">
+        
+        <!-- Daily Progress Bar Chart Card -->
+        <div class="dashboard-card daily-progress-card">
+          <div class="card-header">
+            <h2 class="card-title">Daily Progress</h2>
+            <span class="card-badge" id="dailyAvgBadge">Avg: 0%</span>
+          </div>
+          <div class="chart-container" id="dailyProgressChartContainer">
+            <div id="dailyBarsWrapper" class="daily-bars-grid"></div>
+          </div>
+        </div>
+
+        <!-- Weekly Progress Bar Chart Card -->
+        <div class="dashboard-card weekly-progress-card">
+          <div class="card-header">
+            <h2 class="card-title">Weekly Progress</h2>
+            <span class="card-badge" id="bestWeekBadge">Best: Week 1</span>
+          </div>
+          <div class="chart-container" id="weeklyProgressChartContainer">
+            <div id="weeklyBarsWrapper" class="weekly-bars-grid"></div>
+          </div>
+        </div>
+
+        <!-- Metric KPI Cards: Goal, Completed, Left -->
+        <div class="kpi-group-card">
+          <div class="kpi-tile kpi-goal">
+            <div class="kpi-label">Goal</div>
+            <div class="kpi-value" id="kpiGoalValue">0</div>
+          </div>
+          <div class="kpi-tile kpi-completed">
+            <div class="kpi-label">Completed</div>
+            <div class="kpi-value" id="kpiCompletedValue">0</div>
+          </div>
+          <div class="kpi-tile kpi-left">
+            <div class="kpi-label">Left</div>
+            <div class="kpi-value" id="kpiLeftValue">0</div>
+          </div>
+        </div>
+
+        <!-- Overall Stats Donut Card -->
+        <div class="dashboard-card overall-stats-card">
+          <div class="card-header">
+            <h2 class="card-title">Overall Stats</h2>
+          </div>
+          <div class="donut-wrapper">
+            <svg class="donut-svg" viewBox="0 0 140 140">
+              <circle class="donut-bg" cx="70" cy="70" r="54" />
+              <circle class="donut-fill" id="donutFillCircle" cx="70" cy="70" r="54" />
+            </svg>
+            <div class="donut-center-text">
+              <span class="donut-pct" id="donutPercentText">0%</span>
+              <span class="donut-sublabel">Finished</span>
+            </div>
+          </div>
+        </div>
+
+      </section>
+
+      <!-- MIDDLE SPLIT: Habit Matrix (Left) & Analysis / Top 10 (Right) -->
+      <section class="main-matrix-section">
+        
+        <!-- LEFT: 31-Day Checkbox Grid -->
+        <div class="matrix-card">
+          <div class="matrix-card-header">
+            <div class="matrix-title-group">
+              <h2 class="matrix-heading">MY HABITS</h2>
+              <span class="habit-count-tag" id="habitCountTag">12 Habits Active</span>
+            </div>
+            <div class="matrix-quick-actions">
+              <button id="batchCheckTodayBtn" class="btn btn-xs btn-subtle" title="Check off all habits for Today">✓ Check Today</button>
+              <button id="clearMonthBtn" class="btn btn-xs btn-danger-subtle" title="Reset checks for this month">Clear Month</button>
+            </div>
+          </div>
+
+          <div class="table-scroll-container" id="matrixScrollWrapper">
+            <table class="habit-table" id="habitTable">
+              <thead id="habitTableHead">
+                <!-- Dynamically generated Week groupings & Days (1-31) -->
+              </thead>
+              <tbody id="habitTableBody">
+                <!-- Dynamically generated Habit rows with checkboxes -->
+              </tbody>
+            </table>
+          </div>
+
+          <!-- Bottom Row of Matrix: Wellness Tracking (Mood & Sleep) -->
+          <div class="wellness-matrix-footer">
+            <div class="wellness-section-title">
+              <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M20.84 4.61a5.5 5.5 0 0 0-7.78 0L12 5.67l-1.06-1.06a5.5 5.5 0 0 0-7.78 7.78l1.06 1.06L12 21.23l7.78-7.78 1.06-1.06a5.5 5.5 0 0 0 0-7.78z"></path></svg>
+              <span>Overall Wellness</span>
+            </div>
+            <div class="table-scroll-container" id="wellnessScrollWrapper">
+              <table class="wellness-table" id="wellnessTable">
+                <tbody id="wellnessTableBody">
+                  <!-- Mood row and Sleep hours row dynamically aligned with day columns -->
+                </tbody>
+              </table>
+            </div>
+          </div>
+        </div>
+
+        <!-- RIGHT: Analysis Breakdown & Top Habits Leaderboard -->
+        <div class="sidebar-analysis-column">
+          
+          <!-- Analysis Table Card -->
+          <div class="dashboard-card analysis-card">
+            <div class="card-header">
+              <h2 class="card-title">Analysis</h2>
+              <span class="card-badge" id="habitSortBadge">Ranked by %</span>
+            </div>
+            <div class="analysis-table-wrapper">
+              <table class="analysis-table" id="analysisTable">
+                <thead>
+                  <tr>
+                    <th class="th-habit">Habit</th>
+                    <th class="th-goal">Goal</th>
+                    <th class="th-actual">Actual</th>
+                    <th class="th-left">Left</th>
+                    <th class="th-prog">Progress</th>
+                    <th class="th-pct">%</th>
+                  </tr>
+                </thead>
+                <tbody id="analysisTableBody">
+                  <!-- Dynamically rendered per-habit stats -->
+                </tbody>
+              </table>
+            </div>
+          </div>
+
+          <!-- Top 10 Habits Leaderboard Card -->
+          <div class="dashboard-card top-habits-card">
+            <div class="card-header">
+              <h2 class="card-title">TOP HABITS</h2>
+              <span class="card-badge">🔥 Streaks</span>
+            </div>
+            <div class="top-habits-list" id="topHabitsList">
+              <!-- Dynamically populated top ranked habits -->
+            </div>
+          </div>
+
+        </div>
+
+      </section>
+
+      <!-- BOTTOM SECTION: Wellness Trend Line Graph -->
+      <section class="bottom-wellness-trend-section">
+        <div class="dashboard-card wellness-chart-card">
+          <div class="card-header">
+            <div class="wellness-chart-header-left">
+              <h2 class="card-title">Wellness Trends Across Month</h2>
+              <div class="chart-legends">
+                <span class="legend-item"><span class="legend-dot legend-mood"></span> Mood (Scale 1–5)</span>
+                <span class="legend-item"><span class="legend-dot legend-sleep"></span> Sleep (Hours: 4h–10h)</span>
+              </div>
+            </div>
+            <div class="wellness-chart-stats">
+              <span class="stat-pill" id="avgSleepStat">Avg Sleep: 7.4h</span>
+              <span class="stat-pill" id="avgMoodStat">Avg Mood: 4.2 / 5</span>
+            </div>
+          </div>
+          <div class="wellness-svg-chart-container" id="wellnessChartContainer">
+            <svg id="wellnessSvg" class="wellness-svg" preserveAspectRatio="none" viewBox="0 0 1000 160">
+              <!-- Grid lines, axes, and line paths dynamically rendered -->
+            </svg>
+          </div>
+        </div>
+      </section>
+
+    </main>
+
+    <!-- FOOTER: 12-Month Navigation Tabs (Matching Bottom of Screenshot) -->
+    <footer class="app-footer-months">
+      <nav class="month-tabs-nav" id="monthTabsNav" aria-label="Month Tabs">
+        <!-- 12 month tabs dynamically rendered -->
+      </nav>
+    </footer>
+
+  </div>
+
+  <!-- MODALS -->
+
+  <!-- 1. Add / Edit Habit Modal -->
+  <div id="habitModal" class="modal-backdrop hidden" role="dialog" aria-modal="true" aria-labelledby="modalHabitTitle">
+    <div class="modal-dialog">
+      <div class="modal-header">
+        <h3 id="modalHabitTitle">Add New Habit</h3>
+        <button class="modal-close-btn" id="closeHabitModalBtn">&times;</button>
+      </div>
+      <div class="modal-body">
+        <form id="habitForm">
+          <input type="hidden" id="habitEditId" value="">
+          <div class="form-group">
+            <label for="habitNameInput">Habit Name</label>
+            <input type="text" id="habitNameInput" class="form-input" placeholder="e.g. Read 20 pages" required autofocus>
+          </div>
+          <div class="form-row">
+            <div class="form-group">
+              <label for="habitEmojiInput">Emoji Icon</label>
+              <input type="text" id="habitEmojiInput" class="form-input emoji-input" placeholder="📖" maxlength="4" value="✨">
+            </div>
+            <div class="form-group">
+              <label for="habitCategoryInput">Category</label>
+              <select id="habitCategoryInput" class="form-input">
+                <option value="Health">Health & Fitness 💪</option>
+                <option value="Mind">Mind & Learning 🧠</option>
+                <option value="Discipline">Discipline & Routine ⏰</option>
+                <option value="Work">Productivity & Work 💻</option>
+                <option value="Wellness">Wellness & Self-Care 🌿</option>
+              </select>
+            </div>
+          </div>
+          <div class="form-group">
+            <label for="habitTargetDaysInput">Monthly Goal Days</label>
+            <input type="number" id="habitTargetDaysInput" class="form-input" min="1" max="31" value="31">
+            <small class="form-help">Target completions for this month (default: 31).</small>
+          </div>
+          <div class="modal-actions">
+            <button type="button" class="btn btn-secondary" id="cancelHabitBtn">Cancel</button>
+            <button type="submit" class="btn btn-primary" id="saveHabitBtn">Save Habit</button>
+          </div>
+        </form>
+      </div>
+    </div>
+  </div>
+
+  <!-- 2. Preset Templates Modal -->
+  <div id="presetsModal" class="modal-backdrop hidden" role="dialog" aria-modal="true" aria-labelledby="modalPresetsTitle">
+    <div class="modal-dialog modal-lg">
+      <div class="modal-header">
+        <h3 id="modalPresetsTitle">Preset Habit Routines</h3>
+        <button class="modal-close-btn" id="closePresetsModalBtn">&times;</button>
+      </div>
+      <div class="modal-body">
+        <p class="modal-subtext">Choose a curated routine to kickstart your tracking. You can customize habits anytime.</p>
+        <div class="presets-grid">
+          <div class="preset-card" data-preset="reference">
+            <div class="preset-badge">Exact Photo Match</div>
+            <h4>📸 Viral Tracker Match</h4>
+            <p>Wake up at 05:00 ⏰, Gym 💪, Reading / Learning 📖, Day Planning 📅, Stretching 🤸, Social Media Detox 📵, Meditation 🧘, 2L Water Intake 💧, No Sugar 🥗, 8h Sleep 😴.</p>
+            <button class="btn btn-sm btn-primary apply-preset-btn">Apply Routine</button>
+          </div>
+          <div class="preset-card" data-preset="monk">
+            <div class="preset-badge">High Discipline</div>
+            <h4>🧘 Monk Mode 2026</h4>
+            <p>Wake up 05:00, Cold Shower, No Social Media, Gym / Lift, 4h Deep Work, Read 30m, Meditate 15m, Clean Nutrition.</p>
+            <button class="btn btn-sm btn-primary apply-preset-btn">Apply Routine</button>
+          </div>
+          <div class="preset-card" data-preset="developer">
+            <div class="preset-badge">Engineering</div>
+            <h4>💻 Deep Work & Coding</h4>
+            <p>Morning Code Sprint, 0 Distraction Block, Read Tech Paper, Gym / Movement, Git Commits, Review PRs, Daily Planning.</p>
+            <button class="btn btn-sm btn-primary apply-preset-btn">Apply Routine</button>
+          </div>
+          <div class="preset-card" data-preset="health">
+            <div class="preset-badge">Wellness</div>
+            <h4>🌿 Holistic Health</h4>
+            <p>10,000 Steps, 8h Quality Sleep, 3L Hydration, 0 Added Sugar, Daily Mobility, Breathwork, Morning Sunlight.</p>
+            <button class="btn btn-sm btn-primary apply-preset-btn">Apply Routine</button>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- 3. Notion Setup Guide & Database Formula Modal -->
+  <div id="notionModal" class="modal-backdrop hidden" role="dialog" aria-modal="true" aria-labelledby="modalNotionTitle">
+    <div class="modal-dialog modal-lg">
+      <div class="modal-header">
+        <h3 id="modalNotionTitle">Notion Setup Guide & Formulas</h3>
+        <button class="modal-close-btn" id="closeNotionModalBtn">&times;</button>
+      </div>
+      <div class="modal-body markdown-body">
+        <div class="notion-guide-tabs">
+          <button class="tab-btn active" data-tab="embed">Option 1: Embed Live App in Notion</button>
+          <button class="tab-btn" data-tab="database">Option 2: Native Notion Database</button>
+          <button class="tab-btn" data-tab="formulas">Option 3: Notion Formulas 2.0</button>
+        </div>
+
+        <div class="tab-content" id="tabContentEmbed">
+          <h4>🌟 Recommended: Embed This Interactive App in Notion</h4>
+          <p>You can embed this exact interactive dashboard directly inside any Notion page:</p>
+          <ol>
+            <li>Host this app or run it locally.</li>
+            <li>In your Notion page, type <code>/embed</code> and press Enter.</li>
+            <li>Paste your app URL and expand the block full-width!</li>
+          </ol>
+          <div class="callout-box">
+            <strong>💡 Pro-Tip:</strong> The app auto-saves all data to local browser storage, keeping your Notion setup lightning-fast without cluttering your Notion block limits.
+          </div>
+        </div>
+
+        <div class="tab-content hidden" id="tabContentDatabase">
+          <h4>🗂️ Native Notion Habit Tracker Database Structure</h4>
+          <p>To recreate this habit matrix natively in Notion:</p>
+          <ul>
+            <li><strong>Habits Database:</strong>
+              <ul>
+                <li><code>Name</code> (Title) - Habit Name & Emoji</li>
+                <li><code>Goal</code> (Number) - 31</li>
+                <li><code>Daily Logs</code> (Relation to Daily Log database)</li>
+                <li><code>Actual</code> (Rollup: Count of checked days)</li>
+                <li><code>Progress Bar</code> (Formula: Progress Bar visual)</li>
+                <li><code>Success Rate %</code> (Formula: <code>round(prop("Actual") / prop("Goal") * 100) + "%"</code>)</li>
+              </ul>
+            </li>
+            <li><strong>Daily Log Database:</strong>
+              <ul>
+                <li><code>Date</code> (Date)</li>
+                <li><code>Day of Week</code> (Formula)</li>
+                <li><code>Habits Completed</code> (Relation to Habits)</li>
+                <li><code>Mood</code> (Select: 1-5)</li>
+                <li><code>Hours of Sleep</code> (Number)</li>
+              </ul>
+            </li>
+          </ul>
+        </div>
+
+        <div class="tab-content hidden" id="tabContentFormulas">
+          <h4>⚡ Notion Formulas 2.0 Code Snippets</h4>
+          <p>Copy-paste these formulas into your Notion properties:</p>
+          
+          <div class="code-snippet-block">
+            <div class="code-title">Progress Bar Formula (Formulas 2.0):</div>
+            <pre><code>let(
+  pct, prop("Actual") / prop("Goal"),
+  repeat("■", round(pct * 15)) + repeat("□", 15 - round(pct * 15)) + " " + round(pct * 100) + "%"
+)</code></pre>
+          </div>
+
+          <div class="code-snippet-block">
+            <div class="code-title">Streak Calculator Formula:</div>
+            <pre><code>if(prop("Actual") >= 21, "🔥 " + prop("Actual") + " Day Streak!", "⚡ " + prop("Actual") + " Days")</code></pre>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- 4. Export / Import Modal -->
+  <div id="exportModal" class="modal-backdrop hidden" role="dialog" aria-modal="true" aria-labelledby="modalExportTitle">
+    <div class="modal-dialog">
+      <div class="modal-header">
+        <h3 id="modalExportTitle">Export & Backup Tracker Data</h3>
+        <button class="modal-close-btn" id="closeExportModalBtn">&times;</button>
+      </div>
+      <div class="modal-body">
+        <div class="export-options-list">
+          <div class="export-option-card">
+            <div>
+              <strong>📋 Copy Notion Markdown Table</strong>
+              <p>Generates a formatted Markdown table ready to paste directly into any Notion page.</p>
+            </div>
+            <button id="copyNotionMdBtn" class="btn btn-secondary">Copy Table</button>
+          </div>
+          <div class="export-option-card">
+            <div>
+              <strong>📊 Download CSV</strong>
+              <p>Export all 12 months with per-day matrix, mood, and sleep data.</p>
+            </div>
+            <button id="downloadCsvBtn" class="btn btn-secondary">Download CSV</button>
+          </div>
+          <div class="export-option-card">
+            <div>
+              <strong>💾 JSON Backup & Restore</strong>
+              <p>Backup all custom habits and history to a JSON file or restore anytime.</p>
+            </div>
+            <div class="btn-group">
+              <button id="downloadJsonBtn" class="btn btn-secondary">Save Backup</button>
+              <label class="btn btn-subtle file-upload-btn">
+                Restore
+                <input type="file" id="importJsonInput" accept=".json" class="hidden">
+              </label>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Toast Notification Container -->
+  <div id="toastContainer" class="toast-container" aria-live="polite"></div>
+
+  <script src="app.js"></script>
+</body>
+</html>
