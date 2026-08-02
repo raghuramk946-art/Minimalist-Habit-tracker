@@ -1,0 +1,3719 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Minimalist Habit Tracker & Analytics Dashboard</title>
+  <meta name="description" content="A high-performance, aesthetic monochrome Notion-style Habit Tracker & Task Manager with real-time analytics, wellness tracking, and monthly matrix.">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&family=JetBrains+Mono:wght@400;500;600;700&display=swap" rel="stylesheet">
+  <style>
+/* ==========================================================================
+   MINIMALIST NOTION-STYLE HABIT TRACKER - DESIGN SYSTEM & STYLESHEET
+   Aesthetic: Obsidian Monochrome / Precision Slate / High Contrast Luxury
+   ========================================================================== */
+
+:root {
+  /* Color Tokens - Dark Mode (Default) */
+  --bg-primary: #0a0c10;
+  --bg-secondary: #11141a;
+  --bg-tertiary: #181d26;
+  --bg-card: #13171f;
+  --bg-card-hover: #1a202c;
+  --bg-input: #1a1e28;
+  
+  --border-subtle: #202634;
+  --border-strong: #323c50;
+  --border-active: #505f7d;
+  
+  --text-primary: #f8fafc;
+  --text-secondary: #94a3b8;
+  --text-muted: #64748b;
+  --text-inverse: #0a0c10;
+
+  --accent-white: #ffffff;
+  --accent-glow: rgba(255, 255, 255, 0.08);
+  --accent-check: #ffffff;
+  --accent-check-bg: #ffffff;
+  --accent-green: #10b981;
+  --accent-blue: #38bdf8;
+  --accent-purple: #a855f7;
+  --accent-amber: #f59e0b;
+  --accent-rose: #f43f5e;
+
+  --font-sans: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+  --font-mono: 'JetBrains Mono', monospace;
+
+  --radius-sm: 4px;
+  --radius-md: 8px;
+  --radius-lg: 12px;
+  --radius-xl: 16px;
+
+  --shadow-sm: 0 1px 2px 0 rgba(0, 0, 0, 0.5);
+  --shadow-md: 0 4px 12px -2px rgba(0, 0, 0, 0.6);
+  --shadow-lg: 0 10px 25px -5px rgba(0, 0, 0, 0.7);
+
+  --transition-fast: 0.15s cubic-bezier(0.4, 0, 0.2, 1);
+  --transition-normal: 0.25s cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+/* Light Theme Variables */
+body.theme-light {
+  --bg-primary: #f8fafc;
+  --bg-secondary: #ffffff;
+  --bg-tertiary: #f1f5f9;
+  --bg-card: #ffffff;
+  --bg-card-hover: #f8fafc;
+  --bg-input: #f1f5f9;
+  
+  --border-subtle: #e2e8f0;
+  --border-strong: #cbd5e1;
+  --border-active: #94a3b8;
+  
+  --text-primary: #0f172a;
+  --text-secondary: #475569;
+  --text-muted: #94a3b8;
+  --text-inverse: #ffffff;
+
+  --accent-white: #0f172a;
+  --accent-glow: rgba(0, 0, 0, 0.04);
+  --accent-check: #ffffff;
+  --accent-check-bg: #0f172a;
+  
+  --shadow-sm: 0 1px 2px 0 rgba(0, 0, 0, 0.05);
+  --shadow-md: 0 4px 6px -1px rgba(0, 0, 0, 0.1);
+  --shadow-lg: 0 10px 15px -3px rgba(0, 0, 0, 0.1);
+}
+
+/* Base Reset & Typography */
+* {
+  margin: 0;
+  padding: 0;
+  box-sizing: border-box;
+}
+
+body {
+  font-family: var(--font-sans);
+  background-color: var(--bg-primary);
+  color: var(--text-primary);
+  line-height: 1.5;
+  font-size: 13px;
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+  min-height: 100vh;
+  display: flex;
+  flex-direction: column;
+  overflow-x: hidden;
+}
+
+/* App Container */
+.app-container {
+  display: flex;
+  flex-direction: column;
+  min-height: 100vh;
+  width: 100%;
+  max-width: 1720px;
+  margin: 0 auto;
+  padding: 0 16px 20px 16px;
+}
+
+/* ==========================================================================
+   HEADER SECTION
+   ========================================================================== */
+
+.app-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 14px 0;
+  border-bottom: 1px solid var(--border-subtle);
+  margin-bottom: 16px;
+  gap: 16px;
+  flex-wrap: wrap;
+}
+
+.header-left, .header-right {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+}
+
+.app-logo {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  font-weight: 800;
+  font-size: 14px;
+  letter-spacing: 0.1em;
+  color: var(--text-primary);
+}
+
+.header-divider {
+  width: 1px;
+  height: 20px;
+  background-color: var(--border-subtle);
+  margin: 0 4px;
+}
+
+.calendar-controls {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.calendar-controls .label {
+  font-size: 10px;
+  font-weight: 700;
+  letter-spacing: 0.08em;
+  color: var(--text-muted);
+}
+
+.styled-select {
+  background-color: var(--bg-secondary);
+  color: var(--text-primary);
+  border: 1px solid var(--border-strong);
+  border-radius: var(--radius-sm);
+  padding: 5px 10px;
+  font-size: 12px;
+  font-weight: 600;
+  font-family: var(--font-sans);
+  cursor: pointer;
+  outline: none;
+  transition: border-color var(--transition-fast);
+}
+
+.styled-select:hover, .styled-select:focus {
+  border-color: var(--border-active);
+}
+
+.tracker-title {
+  font-size: 16px;
+  font-weight: 800;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  text-align: center;
+}
+
+.title-sub {
+  font-weight: 500;
+  color: var(--text-secondary);
+  font-size: 14px;
+  margin-left: 6px;
+}
+
+/* Buttons */
+.btn {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 6px;
+  padding: 6px 12px;
+  border-radius: var(--radius-sm);
+  font-size: 12px;
+  font-weight: 600;
+  font-family: var(--font-sans);
+  cursor: pointer;
+  border: 1px solid transparent;
+  transition: all var(--transition-fast);
+  white-space: nowrap;
+}
+
+.btn:disabled,
+.btn[disabled] {
+  opacity: 0.35;
+  cursor: not-allowed;
+  pointer-events: none;
+  transform: none !important;
+}
+
+.btn-primary {
+  background-color: var(--accent-white);
+  color: var(--text-inverse);
+  border-color: var(--accent-white);
+}
+
+.btn-primary:hover {
+  opacity: 0.9;
+  transform: translateY(-1px);
+}
+
+.btn-secondary {
+  background-color: var(--bg-secondary);
+  color: var(--text-primary);
+  border-color: var(--border-strong);
+}
+
+.btn-secondary:hover {
+  background-color: var(--bg-card-hover);
+  border-color: var(--border-active);
+}
+
+.btn-subtle {
+  background-color: transparent;
+  color: var(--text-secondary);
+  border-color: var(--border-subtle);
+}
+
+.btn-subtle:hover {
+  color: var(--text-primary);
+  background-color: var(--bg-secondary);
+  border-color: var(--border-strong);
+}
+
+.btn-danger-subtle {
+  background-color: transparent;
+  color: var(--accent-rose);
+  border-color: rgba(244, 63, 94, 0.2);
+}
+
+.btn-danger-subtle:hover {
+  background-color: rgba(244, 63, 94, 0.1);
+  border-color: var(--accent-rose);
+}
+
+.btn-xs {
+  padding: 3px 8px;
+  font-size: 11px;
+}
+
+.btn-sm {
+  padding: 5px 10px;
+  font-size: 11px;
+}
+
+.btn-icon {
+  background-color: var(--bg-secondary);
+  color: var(--text-secondary);
+  border: 1px solid var(--border-strong);
+  padding: 6px;
+  border-radius: var(--radius-sm);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.btn-icon:hover {
+  color: var(--text-primary);
+  border-color: var(--border-active);
+}
+
+/* ==========================================================================
+   TOP ANALYTICS DECK (Daily, Weekly, KPI stats, Donut)
+   ========================================================================== */
+
+.analytics-deck {
+  display: grid;
+  grid-template-columns: 1.4fr 1fr 1.2fr 0.9fr;
+  gap: 14px;
+  margin-bottom: 16px;
+}
+
+.dashboard-card {
+  background-color: var(--bg-card);
+  border: 1px solid var(--border-subtle);
+  border-radius: var(--radius-md);
+  padding: 12px 14px;
+  display: flex;
+  flex-direction: column;
+  box-shadow: var(--shadow-sm);
+  position: relative;
+}
+
+.card-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin-bottom: 10px;
+}
+
+.card-title {
+  font-size: 12px;
+  font-weight: 700;
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
+  color: var(--text-primary);
+}
+
+.card-badge {
+  font-size: 10px;
+  font-weight: 600;
+  padding: 2px 6px;
+  border-radius: var(--radius-sm);
+  background-color: var(--bg-tertiary);
+  color: var(--text-secondary);
+  border: 1px solid var(--border-subtle);
+  font-family: var(--font-mono);
+}
+
+/* 1. Daily Progress Bars Grid (1 to 31) */
+.daily-progress-card {
+  min-height: 140px;
+}
+
+.daily-bars-grid {
+  display: grid;
+  grid-template-columns: repeat(31, 1fr);
+  gap: 3px;
+  height: 90px;
+  align-items: flex-end;
+  padding-bottom: 2px;
+}
+
+.daily-bar-col {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  height: 100%;
+  justify-content: flex-end;
+  position: relative;
+  cursor: pointer;
+}
+
+.daily-bar-track {
+  width: 100%;
+  background-color: var(--bg-tertiary);
+  border-radius: 2px;
+  height: 72px;
+  display: flex;
+  align-items: flex-end;
+  overflow: hidden;
+  border: 1px solid rgba(255, 255, 255, 0.04);
+}
+
+.daily-bar-fill {
+  width: 100%;
+  background: var(--text-primary);
+  border-radius: 2px 2px 0 0;
+  transition: height var(--transition-normal);
+}
+
+.daily-bar-col.is-today .daily-bar-fill {
+  background: var(--accent-blue);
+}
+
+.daily-bar-col:hover .daily-bar-fill {
+  opacity: 0.85;
+}
+
+.daily-bar-label {
+  font-size: 8px;
+  font-family: var(--font-mono);
+  color: var(--text-muted);
+  margin-top: 4px;
+}
+
+.daily-bar-col.is-today .daily-bar-label {
+  color: var(--accent-blue);
+  font-weight: 700;
+}
+
+/* Tooltip on daily bar hover */
+.bar-tooltip {
+  position: absolute;
+  bottom: calc(100% + 6px);
+  left: 50%;
+  transform: translateX(-50%);
+  background: #000;
+  color: #fff;
+  padding: 4px 6px;
+  font-size: 9px;
+  border-radius: 4px;
+  white-space: nowrap;
+  pointer-events: none;
+  opacity: 0;
+  transition: opacity 0.15s;
+  z-index: 100;
+  border: 1px solid var(--border-strong);
+  font-family: var(--font-mono);
+}
+
+.daily-bar-col:hover .bar-tooltip {
+  opacity: 1;
+}
+
+/* 2. Weekly Progress Chart */
+.weekly-bars-grid {
+  display: grid;
+  grid-template-columns: repeat(5, 1fr);
+  gap: 8px;
+  height: 90px;
+  align-items: flex-end;
+}
+
+.weekly-bar-col {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  height: 100%;
+  justify-content: flex-end;
+}
+
+.weekly-bar-track {
+  width: 100%;
+  background-color: var(--bg-tertiary);
+  border-radius: 3px;
+  height: 72px;
+  display: flex;
+  align-items: flex-end;
+  overflow: hidden;
+  border: 1px solid var(--border-subtle);
+}
+
+.weekly-bar-fill {
+  width: 100%;
+  background: var(--text-primary);
+  border-radius: 3px 3px 0 0;
+  transition: height var(--transition-normal);
+}
+
+.weekly-bar-label {
+  font-size: 9px;
+  font-weight: 600;
+  color: var(--text-secondary);
+  margin-top: 4px;
+  text-align: center;
+}
+
+/* 3. KPI Stat Cards (Goal, Completed, Left) */
+.kpi-group-card {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 8px;
+}
+
+.kpi-tile {
+  background-color: var(--bg-card);
+  border: 1px solid var(--border-subtle);
+  border-radius: var(--radius-md);
+  padding: 12px 10px;
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  align-items: center;
+  text-align: center;
+  box-shadow: var(--shadow-sm);
+}
+
+.kpi-label {
+  font-size: 11px;
+  font-weight: 700;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  color: var(--text-muted);
+  margin-bottom: 4px;
+}
+
+.kpi-value {
+  font-size: 24px;
+  font-weight: 800;
+  font-family: var(--font-mono);
+  color: var(--text-primary);
+  line-height: 1.1;
+}
+
+.kpi-completed .kpi-value {
+  color: var(--text-primary);
+}
+
+.kpi-left .kpi-value {
+  color: var(--text-secondary);
+}
+
+/* 4. Donut Chart Card */
+.overall-stats-card {
+  align-items: center;
+  justify-content: center;
+}
+
+.donut-wrapper {
+  position: relative;
+  width: 100px;
+  height: 100px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.donut-svg {
+  width: 100%;
+  height: 100%;
+  transform: rotate(-90deg);
+}
+
+.donut-bg {
+  fill: none;
+  stroke: var(--bg-tertiary);
+  stroke-width: 12;
+}
+
+.donut-fill {
+  fill: none;
+  stroke: var(--accent-white);
+  stroke-width: 12;
+  stroke-linecap: round;
+  stroke-dasharray: 339.292;
+  stroke-dashoffset: 339.292;
+  transition: stroke-dashoffset 0.6s cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+.donut-center-text {
+  position: absolute;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  text-align: center;
+}
+
+.donut-pct {
+  font-size: 18px;
+  font-weight: 800;
+  font-family: var(--font-mono);
+  color: var(--text-primary);
+  line-height: 1.1;
+}
+
+.donut-sublabel {
+  font-size: 9px;
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+  color: var(--text-muted);
+}
+
+/* ==========================================================================
+   MIDDLE SPLIT: HABIT MATRIX & SIDEBAR ANALYSIS
+   ========================================================================== */
+
+.main-matrix-section {
+  display: grid;
+  grid-template-columns: 1fr 420px;
+  gap: 14px;
+  margin-bottom: 16px;
+}
+
+/* Habit Matrix Container */
+.matrix-card {
+  background-color: var(--bg-card);
+  border: 1px solid var(--border-subtle);
+  border-radius: var(--radius-md);
+  padding: 12px 14px;
+  display: flex;
+  flex-direction: column;
+  overflow: hidden;
+  box-shadow: var(--shadow-sm);
+}
+
+.matrix-card-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin-bottom: 12px;
+  padding-bottom: 8px;
+  border-bottom: 1px solid var(--border-subtle);
+}
+
+.matrix-title-group {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+}
+
+.matrix-heading {
+  font-size: 13px;
+  font-weight: 800;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+}
+
+.habit-count-tag {
+  font-size: 10px;
+  padding: 2px 8px;
+  border-radius: 12px;
+  background-color: var(--bg-tertiary);
+  color: var(--text-secondary);
+  border: 1px solid var(--border-subtle);
+  font-family: var(--font-mono);
+}
+
+.matrix-quick-actions {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+/* Matrix Table Styling */
+.table-scroll-container {
+  overflow-x: auto;
+  width: 100%;
+  scrollbar-width: thin;
+  scrollbar-color: var(--border-strong) var(--bg-secondary);
+}
+
+.table-scroll-container::-webkit-scrollbar {
+  height: 6px;
+}
+
+.table-scroll-container::-webkit-scrollbar-thumb {
+  background: var(--border-strong);
+  border-radius: 3px;
+}
+
+.habit-table {
+  width: 100%;
+  border-collapse: collapse;
+  font-size: 11px;
+}
+
+/* Week header super-row (Black & White contrast banner like reference) */
+.habit-table thead tr.week-group-row th {
+  background-color: var(--text-primary);
+  color: var(--text-inverse);
+  font-weight: 800;
+  font-size: 10px;
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
+  padding: 4px 6px;
+  border: 1px solid var(--border-strong);
+  text-align: center;
+}
+
+.habit-table thead tr.week-group-row th.th-habit-name-header {
+  background-color: var(--bg-tertiary);
+  color: var(--text-primary);
+  text-align: left;
+  padding-left: 10px;
+}
+
+/* Day of week row (Su, Mo, Tu, We, Th, Fr, Sa) & Date numbers (1..31) */
+.habit-table thead tr.day-header-row th {
+  background-color: var(--bg-secondary);
+  color: var(--text-secondary);
+  font-weight: 600;
+  font-size: 10px;
+  padding: 4px 2px;
+  border: 1px solid var(--border-subtle);
+  text-align: center;
+  min-width: 24px;
+  max-width: 28px;
+}
+
+.habit-table thead tr.day-header-row th.is-today-col {
+  background-color: rgba(56, 189, 248, 0.15);
+  color: var(--accent-blue);
+  font-weight: 700;
+  border-color: var(--accent-blue);
+}
+
+.habit-table thead tr.day-header-row th .day-name {
+  font-size: 8.5px;
+  display: block;
+  text-transform: uppercase;
+  color: var(--text-muted);
+}
+
+.habit-table thead tr.day-header-row th .day-num {
+  font-size: 10px;
+  font-family: var(--font-mono);
+  font-weight: 700;
+}
+
+/* Habit Rows */
+.habit-table tbody tr {
+  border-bottom: 1px solid var(--border-subtle);
+  transition: background-color var(--transition-fast);
+}
+
+.habit-table tbody tr:hover {
+  background-color: var(--bg-card-hover);
+}
+
+.habit-name-cell {
+  padding: 7px 10px;
+  font-weight: 600;
+  color: var(--text-primary);
+  white-space: nowrap;
+  min-width: 200px;
+  max-width: 240px;
+  border-right: 1px solid var(--border-strong);
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 8px;
+}
+
+.habit-title-wrapper {
+  display: flex;
+  align-items: center;
+  gap: 7px;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.habit-emoji {
+  font-size: 14px;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.habit-name-text {
+  overflow: hidden;
+  text-overflow: ellipsis;
+  font-size: 12px;
+}
+
+.habit-row-actions {
+  display: flex;
+  align-items: center;
+  gap: 4px;
+  opacity: 0;
+  transition: opacity var(--transition-fast);
+}
+
+.habit-table tbody tr:hover .habit-row-actions {
+  opacity: 1;
+}
+
+.action-icon-btn {
+  background: none;
+  border: none;
+  color: var(--text-muted);
+  cursor: pointer;
+  padding: 2px;
+  border-radius: 3px;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.action-icon-btn:hover {
+  color: var(--text-primary);
+  background: var(--bg-tertiary);
+}
+
+.action-icon-btn.delete:hover {
+  color: var(--accent-rose);
+}
+
+/* Checkbox Cell */
+.habit-check-cell {
+  text-align: center;
+  padding: 2px;
+  border: 1px solid var(--border-subtle);
+  vertical-align: middle;
+  min-width: 24px;
+  max-width: 28px;
+}
+
+.habit-check-cell.is-today-col {
+  background-color: rgba(56, 189, 248, 0.06);
+}
+
+.habit-check-cell.disabled-day {
+  background-color: var(--bg-primary);
+  opacity: 0.3;
+  pointer-events: none;
+}
+
+/* Custom Notion / Spreadsheet Checkbox */
+.custom-checkbox {
+  appearance: none;
+  -webkit-appearance: none;
+  width: 17px;
+  height: 17px;
+  border: 1.5px solid var(--border-strong);
+  border-radius: 3px;
+  background-color: transparent;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+  position: relative;
+  transition: all var(--transition-fast);
+  outline: none;
+  margin: 0;
+}
+
+.custom-checkbox:hover {
+  border-color: var(--border-active);
+  background-color: var(--bg-tertiary);
+}
+
+.custom-checkbox:checked {
+  background-color: var(--accent-white);
+  border-color: var(--accent-white);
+}
+
+.custom-checkbox:checked::after {
+  content: '';
+  width: 4px;
+  height: 8px;
+  border: solid var(--text-inverse);
+  border-width: 0 2px 2px 0;
+  transform: rotate(45deg);
+  position: absolute;
+  top: 1px;
+}
+
+/* Wellness Footer Row Inside Matrix */
+.wellness-matrix-footer {
+  margin-top: 14px;
+  padding-top: 10px;
+  border-top: 1px solid var(--border-subtle);
+}
+
+.wellness-section-title {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  font-size: 11px;
+  font-weight: 700;
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
+  color: var(--text-secondary);
+  margin-bottom: 8px;
+}
+
+.wellness-table {
+  width: 100%;
+  border-collapse: collapse;
+  font-size: 11px;
+}
+
+.wellness-table tr {
+  border-bottom: 1px solid var(--border-subtle);
+}
+
+.wellness-label-cell {
+  padding: 6px 10px;
+  font-weight: 600;
+  color: var(--text-secondary);
+  white-space: nowrap;
+  min-width: 200px;
+  max-width: 240px;
+  border-right: 1px solid var(--border-strong);
+  background-color: var(--bg-secondary);
+}
+
+.wellness-input-cell {
+  text-align: center;
+  padding: 2px;
+  border: 1px solid var(--border-subtle);
+  min-width: 24px;
+  max-width: 28px;
+}
+
+.wellness-input-cell.is-today-col {
+  background-color: rgba(56, 189, 248, 0.06);
+}
+
+.wellness-input-cell input, .wellness-input-cell select {
+  width: 100%;
+  background: transparent;
+  border: none;
+  color: var(--text-primary);
+  font-family: var(--font-mono);
+  font-size: 10px;
+  font-weight: 600;
+  text-align: center;
+  outline: none;
+  cursor: pointer;
+  padding: 3px 0;
+}
+
+.wellness-input-cell input:focus {
+  background: var(--bg-tertiary);
+  border-radius: 2px;
+}
+
+/* ==========================================================================
+   SIDEBAR: ANALYSIS TABLE & TOP HABITS LEADERBOARD
+   ========================================================================== */
+
+.sidebar-analysis-column {
+  display: flex;
+  flex-direction: column;
+  gap: 14px;
+}
+
+/* Analysis Table */
+.analysis-table-wrapper {
+  overflow-x: auto;
+  max-height: 290px;
+  scrollbar-width: thin;
+}
+
+.analysis-table {
+  width: 100%;
+  border-collapse: collapse;
+  font-size: 11px;
+}
+
+.analysis-table thead th {
+  background-color: var(--bg-secondary);
+  color: var(--text-muted);
+  font-weight: 700;
+  text-transform: uppercase;
+  font-size: 9px;
+  letter-spacing: 0.06em;
+  padding: 6px 8px;
+  border-bottom: 1px solid var(--border-subtle);
+  text-align: right;
+}
+
+.analysis-table thead th.th-habit {
+  text-align: left;
+}
+
+.analysis-table thead th.th-prog {
+  text-align: center;
+  width: 90px;
+}
+
+.analysis-table tbody td {
+  padding: 6px 8px;
+  border-bottom: 1px solid var(--border-subtle);
+  text-align: right;
+  font-family: var(--font-mono);
+}
+
+.analysis-table tbody td.td-habit-name {
+  text-align: left;
+  font-family: var(--font-sans);
+  font-weight: 600;
+  max-width: 120px;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.analysis-table tbody td.td-pct {
+  font-weight: 700;
+  color: var(--text-primary);
+}
+
+/* Mini Progress Bar inside Analysis Table */
+.mini-progress-track {
+  width: 100%;
+  height: 6px;
+  background-color: var(--bg-tertiary);
+  border-radius: 3px;
+  overflow: hidden;
+  position: relative;
+}
+
+.mini-progress-fill {
+  height: 100%;
+  background: var(--text-primary);
+  border-radius: 3px;
+  transition: width var(--transition-normal);
+}
+
+/* Top 10 Habits List */
+.top-habits-list {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+  max-height: 220px;
+  overflow-y: auto;
+  padding-right: 4px;
+}
+
+.top-habit-item {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 6px 10px;
+  background-color: var(--bg-secondary);
+  border: 1px solid var(--border-subtle);
+  border-radius: var(--radius-sm);
+  transition: all var(--transition-fast);
+}
+
+.top-habit-item:hover {
+  background-color: var(--bg-card-hover);
+  border-color: var(--border-strong);
+}
+
+.top-habit-rank-group {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  overflow: hidden;
+}
+
+.top-habit-rank {
+  font-size: 11px;
+  font-weight: 800;
+  font-family: var(--font-mono);
+  width: 16px;
+  color: var(--text-muted);
+}
+
+.top-habit-item.rank-1 .top-habit-rank { color: #f59e0b; }
+.top-habit-item.rank-2 .top-habit-rank { color: #94a3b8; }
+.top-habit-item.rank-3 .top-habit-rank { color: #d97706; }
+
+.top-habit-label {
+  font-size: 12px;
+  font-weight: 600;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.top-habit-score-badge {
+  font-size: 11px;
+  font-weight: 700;
+  font-family: var(--font-mono);
+  background-color: var(--bg-tertiary);
+  color: var(--text-primary);
+  padding: 2px 6px;
+  border-radius: 4px;
+  border: 1px solid var(--border-subtle);
+}
+
+/* ==========================================================================
+   BOTTOM SECTION: WELLNESS TREND CHART
+   ========================================================================== */
+
+.bottom-wellness-trend-section {
+  margin-bottom: 16px;
+}
+
+.wellness-chart-header-left {
+  display: flex;
+  align-items: center;
+  gap: 16px;
+  flex-wrap: wrap;
+}
+
+.chart-legends {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  font-size: 11px;
+  color: var(--text-secondary);
+}
+
+.legend-item {
+  display: flex;
+  align-items: center;
+  gap: 5px;
+}
+
+.legend-dot {
+  width: 8px;
+  height: 8px;
+  border-radius: 50%;
+}
+
+.legend-mood { background-color: var(--accent-green); }
+.legend-sleep { background-color: var(--accent-blue); }
+
+.wellness-chart-stats {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.stat-pill {
+  font-size: 11px;
+  font-weight: 600;
+  font-family: var(--font-mono);
+  padding: 3px 8px;
+  border-radius: 12px;
+  background-color: var(--bg-secondary);
+  border: 1px solid var(--border-subtle);
+  color: var(--text-secondary);
+}
+
+.wellness-svg-chart-container {
+  width: 100%;
+  height: 140px;
+  position: relative;
+  margin-top: 8px;
+}
+
+.wellness-svg {
+  width: 100%;
+  height: 100%;
+  overflow: visible;
+}
+
+.chart-grid-line {
+  stroke: var(--border-subtle);
+  stroke-dasharray: 4, 4;
+  stroke-width: 1;
+}
+
+.chart-axis-label {
+  fill: var(--text-muted);
+  font-size: 9px;
+  font-family: var(--font-mono);
+}
+
+.chart-line-mood {
+  fill: none;
+  stroke: var(--accent-green);
+  stroke-width: 2.5;
+  stroke-linecap: round;
+  stroke-linejoin: round;
+}
+
+.chart-line-sleep {
+  fill: none;
+  stroke: var(--accent-blue);
+  stroke-width: 2.5;
+  stroke-linecap: round;
+  stroke-linejoin: round;
+}
+
+.chart-point {
+  cursor: pointer;
+  transition: r 0.2s ease;
+}
+
+.chart-point:hover {
+  r: 6;
+}
+
+/* ==========================================================================
+   FOOTER: 12-MONTH NAVIGATION TABS
+   ========================================================================== */
+
+.app-footer-months {
+  margin-top: auto;
+  padding: 10px 0;
+  border-top: 1px solid var(--border-subtle);
+}
+
+.month-tabs-nav {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 4px;
+  overflow-x: auto;
+  scrollbar-width: none;
+}
+
+.month-tabs-nav::-webkit-scrollbar {
+  display: none;
+}
+
+.month-tab-btn {
+  flex: 1;
+  min-width: 80px;
+  padding: 7px 10px;
+  background-color: var(--bg-secondary);
+  border: 1px solid var(--border-subtle);
+  border-radius: var(--radius-sm);
+  color: var(--text-secondary);
+  font-size: 11px;
+  font-weight: 600;
+  font-family: var(--font-sans);
+  cursor: pointer;
+  text-align: center;
+  transition: all var(--transition-fast);
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 2px;
+}
+
+.month-tab-btn:hover {
+  color: var(--text-primary);
+  background-color: var(--bg-card-hover);
+  border-color: var(--border-strong);
+}
+
+.month-tab-btn.active {
+  background-color: var(--accent-white);
+  color: var(--text-inverse);
+  border-color: var(--accent-white);
+  font-weight: 700;
+}
+
+.month-tab-btn .tab-pct-badge {
+  font-size: 9px;
+  font-family: var(--font-mono);
+  opacity: 0.7;
+}
+
+/* ==========================================================================
+   MODAL WINDOWS & FORMS
+   ========================================================================== */
+
+.modal-backdrop {
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100vw;
+  height: 100vh;
+  background: rgba(0, 0, 0, 0.75);
+  backdrop-filter: blur(4px);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  z-index: 1000;
+  padding: 20px;
+  opacity: 1;
+  transition: opacity var(--transition-fast);
+}
+
+.modal-backdrop.hidden {
+  display: none;
+  opacity: 0;
+  pointer-events: none;
+}
+
+.modal-dialog {
+  background-color: var(--bg-card);
+  border: 1px solid var(--border-strong);
+  border-radius: var(--radius-lg);
+  width: 100%;
+  max-width: 480px;
+  max-height: 90vh;
+  overflow-y: auto;
+  box-shadow: var(--shadow-lg);
+  display: flex;
+  flex-direction: column;
+}
+
+.modal-dialog.modal-lg {
+  max-width: 720px;
+}
+
+.modal-header {
+  padding: 16px 20px;
+  border-bottom: 1px solid var(--border-subtle);
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+}
+
+.modal-header h3 {
+  font-size: 15px;
+  font-weight: 700;
+}
+
+.modal-close-btn {
+  background: none;
+  border: none;
+  color: var(--text-muted);
+  font-size: 20px;
+  cursor: pointer;
+  padding: 2px 6px;
+  border-radius: 4px;
+}
+
+.modal-close-btn:hover {
+  color: var(--text-primary);
+  background: var(--bg-tertiary);
+}
+
+.modal-body {
+  padding: 20px;
+}
+
+.modal-subtext {
+  font-size: 12px;
+  color: var(--text-secondary);
+  margin-bottom: 16px;
+}
+
+.form-group {
+  margin-bottom: 14px;
+  display: flex;
+  flex-direction: column;
+  gap: 5px;
+}
+
+.form-row {
+  display: grid;
+  grid-template-columns: 80px 1fr;
+  gap: 12px;
+}
+
+.form-group label {
+  font-size: 11px;
+  font-weight: 600;
+  color: var(--text-secondary);
+}
+
+.form-input {
+  background-color: var(--bg-input);
+  border: 1px solid var(--border-strong);
+  border-radius: var(--radius-sm);
+  color: var(--text-primary);
+  padding: 8px 12px;
+  font-size: 13px;
+  font-family: var(--font-sans);
+  outline: none;
+  transition: border-color var(--transition-fast);
+}
+
+.form-input:focus {
+  border-color: var(--accent-white);
+}
+
+.emoji-input {
+  text-align: center;
+  font-size: 16px;
+}
+
+.form-help {
+  font-size: 10px;
+  color: var(--text-muted);
+}
+
+.modal-actions {
+  display: flex;
+  align-items: center;
+  justify-content: flex-end;
+  gap: 8px;
+  margin-top: 20px;
+}
+
+/* Preset Cards Grid */
+.presets-grid {
+  display: grid;
+  grid-template-columns: repeat(2, 1fr);
+  gap: 12px;
+}
+
+.preset-card {
+  background-color: var(--bg-secondary);
+  border: 1px solid var(--border-subtle);
+  border-radius: var(--radius-md);
+  padding: 14px;
+  display: flex;
+  flex-direction: column;
+  justify-content: space-between;
+  gap: 10px;
+  transition: all var(--transition-fast);
+}
+
+.preset-card:hover {
+  border-color: var(--border-strong);
+  background-color: var(--bg-card-hover);
+}
+
+.preset-badge {
+  font-size: 9px;
+  font-weight: 700;
+  text-transform: uppercase;
+  color: var(--text-muted);
+}
+
+.preset-card h4 {
+  font-size: 13px;
+  font-weight: 700;
+}
+
+.preset-card p {
+  font-size: 11px;
+  color: var(--text-secondary);
+  line-height: 1.4;
+}
+
+/* How to Use Guide Modal Styles */
+.how-to-use-grid {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+}
+
+.guide-step-card {
+  display: flex;
+  align-items: flex-start;
+  gap: 14px;
+  background-color: var(--bg-secondary);
+  border: 1px solid var(--border-subtle);
+  border-radius: var(--radius-sm);
+  padding: 14px;
+  transition: border-color var(--transition-fast), transform var(--transition-fast);
+}
+
+.guide-step-card:hover {
+  border-color: var(--border-strong);
+  transform: translateY(-1px);
+}
+
+.step-badge {
+  flex-shrink: 0;
+  width: 32px;
+  height: 32px;
+  border-radius: 50%;
+  background-color: var(--bg-tertiary);
+  border: 1px solid var(--border-strong);
+  color: var(--text-primary);
+  font-family: var(--font-mono);
+  font-weight: 800;
+  font-size: 13px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.step-info h4 {
+  font-size: 13px;
+  font-weight: 700;
+  margin-bottom: 4px;
+  color: var(--text-primary);
+}
+
+.step-info p {
+  font-size: 12px;
+  color: var(--text-secondary);
+  line-height: 1.5;
+}
+
+.guide-footer-tip {
+  margin-top: 14px;
+  background-color: var(--bg-secondary);
+  border-left: 3px solid var(--accent-white);
+  padding: 12px 14px;
+  border-radius: var(--radius-sm);
+  font-size: 12px;
+  color: var(--text-primary);
+  line-height: 1.5;
+}
+
+/* Export Options */
+.export-options-list {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+}
+
+.export-option-card {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+  padding: 12px;
+  background-color: var(--bg-secondary);
+  border: 1px solid var(--border-subtle);
+  border-radius: var(--radius-sm);
+}
+
+.export-option-card strong {
+  display: block;
+  font-size: 12px;
+  margin-bottom: 2px;
+}
+
+.export-option-card p {
+  font-size: 11px;
+  color: var(--text-muted);
+}
+
+.btn-group {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  flex-wrap: wrap;
+}
+
+.btn-sm {
+  padding: 6px 12px;
+  font-size: 11px;
+}
+
+.file-upload-btn {
+  cursor: pointer;
+}
+
+.paste-json-container {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  background-color: var(--bg-secondary);
+  border: 1px solid var(--border-strong);
+  border-radius: var(--radius-sm);
+  padding: 10px;
+  animation: fadeIn 0.2s ease-out;
+}
+
+.paste-json-container textarea {
+  width: 100%;
+  background-color: var(--bg-tertiary);
+  border: 1px solid var(--border-subtle);
+  border-radius: var(--radius-xs);
+  color: var(--text-primary);
+  font-family: var(--font-mono);
+  font-size: 11px;
+  padding: 8px;
+  resize: vertical;
+}
+
+.paste-json-container textarea:focus {
+  outline: none;
+  border-color: var(--accent-white);
+}
+
+.paste-json-actions {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  justify-content: flex-end;
+}
+
+/* Toast Notifications */
+.toast-container {
+  position: fixed;
+  bottom: 24px;
+  right: 24px;
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  z-index: 2000;
+}
+
+.toast {
+  background-color: var(--bg-card);
+  border: 1px solid var(--border-strong);
+  color: var(--text-primary);
+  padding: 10px 16px;
+  border-radius: var(--radius-sm);
+  box-shadow: var(--shadow-lg);
+  font-size: 12px;
+  font-weight: 600;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  animation: toastSlideIn 0.25s ease-out;
+}
+
+@keyframes toastSlideIn {
+  from {
+    transform: translateY(20px);
+    opacity: 0;
+  }
+  to {
+    transform: translateY(0);
+    opacity: 1;
+  }
+}
+
+/* ==========================================================================
+   RESPONSIVE DESIGN (Tablets & Mobile)
+   ========================================================================== */
+
+@media (max-width: 1200px) {
+  .analytics-deck {
+    grid-template-columns: 1fr 1fr;
+  }
+  .main-matrix-section {
+    grid-template-columns: 1fr;
+  }
+}
+
+@media (max-width: 768px) {
+  .analytics-deck {
+    grid-template-columns: 1fr;
+  }
+  .app-header {
+    flex-direction: column;
+    align-items: stretch;
+  }
+  .header-left, .header-right {
+    justify-content: space-between;
+  }
+  .presets-grid {
+    grid-template-columns: 1fr;
+  }
+}
+
+/* ==========================================================================
+   PRINT / PDF EXPORT STYLING
+   ========================================================================== */
+
+@media print {
+  @page {
+    size: landscape;
+    margin: 8mm;
+  }
+
+  body {
+    background-color: #ffffff !important;
+    color: #0f172a !important;
+    font-size: 10px !important;
+    -webkit-print-color-adjust: exact !important;
+    print-color-adjust: exact !important;
+  }
+
+  .app-container {
+    max-width: 100% !important;
+    padding: 0 !important;
+    margin: 0 !important;
+  }
+
+  /* Hide interactive / non-printable elements */
+  .header-left,
+  .header-right,
+  .matrix-quick-actions,
+  .habit-row-actions,
+  .app-footer-months,
+  .modal-backdrop,
+  .toast-container,
+  .action-icon-btn,
+  .btn {
+    display: none !important;
+  }
+
+  .app-header {
+    border-bottom: 2px solid #0f172a !important;
+    margin-bottom: 10px !important;
+    padding: 4px 0 !important;
+    justify-content: center !important;
+    display: flex !important;
+  }
+
+  .header-center {
+    display: block !important;
+    text-align: center !important;
+  }
+
+  .tracker-title {
+    font-size: 16px !important;
+    color: #0f172a !important;
+  }
+
+  .dashboard-card, .matrix-card, .kpi-tile {
+    background-color: #ffffff !important;
+    border: 1px solid #cbd5e1 !important;
+    box-shadow: none !important;
+    break-inside: avoid;
+  }
+
+  .analytics-deck {
+    display: grid !important;
+    grid-template-columns: 1.4fr 1fr 1.2fr 0.9fr !important;
+    gap: 8px !important;
+    margin-bottom: 10px !important;
+  }
+
+  .main-matrix-section {
+    display: grid !important;
+    grid-template-columns: 1fr 340px !important;
+    gap: 8px !important;
+    margin-bottom: 10px !important;
+  }
+
+  .table-scroll-container {
+    overflow: visible !important;
+  }
+
+  .habit-table thead tr.week-group-row th {
+    background-color: #0f172a !important;
+    color: #ffffff !important;
+  }
+
+  .custom-checkbox {
+    border: 1.5px solid #0f172a !important;
+  }
+
+  .custom-checkbox:checked {
+    background-color: #0f172a !important;
+    border-color: #0f172a !important;
+  }
+
+  .custom-checkbox:checked::after {
+    border-color: #ffffff !important;
+  }
+
+  .daily-bar-fill, .weekly-bar-fill, .mini-progress-fill {
+    background: #0f172a !important;
+  }
+
+  .donut-fill {
+    stroke: #0f172a !important;
+  }
+
+  .chart-line-mood {
+    stroke: #10b981 !important;
+  }
+
+  .chart-line-sleep {
+    stroke: #38bdf8 !important;
+  }
+}
+
+
+</style>
+</head>
+<body class="theme-dark">
+  <div id="app" class="app-container">
+    
+    <!-- Top Global App Bar -->
+    <header class="app-header">
+      <div class="header-left">
+        <div class="app-logo">
+          <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
+            <rect x="3" y="3" width="18" height="18" rx="2" ry="2"></rect>
+            <polyline points="9 11 12 14 22 4"></polyline>
+            <line x1="21" y1="12" x2="21" y2="19"></line>
+            <line x1="3" y1="19" x2="3" y2="5"></line>
+          </svg>
+          <span>HABIT OS</span>
+        </div>
+        <div class="header-divider"></div>
+        <div class="calendar-controls">
+          <span class="label">MONTH:</span>
+          <select id="monthSelect" class="styled-select" aria-label="Select Month"></select>
+          <span class="label">YEAR:</span>
+          <select id="yearSelect" class="styled-select" aria-label="Select Year"></select>
+          <button id="todayBtn" class="btn btn-subtle" title="Jump to Current Date">Today</button>
+        </div>
+      </div>
+
+      <div class="header-center">
+        <h1 class="tracker-title">HABIT TRACKER <span class="title-sub" id="currentMonthDisplay"></span></h1>
+      </div>
+
+      <div class="header-right">
+        <button id="addHabitBtn" class="btn btn-primary" title="Add New Habit">
+          <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><line x1="12" y1="5" x2="12" y2="19"></line><line x1="5" y1="12" x2="19" y2="12"></line></svg>
+          <span>Add Habit</span>
+        </button>
+        <button id="presetTemplatesBtn" class="btn btn-secondary" title="Load Preset Habit Routine">
+          <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"></path><polyline points="14 2 14 8 20 8"></polyline><line x1="16" y1="13" x2="8" y2="13"></line><line x1="16" y1="17" x2="8" y2="17"></line><polyline points="10 9 9 9 8 9"></polyline></svg>
+          <span>Presets</span>
+        </button>
+        <button id="howToUseBtn" class="btn btn-secondary" title="How to Use & Feature Guide">
+          <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"></circle><path d="M9.09 9a3 3 0 0 1 5.83 1c0 2-3 3-3 3"></path><line x1="12" y1="17" x2="12.01" y2="17"></line></svg>
+          <span>How to Use</span>
+        </button>
+        <button id="exportModalBtn" class="btn btn-secondary" title="Export to Notion / CSV / JSON">
+          <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"></path><polyline points="7 10 12 15 17 10"></polyline><line x1="12" y1="15" x2="12" y2="3"></line></svg>
+          <span>Export</span>
+        </button>
+        <button id="themeToggleBtn" class="btn btn-icon" title="Toggle Theme" aria-label="Toggle Theme">
+          <svg id="themeIcon" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="5"></circle><line x1="12" y1="1" x2="12" y2="3"></line><line x1="12" y1="21" x2="12" y2="23"></line><line x1="4.22" y1="4.22" x2="5.64" y2="5.64"></line><line x1="18.36" y1="18.36" x2="19.78" y2="19.78"></line><line x1="1" y1="12" x2="3" y2="12"></line><line x1="21" y1="12" x2="23" y2="12"></line><line x1="4.22" y1="19.78" x2="5.64" y2="18.36"></line><line x1="18.36" y1="5.64" x2="19.78" y2="4.22"></line></svg>
+        </button>
+      </div>
+    </header>
+
+    <!-- Main Content Dashboard -->
+    <main class="dashboard-layout">
+      
+      <!-- TOP ANALYTICS DECK (Matching screenshot 1 & 3) -->
+      <section class="analytics-deck">
+        
+        <!-- Daily Progress Bar Chart Card -->
+        <div class="dashboard-card daily-progress-card">
+          <div class="card-header">
+            <h2 class="card-title">Daily Progress</h2>
+            <span class="card-badge" id="dailyAvgBadge">Avg: 0%</span>
+          </div>
+          <div class="chart-container" id="dailyProgressChartContainer">
+            <div id="dailyBarsWrapper" class="daily-bars-grid"></div>
+          </div>
+        </div>
+
+        <!-- Weekly Progress Bar Chart Card -->
+        <div class="dashboard-card weekly-progress-card">
+          <div class="card-header">
+            <h2 class="card-title">Weekly Progress</h2>
+            <span class="card-badge" id="bestWeekBadge">Best: Week 1</span>
+          </div>
+          <div class="chart-container" id="weeklyProgressChartContainer">
+            <div id="weeklyBarsWrapper" class="weekly-bars-grid"></div>
+          </div>
+        </div>
+
+        <!-- Metric KPI Cards: Goal, Completed, Left -->
+        <div class="kpi-group-card">
+          <div class="kpi-tile kpi-goal">
+            <div class="kpi-label">Goal</div>
+            <div class="kpi-value" id="kpiGoalValue">0</div>
+          </div>
+          <div class="kpi-tile kpi-completed">
+            <div class="kpi-label">Completed</div>
+            <div class="kpi-value" id="kpiCompletedValue">0</div>
+          </div>
+          <div class="kpi-tile kpi-left">
+            <div class="kpi-label">Left</div>
+            <div class="kpi-value" id="kpiLeftValue">0</div>
+          </div>
+        </div>
+
+        <!-- Overall Stats Donut Card -->
+        <div class="dashboard-card overall-stats-card">
+          <div class="card-header">
+            <h2 class="card-title">Overall Stats</h2>
+          </div>
+          <div class="donut-wrapper">
+            <svg class="donut-svg" viewBox="0 0 140 140">
+              <circle class="donut-bg" cx="70" cy="70" r="54" />
+              <circle class="donut-fill" id="donutFillCircle" cx="70" cy="70" r="54" />
+            </svg>
+            <div class="donut-center-text">
+              <span class="donut-pct" id="donutPercentText">0%</span>
+              <span class="donut-sublabel">Finished</span>
+            </div>
+          </div>
+        </div>
+
+      </section>
+
+      <!-- MIDDLE SPLIT: Habit Matrix (Left) & Analysis / Top 10 (Right) -->
+      <section class="main-matrix-section">
+        
+        <!-- LEFT: 31-Day Checkbox Grid -->
+        <div class="matrix-card">
+          <div class="matrix-card-header">
+            <div class="matrix-title-group">
+              <h2 class="matrix-heading">MY HABITS</h2>
+              <span class="habit-count-tag" id="habitCountTag">12 Habits Active</span>
+            </div>
+            <div class="matrix-quick-actions">
+              <button id="undoBtn" class="btn btn-xs btn-subtle" title="Undo last action (Ctrl+Z)" disabled>
+                <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M3 7v6h6"></path><path d="M21 17a9 9 0 0 0-9-9 9 9 0 0 0-6 2.3L3 13"></path></svg>
+                <span>Undo</span>
+              </button>
+              <button id="redoBtn" class="btn btn-xs btn-subtle" title="Redo last undone action (Ctrl+Y)" disabled>
+                <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M21 7v6h-6"></path><path d="M3 17a9 9 0 0 1 9-9 9 9 0 0 1 6 2.3l3 2.7"></path></svg>
+                <span>Redo</span>
+              </button>
+              <button id="batchCheckTodayBtn" class="btn btn-xs btn-subtle" title="Check off all habits for Today">✓ Check Today</button>
+              <button id="clearMonthBtn" class="btn btn-xs btn-danger-subtle" title="Reset checks for this month">Clear Month</button>
+            </div>
+          </div>
+
+          <div class="table-scroll-container" id="matrixScrollWrapper">
+            <table class="habit-table" id="habitTable">
+              <thead id="habitTableHead">
+                <!-- Dynamically generated Week groupings & Days (1-31) -->
+              </thead>
+              <tbody id="habitTableBody">
+                <!-- Dynamically generated Habit rows with checkboxes -->
+              </tbody>
+            </table>
+          </div>
+
+          <!-- Bottom Row of Matrix: Wellness Tracking (Mood & Sleep) -->
+          <div class="wellness-matrix-footer">
+            <div class="wellness-section-title">
+              <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M20.84 4.61a5.5 5.5 0 0 0-7.78 0L12 5.67l-1.06-1.06a5.5 5.5 0 0 0-7.78 7.78l1.06 1.06L12 21.23l7.78-7.78 1.06-1.06a5.5 5.5 0 0 0 0-7.78z"></path></svg>
+              <span>Overall Wellness</span>
+            </div>
+            <div class="table-scroll-container" id="wellnessScrollWrapper">
+              <table class="wellness-table" id="wellnessTable">
+                <tbody id="wellnessTableBody">
+                  <!-- Mood row and Sleep hours row dynamically aligned with day columns -->
+                </tbody>
+              </table>
+            </div>
+          </div>
+        </div>
+
+        <!-- RIGHT: Analysis Breakdown & Top Habits Leaderboard -->
+        <div class="sidebar-analysis-column">
+          
+          <!-- Analysis Table Card -->
+          <div class="dashboard-card analysis-card">
+            <div class="card-header">
+              <h2 class="card-title">Analysis</h2>
+              <span class="card-badge" id="habitSortBadge">Ranked by %</span>
+            </div>
+            <div class="analysis-table-wrapper">
+              <table class="analysis-table" id="analysisTable">
+                <thead>
+                  <tr>
+                    <th class="th-habit">Habit</th>
+                    <th class="th-goal">Goal</th>
+                    <th class="th-actual">Actual</th>
+                    <th class="th-left">Left</th>
+                    <th class="th-prog">Progress</th>
+                    <th class="th-pct">%</th>
+                  </tr>
+                </thead>
+                <tbody id="analysisTableBody">
+                  <!-- Dynamically rendered per-habit stats -->
+                </tbody>
+              </table>
+            </div>
+          </div>
+
+          <!-- Top 10 Habits Leaderboard Card -->
+          <div class="dashboard-card top-habits-card">
+            <div class="card-header">
+              <h2 class="card-title">TOP HABITS</h2>
+              <span class="card-badge">🔥 Streaks</span>
+            </div>
+            <div class="top-habits-list" id="topHabitsList">
+              <!-- Dynamically populated top ranked habits -->
+            </div>
+          </div>
+
+        </div>
+
+      </section>
+
+      <!-- BOTTOM SECTION: Wellness Trend Line Graph -->
+      <section class="bottom-wellness-trend-section">
+        <div class="dashboard-card wellness-chart-card">
+          <div class="card-header">
+            <div class="wellness-chart-header-left">
+              <h2 class="card-title">Wellness Trends Across Month</h2>
+              <div class="chart-legends">
+                <span class="legend-item"><span class="legend-dot legend-mood"></span> Mood (Scale 1–5)</span>
+                <span class="legend-item"><span class="legend-dot legend-sleep"></span> Sleep (Hours: 4h–10h)</span>
+              </div>
+            </div>
+            <div class="wellness-chart-stats">
+              <span class="stat-pill" id="avgSleepStat">Avg Sleep: 7.4h</span>
+              <span class="stat-pill" id="avgMoodStat">Avg Mood: 4.2 / 5</span>
+            </div>
+          </div>
+          <div class="wellness-svg-chart-container" id="wellnessChartContainer">
+            <svg id="wellnessSvg" class="wellness-svg" preserveAspectRatio="none" viewBox="0 0 1000 160">
+              <!-- Grid lines, axes, and line paths dynamically rendered -->
+            </svg>
+          </div>
+        </div>
+      </section>
+
+    </main>
+
+    <!-- FOOTER: 12-Month Navigation Tabs (Matching Bottom of Screenshot) -->
+    <footer class="app-footer-months">
+      <nav class="month-tabs-nav" id="monthTabsNav" aria-label="Month Tabs">
+        <!-- 12 month tabs dynamically rendered -->
+      </nav>
+    </footer>
+
+  </div>
+
+  <!-- MODALS -->
+
+  <!-- 1. Add / Edit Habit Modal -->
+  <div id="habitModal" class="modal-backdrop hidden" role="dialog" aria-modal="true" aria-labelledby="modalHabitTitle">
+    <div class="modal-dialog">
+      <div class="modal-header">
+        <h3 id="modalHabitTitle">Add New Habit</h3>
+        <button class="modal-close-btn" id="closeHabitModalBtn">&times;</button>
+      </div>
+      <div class="modal-body">
+        <form id="habitForm">
+          <input type="hidden" id="habitEditId" value="">
+          <div class="form-group">
+            <label for="habitNameInput">Habit Name</label>
+            <input type="text" id="habitNameInput" class="form-input" placeholder="e.g. Read 20 pages" required autofocus>
+          </div>
+          <div class="form-row">
+            <div class="form-group">
+              <label for="habitEmojiInput">Emoji Icon</label>
+              <input type="text" id="habitEmojiInput" class="form-input emoji-input" placeholder="📖" maxlength="4" value="✨">
+            </div>
+            <div class="form-group">
+              <label for="habitCategoryInput">Category</label>
+              <select id="habitCategoryInput" class="form-input">
+                <option value="Health">Health & Fitness 💪</option>
+                <option value="Mind">Mind & Learning 🧠</option>
+                <option value="Discipline">Discipline & Routine ⏰</option>
+                <option value="Work">Productivity & Work 💻</option>
+                <option value="Wellness">Wellness & Self-Care 🌿</option>
+              </select>
+            </div>
+          </div>
+          <div class="form-group">
+            <label for="habitTargetDaysInput">Monthly Goal Days</label>
+            <input type="number" id="habitTargetDaysInput" class="form-input" min="1" max="31" value="31">
+            <small class="form-help">Target completions for this month (default: 31).</small>
+          </div>
+          <div class="modal-actions">
+            <button type="button" class="btn btn-secondary" id="cancelHabitBtn">Cancel</button>
+            <button type="submit" class="btn btn-primary" id="saveHabitBtn">Save Habit</button>
+          </div>
+        </form>
+      </div>
+    </div>
+  </div>
+
+  <!-- 2. Preset Templates Modal -->
+  <div id="presetsModal" class="modal-backdrop hidden" role="dialog" aria-modal="true" aria-labelledby="modalPresetsTitle">
+    <div class="modal-dialog modal-lg">
+      <div class="modal-header">
+        <h3 id="modalPresetsTitle">Preset Habit Routines</h3>
+        <button class="modal-close-btn" id="closePresetsModalBtn">&times;</button>
+      </div>
+      <div class="modal-body">
+        <p class="modal-subtext">Choose a curated routine to kickstart your tracking. You can customize habits anytime.</p>
+        <div class="presets-grid">
+          <div class="preset-card" data-preset="reference">
+            <div class="preset-badge">Exact Photo Match</div>
+            <h4>📸 Viral Tracker Match</h4>
+            <p>Wake up at 05:00 ⏰, Gym 💪, Reading / Learning 📖, Day Planning 📅, Stretching 🤸, Social Media Detox 📵, Meditation 🧘, 2L Water Intake 💧, No Sugar 🥗, 8h Sleep 😴.</p>
+            <button class="btn btn-sm btn-primary apply-preset-btn">Apply Routine</button>
+          </div>
+          <div class="preset-card" data-preset="monk">
+            <div class="preset-badge">High Discipline</div>
+            <h4>🧘 Monk Mode 2026</h4>
+            <p>Wake up 05:00, Cold Shower, No Social Media, Gym / Lift, 4h Deep Work, Read 30m, Meditate 15m, Clean Nutrition.</p>
+            <button class="btn btn-sm btn-primary apply-preset-btn">Apply Routine</button>
+          </div>
+          <div class="preset-card" data-preset="developer">
+            <div class="preset-badge">Engineering</div>
+            <h4>💻 Deep Work & Coding</h4>
+            <p>Morning Code Sprint, 0 Distraction Block, Read Tech Paper, Gym / Movement, Git Commits, Review PRs, Daily Planning.</p>
+            <button class="btn btn-sm btn-primary apply-preset-btn">Apply Routine</button>
+          </div>
+          <div class="preset-card" data-preset="health">
+            <div class="preset-badge">Wellness</div>
+            <h4>🌿 Holistic Health</h4>
+            <p>10,000 Steps, 8h Quality Sleep, 3L Hydration, 0 Added Sugar, Daily Mobility, Breathwork, Morning Sunlight.</p>
+            <button class="btn btn-sm btn-primary apply-preset-btn">Apply Routine</button>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- 3. HOW TO USE Guide Modal -->
+  <div id="howToUseModal" class="modal-backdrop hidden" role="dialog" aria-modal="true" aria-labelledby="modalHowToUseTitle">
+    <div class="modal-dialog modal-lg">
+      <div class="modal-header">
+        <h3 id="modalHowToUseTitle">⚡ How to Use the Habit Tracker</h3>
+        <button class="modal-close-btn" id="closeHowToUseModalBtn">&times;</button>
+      </div>
+      <div class="modal-body">
+        <div class="how-to-use-grid">
+          
+          <!-- Step 1 -->
+          <div class="guide-step-card">
+            <div class="step-badge">01</div>
+            <div class="step-info">
+              <h4>Add Custom Habits & Default Goal (Days)</h4>
+              <p>Click <strong>"+ Add Habit"</strong> to create a new habit with your choice of emoji, name, and category. The <strong>Target Goal</strong> automatically defaults to the active month's total days (e.g. <strong>31 days</strong> in 31-day months), or you can adjust it to any custom goal (e.g. 20 days for weekdays). You can also click <strong>"Presets"</strong> to load instant routines!</p>
+            </div>
+          </div>
+
+          <!-- Step 2 -->
+          <div class="guide-step-card">
+            <div class="step-badge">02</div>
+            <div class="step-info">
+              <h4>Track Habits & Instant Undo / Redo</h4>
+              <p>Check off completed habits in the <strong>31-Day Matrix</strong>. Use <strong>"✓ Check Today"</strong> for instant full completion, or use the <strong>Undo / Redo</strong> buttons (or <code>Ctrl+Z</code> / <code>Ctrl+Y</code>) anytime to reverse or restore any mistake!</p>
+            </div>
+          </div>
+
+          <!-- Step 3 -->
+          <div class="guide-step-card">
+            <div class="step-badge">03</div>
+            <div class="step-info">
+              <h4>Watch Live Analytics & Streaks</h4>
+              <p>Your performance updates in real-time across the <strong>Daily & Weekly Progress Bars</strong>, circular <strong>Donut % Gauge</strong>, and <strong>Goal / Completed / Left</strong> rollups. View your most consistent routines in the <strong>Top Habits Leaderboard</strong>.</p>
+            </div>
+          </div>
+
+          <!-- Step 4 -->
+          <div class="guide-step-card">
+            <div class="step-badge">04</div>
+            <div class="step-info">
+              <h4>Log Daily Wellness (Mood & Sleep)</h4>
+              <p>Under the habit matrix, enter your <strong>Mood (1 to 5)</strong> and <strong>Hours of Sleep (e.g. 7.5h)</strong>. The interactive <strong>Wellness Trend Graph</strong> correlates your sleep duration with daily mood and energy patterns.</p>
+            </div>
+          </div>
+
+          <!-- Step 5 -->
+          <div class="guide-step-card">
+            <div class="step-badge">05</div>
+            <div class="step-info">
+              <h4>Seamless Multi-Year & Month Navigation</h4>
+              <p>Click any month tab (<strong>Jan – Dec</strong>) at the bottom or select any year from <strong>2026 to 2100</strong>. Each month dynamically computes exact days (28–31) and calendar day-of-week headers (Su, Mo, Tu, We, Th, Fr, Sa).</p>
+            </div>
+          </div>
+
+          <!-- Step 6 -->
+          <div class="guide-step-card">
+            <div class="step-badge">06</div>
+            <div class="step-info">
+              <h4>Export, Print PDF & Cloud Sync</h4>
+              <p>Click <strong>"Export"</strong> to download high-resolution printable <strong>PDF reports</strong>, copy <strong>Notion Markdown tables</strong>, or use <strong>JSON Sync</strong> to transfer your habits instantly across any phone, tablet, or PC without file downloads.</p>
+            </div>
+          </div>
+
+        </div>
+
+        <div class="guide-footer-tip">
+          <strong>💡 Pro-Tip:</strong> All progress is automatically saved to your browser in real-time. Simply bookmark this page or embed it inside Notion with <code>/embed</code> for effortless daily tracking!
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- 4. Export / Import Modal -->
+  <div id="exportModal" class="modal-backdrop hidden" role="dialog" aria-modal="true" aria-labelledby="modalExportTitle">
+    <div class="modal-dialog">
+      <div class="modal-header">
+        <h3 id="modalExportTitle">Export & Backup Tracker Data</h3>
+        <button class="modal-close-btn" id="closeExportModalBtn">&times;</button>
+      </div>
+      <div class="modal-body">
+        <div class="export-options-list">
+          <div class="export-option-card">
+            <div>
+              <strong>📋 Copy Notion Markdown Table</strong>
+              <p>Generates a formatted Markdown table ready to paste directly into any Notion page.</p>
+            </div>
+            <button id="copyNotionMdBtn" class="btn btn-secondary">Copy Table</button>
+          </div>
+          <div class="export-option-card">
+            <div>
+              <strong>📄 Export / Save as PDF</strong>
+              <p>Generate a high-resolution, print-ready PDF report of your current month's matrix and charts.</p>
+            </div>
+            <button id="downloadPdfBtn" class="btn btn-primary">Download PDF</button>
+          </div>
+          <div class="export-option-card">
+            <div>
+              <strong>📊 Download CSV</strong>
+              <p>Export all 12 months with per-day matrix, mood, and sleep data.</p>
+            </div>
+            <button id="downloadCsvBtn" class="btn btn-secondary">Download CSV</button>
+          </div>
+          <div class="export-option-card">
+            <div>
+              <strong>💾 JSON Backup & Cross-Device Sync</strong>
+              <p>Transfer your habits, streaks, and history seamlessly across any device (Phone, Tablet, PC).</p>
+            </div>
+            <div class="btn-group">
+              <button id="downloadJsonBtn" class="btn btn-secondary" title="Download .json file">Download JSON</button>
+              <label class="btn btn-subtle file-upload-btn" title="Upload .json file">
+                Upload JSON
+                <input type="file" id="importJsonInput" accept=".json,application/json" class="hidden">
+              </label>
+              <button id="copyJsonTextBtn" class="btn btn-subtle" title="Copy raw JSON text to clipboard">Copy Text</button>
+              <button id="togglePasteJsonBtn" class="btn btn-subtle" title="Paste JSON text to restore">Paste & Sync</button>
+            </div>
+          </div>
+          <div id="pasteJsonSection" class="paste-json-container hidden">
+            <textarea id="pasteJsonTextarea" placeholder="Paste your exported JSON code here..." rows="4"></textarea>
+            <div class="paste-json-actions">
+              <button id="applyPastedJsonBtn" class="btn btn-primary btn-sm">Apply & Sync Data</button>
+              <button id="cancelPasteJsonBtn" class="btn btn-subtle btn-sm">Cancel</button>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Toast Notification Container -->
+  <div id="toastContainer" class="toast-container" aria-live="polite"></div>
+
+  <script>
+/**
+ * Minimalist Notion-Style Habit Tracker & Analytics Engine
+ * Complete state management, dynamic calendar calculations, SVG chart rendering,
+ * and Notion export utilities.
+ */
+
+(function() {
+  'use strict';
+
+  // --- Constants & Defaults ---
+  const STORAGE_KEY = 'notion_habit_os_v2';
+  const MONTH_NAMES = [
+    'January', 'February', 'March', 'April', 'May', 'June',
+    'July', 'August', 'September', 'October', 'November', 'December'
+  ];
+  const DAY_SHORT_NAMES = ['Su', 'Mo', 'Tu', 'We', 'Th', 'Fr', 'Sa'];
+
+  // Preset Habit Routines
+  const PRESETS = {
+    reference: [
+      { id: 'h1', name: 'Wake up at 05:00', emoji: '⏰', category: 'Discipline', targetDays: 31 },
+      { id: 'h2', name: 'Gym / Workout', emoji: '💪', category: 'Health', targetDays: 31 },
+      { id: 'h3', name: 'Reading / Learning', emoji: '📖', category: 'Mind', targetDays: 31 },
+      { id: 'h4', name: 'Day Planning', emoji: '📅', category: 'Work', targetDays: 31 },
+      { id: 'h5', name: 'Stretching & Mobility', emoji: '🤸', category: 'Health', targetDays: 31 },
+      { id: 'h6', name: 'Social Media Detox', emoji: '📵', category: 'Discipline', targetDays: 31 },
+      { id: 'h7', name: 'Meditation & Breath', emoji: '🧘', category: 'Mind', targetDays: 31 },
+      { id: 'h8', name: '2L Water Intake', emoji: '💧', category: 'Health', targetDays: 31 },
+      { id: 'h9', name: 'No Added Sugar', emoji: '🥗', category: 'Health', targetDays: 31 },
+      { id: 'h10', name: '8 Hours Sleep', emoji: '😴', category: 'Wellness', targetDays: 31 },
+      { id: 'h11', name: 'Deep Work Sprint', emoji: '🧠', category: 'Work', targetDays: 31 },
+      { id: 'h12', name: 'Evening Reflection', emoji: '✍️', category: 'Mind', targetDays: 31 }
+    ],
+    monk: [
+      { id: 'm1', name: 'Wake up at 05:00', emoji: '⏰', category: 'Discipline', targetDays: 31 },
+      { id: 'm2', name: 'Cold Shower', emoji: '🚿', category: 'Discipline', targetDays: 31 },
+      { id: 'm3', name: 'Zero Social Media', emoji: '📵', category: 'Discipline', targetDays: 31 },
+      { id: 'm4', name: 'Heavy Gym Session', emoji: '🏋️', category: 'Health', targetDays: 31 },
+      { id: 'm5', name: '4 Hours Deep Work', emoji: '💻', category: 'Work', targetDays: 31 },
+      { id: 'm6', name: 'Read 30 Pages', emoji: '📚', category: 'Mind', targetDays: 31 },
+      { id: 'm7', name: 'Vipassana Meditation', emoji: '🧘', category: 'Mind', targetDays: 31 },
+      { id: 'm8', name: '100% Clean Nutrition', emoji: '🥗', category: 'Health', targetDays: 31 }
+    ],
+    developer: [
+      { id: 'd1', name: 'Morning Code Sprint', emoji: '💻', category: 'Work', targetDays: 31 },
+      { id: 'd2', name: '0 Distractions Block', emoji: '🎯', category: 'Work', targetDays: 31 },
+      { id: 'd3', name: 'Read Tech / Research Paper', emoji: '📑', category: 'Mind', targetDays: 31 },
+      { id: 'd4', name: 'Git Commits & PR Reviews', emoji: '🚀', category: 'Work', targetDays: 31 },
+      { id: 'd5', name: 'Gym / 10k Steps', emoji: '🏃', category: 'Health', targetDays: 31 },
+      { id: 'd6', name: 'Eye & Posture Breaks', emoji: '👀', category: 'Wellness', targetDays: 31 },
+      { id: 'd7', name: 'Review Architecture Notes', emoji: '📝', category: 'Mind', targetDays: 31 },
+      { id: 'd8', name: 'Offline Sleep Routine', emoji: '🌙', category: 'Wellness', targetDays: 31 }
+    ],
+    health: [
+      { id: 'w1', name: '10,000 Daily Steps', emoji: '👟', category: 'Health', targetDays: 31 },
+      { id: 'w2', name: '8h Restorative Sleep', emoji: '😴', category: 'Wellness', targetDays: 31 },
+      { id: 'w3', name: '3 Liters Water', emoji: '💧', category: 'Health', targetDays: 31 },
+      { id: 'w4', name: 'Zero Processed Sugar', emoji: '🥑', category: 'Health', targetDays: 31 },
+      { id: 'w5', name: 'Daily Mobility Routine', emoji: '🤸', category: 'Health', targetDays: 31 },
+      { id: 'w6', name: 'Outdoor Morning Sunlight', emoji: '☀️', category: 'Wellness', targetDays: 31 },
+      { id: 'w7', name: 'Breathwork / Pranayama', emoji: '🫁', category: 'Mind', targetDays: 31 },
+      { id: 'w8', name: 'Intermittent Fasting', emoji: '⏳', category: 'Health', targetDays: 31 }
+    ]
+  };
+
+  // --- State Object ---
+  const today = new Date();
+  let state = {
+    year: Math.max(2026, Math.min(2100, today.getFullYear())),
+    month: today.getMonth(),
+    habits: [],
+    logs: {},
+    theme: 'dark'
+  };
+
+  // --- Initialization ---
+  function init() {
+    loadStateFromStorage();
+    setupEventListeners();
+    populateCalendarDropdowns();
+    renderApp();
+  }
+
+  // --- State Persistence & Seeding ---
+  function loadStateFromStorage() {
+    try {
+      const saved = localStorage.getItem(STORAGE_KEY);
+      if (saved) {
+        state = JSON.parse(saved);
+        if (!state.year || state.year < 2026 || state.year > 2100) {
+          state.year = 2026;
+        }
+      } else {
+        seedInitialState();
+      }
+    } catch (e) {
+      console.warn('Could not read from local storage, using fresh state', e);
+      seedInitialState();
+    }
+  }
+
+  function saveStateToStorage() {
+    try {
+      localStorage.setItem(STORAGE_KEY, JSON.stringify(state));
+    } catch (e) {
+      console.error('Failed to save to local storage', e);
+    }
+  }
+
+  function seedInitialState() {
+    const now = new Date();
+    state.year = Math.max(2026, Math.min(2100, now.getFullYear()));
+    state.month = now.getMonth();
+    state.habits = JSON.parse(JSON.stringify(PRESETS.reference));
+    state.logs = {};
+    state.theme = 'dark';
+    saveStateToStorage();
+  }
+
+  // --- Calendar Helpers ---
+  function getDaysInMonth(year, month) {
+    return new Date(year, month + 1, 0).getDate();
+  }
+
+  function getFirstDayOfWeek(year, month) {
+    return new Date(year, month, 1).getDay(); // 0 = Sun
+  }
+
+  function getCurrentMonthKey() {
+    return `${state.year}-${state.month}`;
+  }
+
+  function getMonthLogData(monthKey = getCurrentMonthKey()) {
+    if (!state.logs[monthKey]) {
+      state.logs[monthKey] = {
+        habits: {},
+        wellness: { mood: {}, sleep: {} }
+      };
+    }
+    return state.logs[monthKey];
+  }
+
+  // --- Dynamic Calendar Dropdowns ---
+  function populateCalendarDropdowns() {
+    const monthSelect = document.getElementById('monthSelect');
+    const yearSelect = document.getElementById('yearSelect');
+
+    monthSelect.innerHTML = '';
+    MONTH_NAMES.forEach((name, idx) => {
+      const opt = document.createElement('option');
+      opt.value = idx;
+      opt.textContent = name;
+      if (idx === state.month) opt.selected = true;
+      monthSelect.appendChild(opt);
+    });
+
+    yearSelect.innerHTML = '';
+    for (let y = 2026; y <= 2100; y++) {
+      const opt = document.createElement('option');
+      opt.value = y;
+      opt.textContent = y;
+      if (y === state.year) opt.selected = true;
+      yearSelect.appendChild(opt);
+    }
+  }
+
+  // --- Main Render Dispatcher ---
+  function renderApp() {
+    applyTheme();
+    updateHeaderDisplay();
+    renderDailyProgressChart();
+    renderWeeklyProgressChart();
+    renderOverallStatsAndKpis();
+    renderHabitMatrix();
+    renderWellnessMatrix();
+    renderAnalysisTable();
+    renderTopHabitsList();
+    renderWellnessTrendChart();
+    renderMonthTabs();
+    updateUndoRedoButtons();
+  }
+
+  // --- Header Display & Theme ---
+  function updateHeaderDisplay() {
+    const currentMonthDisplay = document.getElementById('currentMonthDisplay');
+    const habitCountTag = document.getElementById('habitCountTag');
+    const monthSelect = document.getElementById('monthSelect');
+    const yearSelect = document.getElementById('yearSelect');
+
+    currentMonthDisplay.textContent = `- ${MONTH_NAMES[state.month]} ${state.year} -`;
+    habitCountTag.textContent = `${state.habits.length} Habits Active`;
+    monthSelect.value = state.month;
+    yearSelect.value = state.year;
+  }
+
+  function applyTheme() {
+    document.body.className = state.theme === 'light' ? 'theme-light' : 'theme-dark';
+  }
+
+  // --- 1. Daily Progress Chart (31 dynamic bars) ---
+  function renderDailyProgressChart() {
+    const container = document.getElementById('dailyBarsWrapper');
+    const avgBadge = document.getElementById('dailyAvgBadge');
+    container.innerHTML = '';
+
+    const daysCount = getDaysInMonth(state.year, state.month);
+    const monthLog = getMonthLogData();
+    const totalHabits = state.habits.length;
+
+    const todayObj = new Date();
+    const isCurrentRealMonth = todayObj.getFullYear() === state.year && todayObj.getMonth() === state.month;
+    const realDay = todayObj.getDate();
+
+    let sumPct = 0;
+    let daysWithEntries = 0;
+
+    for (let day = 1; day <= 31; day++) {
+      const col = document.createElement('div');
+      col.className = 'daily-bar-col';
+      if (isCurrentRealMonth && day === realDay) {
+        col.classList.add('is-today');
+      }
+
+      if (day > daysCount) {
+        col.style.opacity = '0.2';
+        col.style.pointerEvents = 'none';
+        col.innerHTML = `
+          <div class="daily-bar-track"><div class="daily-bar-fill" style="height: 0%"></div></div>
+          <span class="daily-bar-label">${day}</span>
+        `;
+        container.appendChild(col);
+        continue;
+      }
+
+      let completedToday = 0;
+      state.habits.forEach(habit => {
+        if (monthLog.habits[habit.id] && monthLog.habits[habit.id][day]) {
+          completedToday++;
+        }
+      });
+
+      const pct = totalHabits > 0 ? Math.round((completedToday / totalHabits) * 100) : 0;
+      if (completedToday > 0) {
+        sumPct += pct;
+        daysWithEntries++;
+      }
+
+      col.innerHTML = `
+        <div class="bar-tooltip">Day ${day}: ${completedToday}/${totalHabits} (${pct}%)</div>
+        <div class="daily-bar-track">
+          <div class="daily-bar-fill" style="height: ${pct}%"></div>
+        </div>
+        <span class="daily-bar-label">${day}</span>
+      `;
+
+      col.addEventListener('click', () => {
+        // Quick focus on day column in matrix
+        highlightDayColumn(day);
+      });
+
+      container.appendChild(col);
+    }
+
+    const avgPct = daysWithEntries > 0 ? Math.round(sumPct / daysWithEntries) : 0;
+    avgBadge.textContent = `Avg: ${avgPct}%`;
+  }
+
+  // --- 2. Weekly Progress Chart (Weeks 1 to 5) ---
+  function renderWeeklyProgressChart() {
+    const container = document.getElementById('weeklyBarsWrapper');
+    const bestWeekBadge = document.getElementById('bestWeekBadge');
+    container.innerHTML = '';
+
+    const daysCount = getDaysInMonth(state.year, state.month);
+    const monthLog = getMonthLogData();
+    const totalHabits = state.habits.length;
+
+    const weeks = [
+      { name: 'Week 1', start: 1, end: 7 },
+      { name: 'Week 2', start: 8, end: 14 },
+      { name: 'Week 3', start: 15, end: 21 },
+      { name: 'Week 4', start: 22, end: 28 },
+      { name: 'Week 5', start: 29, end: daysCount }
+    ];
+
+    let bestWeekName = 'Week 1';
+    let bestWeekPct = -1;
+
+    weeks.forEach((w) => {
+      if (w.start > daysCount) {
+        return;
+      }
+      const actualEnd = Math.min(w.end, daysCount);
+      const totalPossible = (actualEnd - w.start + 1) * totalHabits;
+      let completedInWeek = 0;
+
+      for (let day = w.start; day <= actualEnd; day++) {
+        state.habits.forEach(habit => {
+          if (monthLog.habits[habit.id] && monthLog.habits[habit.id][day]) {
+            completedInWeek++;
+          }
+        });
+      }
+
+      const pct = totalPossible > 0 ? Math.round((completedInWeek / totalPossible) * 100) : 0;
+      if (pct > bestWeekPct) {
+        bestWeekPct = pct;
+        bestWeekName = w.name;
+      }
+
+      const col = document.createElement('div');
+      col.className = 'weekly-bar-col';
+      col.innerHTML = `
+        <div class="weekly-bar-track">
+          <div class="weekly-bar-fill" style="height: ${pct}%"></div>
+        </div>
+        <span class="weekly-bar-label">${w.name}<br><small>${pct}%</small></span>
+      `;
+      container.appendChild(col);
+    });
+
+    bestWeekBadge.textContent = `Best: ${bestWeekName} (${Math.max(0, bestWeekPct)}%)`;
+  }
+
+  // --- 3. Overall Stats & KPI Block Calculation ---
+  function renderOverallStatsAndKpis() {
+    const daysCount = getDaysInMonth(state.year, state.month);
+    const monthLog = getMonthLogData();
+    const totalHabits = state.habits.length;
+
+    const totalGoal = totalHabits * daysCount;
+    let totalCompleted = 0;
+
+    state.habits.forEach(habit => {
+      if (monthLog.habits[habit.id]) {
+        for (let day = 1; day <= daysCount; day++) {
+          if (monthLog.habits[habit.id][day]) {
+            totalCompleted++;
+          }
+        }
+      }
+    });
+
+    const totalLeft = Math.max(0, totalGoal - totalCompleted);
+    const overallPct = totalGoal > 0 ? Math.round((totalCompleted / totalGoal) * 100) : 0;
+
+    // Update KPI numbers
+    document.getElementById('kpiGoalValue').textContent = totalGoal.toLocaleString();
+    document.getElementById('kpiCompletedValue').textContent = totalCompleted.toLocaleString();
+    document.getElementById('kpiLeftValue').textContent = totalLeft.toLocaleString();
+
+    // Update Donut Chart
+    document.getElementById('donutPercentText').textContent = `${overallPct}%`;
+    const circle = document.getElementById('donutFillCircle');
+    const circumference = 2 * Math.PI * 54; // r=54 -> 339.292
+    const offset = circumference - (overallPct / 100) * circumference;
+    circle.style.strokeDasharray = `${circumference}`;
+    circle.style.strokeDashoffset = `${offset}`;
+  }
+
+  // --- 4. Habit Matrix Grid (Table with week super-headers) ---
+  function renderHabitMatrix() {
+    const thead = document.getElementById('habitTableHead');
+    const tbody = document.getElementById('habitTableBody');
+    thead.innerHTML = '';
+    tbody.innerHTML = '';
+
+    const daysCount = getDaysInMonth(state.year, state.month);
+    const firstDayIndex = getFirstDayOfWeek(state.year, state.month);
+    const monthLog = getMonthLogData();
+
+    const todayObj = new Date();
+    const isCurrentRealMonth = todayObj.getFullYear() === state.year && todayObj.getMonth() === state.month;
+    const realDay = todayObj.getDate();
+
+    // Row 1: Week Group Headers
+    const weekRow = document.createElement('tr');
+    weekRow.className = 'week-group-row';
+
+    // Corner cell for Habit Title
+    const habitTitleTh = document.createElement('th');
+    habitTitleTh.className = 'th-habit-name-header';
+    habitTitleTh.textContent = 'Habits';
+    weekRow.appendChild(habitTitleTh);
+
+    const weekDefs = [
+      { label: 'Week 1', span: 7 },
+      { label: 'Week 2', span: 7 },
+      { label: 'Week 3', span: 7 },
+      { label: 'Week 4', span: 7 },
+      { label: 'Week 5', span: 31 - 28 }
+    ];
+
+    weekDefs.forEach(w => {
+      const th = document.createElement('th');
+      th.colSpan = w.span;
+      th.textContent = w.label;
+      weekRow.appendChild(th);
+    });
+    thead.appendChild(weekRow);
+
+    // Row 2: Day of Week (Su, Mo...) + Day Numbers (1..31)
+    const dayRow = document.createElement('tr');
+    dayRow.className = 'day-header-row';
+
+    const cornerSubTh = document.createElement('th');
+    cornerSubTh.textContent = 'Day / Date';
+    dayRow.appendChild(cornerSubTh);
+
+    for (let day = 1; day <= 31; day++) {
+      const th = document.createElement('th');
+      th.id = `headerDayCol_${day}`;
+      const dayOfWeekIdx = (firstDayIndex + (day - 1)) % 7;
+      const dayName = DAY_SHORT_NAMES[dayOfWeekIdx];
+
+      if (isCurrentRealMonth && day === realDay) {
+        th.classList.add('is-today-col');
+      }
+
+      if (day > daysCount) {
+        th.style.opacity = '0.2';
+      }
+
+      th.innerHTML = `
+        <span class="day-name">${dayName}</span>
+        <span class="day-num">${day}</span>
+      `;
+      dayRow.appendChild(th);
+    }
+    thead.appendChild(dayRow);
+
+    // Body: Habit Rows
+    if (state.habits.length === 0) {
+      const emptyRow = document.createElement('tr');
+      emptyRow.innerHTML = `<td colspan="32" style="text-align: center; padding: 24px; color: var(--text-muted);">No habits added yet. Click "+ Add Habit" or select a preset routine above!</td>`;
+      tbody.appendChild(emptyRow);
+      return;
+    }
+
+    state.habits.forEach(habit => {
+      const tr = document.createElement('tr');
+      tr.dataset.habitId = habit.id;
+
+      // Habit Name Cell
+      const nameTd = document.createElement('td');
+      nameTd.className = 'habit-name-cell';
+      nameTd.innerHTML = `
+        <div class="habit-title-wrapper" title="${habit.name}">
+          <span class="habit-emoji">${habit.emoji || '✨'}</span>
+          <span class="habit-name-text">${escapeHtml(habit.name)}</span>
+        </div>
+        <div class="habit-row-actions">
+          <button class="action-icon-btn edit-habit-btn" title="Edit Habit" data-id="${habit.id}">
+            <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M11 4H4a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7"></path><path d="M18.5 2.5a2.121 2.121 0 0 1 3 3L12 15l-4 1 1-4 9.5-9.5z"></path></svg>
+          </button>
+          <button class="action-icon-btn delete delete-habit-btn" title="Delete Habit" data-id="${habit.id}">
+            <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="3 6 5 6 21 6"></polyline><path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6m3 0V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2"></path></svg>
+          </button>
+        </div>
+      `;
+      tr.appendChild(nameTd);
+
+      // 31 Day Checkbox cells
+      for (let day = 1; day <= 31; day++) {
+        const checkTd = document.createElement('td');
+        checkTd.className = 'habit-check-cell';
+        checkTd.dataset.day = day;
+
+        if (isCurrentRealMonth && day === realDay) {
+          checkTd.classList.add('is-today-col');
+        }
+
+        if (day > daysCount) {
+          checkTd.classList.add('disabled-day');
+          tr.appendChild(checkTd);
+          continue;
+        }
+
+        const isChecked = !!(monthLog.habits[habit.id] && monthLog.habits[habit.id][day]);
+
+        const checkbox = document.createElement('input');
+        checkbox.type = 'checkbox';
+        checkbox.className = 'custom-checkbox';
+        checkbox.checked = isChecked;
+        checkbox.setAttribute('aria-label', `${habit.name} Day ${day}`);
+
+        checkbox.addEventListener('change', (e) => {
+          toggleHabitDay(habit.id, day, e.target.checked);
+        });
+
+        checkTd.appendChild(checkbox);
+        tr.appendChild(checkTd);
+      }
+
+      tbody.appendChild(tr);
+    });
+  }
+
+  // --- 5. Wellness Matrix (Mood & Sleep row) ---
+  function renderWellnessMatrix() {
+    const tbody = document.getElementById('wellnessTableBody');
+    tbody.innerHTML = '';
+
+    const daysCount = getDaysInMonth(state.year, state.month);
+    const monthLog = getMonthLogData();
+
+    const todayObj = new Date();
+    const isCurrentRealMonth = todayObj.getFullYear() === state.year && todayObj.getMonth() === state.month;
+    const realDay = todayObj.getDate();
+
+    // Row 1: Mood (1-5 rating)
+    const moodTr = document.createElement('tr');
+    moodTr.innerHTML = `<td class="wellness-label-cell">😊 Mood (1–5)</td>`;
+
+    for (let day = 1; day <= 31; day++) {
+      const td = document.createElement('td');
+      td.className = 'wellness-input-cell';
+      if (isCurrentRealMonth && day === realDay) td.classList.add('is-today-col');
+
+      if (day > daysCount) {
+        td.style.opacity = '0.2';
+        moodTr.appendChild(td);
+        continue;
+      }
+
+      const currentScore = monthLog.wellness.mood[day] !== undefined ? monthLog.wellness.mood[day] : '';
+
+      const input = document.createElement('input');
+      input.type = 'text';
+      input.maxLength = 1;
+      input.placeholder = '-';
+      input.value = currentScore;
+      input.title = `Mood Day ${day} (1-5)`;
+
+      input.addEventListener('change', (e) => {
+        pushHistory();
+        const val = parseInt(e.target.value, 10);
+        if (!isNaN(val) && val >= 1 && val <= 5) {
+          monthLog.wellness.mood[day] = val;
+        } else if (e.target.value.trim() === '') {
+          delete monthLog.wellness.mood[day];
+        } else {
+          e.target.value = monthLog.wellness.mood[day] || '';
+        }
+        saveStateToStorage();
+        renderWellnessTrendChart();
+      });
+
+      td.appendChild(input);
+      moodTr.appendChild(td);
+    }
+    tbody.appendChild(moodTr);
+
+    // Row 2: Sleep Hours
+    const sleepTr = document.createElement('tr');
+    sleepTr.innerHTML = `<td class="wellness-label-cell">😴 Hours of Sleep</td>`;
+
+    for (let day = 1; day <= 31; day++) {
+      const td = document.createElement('td');
+      td.className = 'wellness-input-cell';
+      if (isCurrentRealMonth && day === realDay) td.classList.add('is-today-col');
+
+      if (day > daysCount) {
+        td.style.opacity = '0.2';
+        sleepTr.appendChild(td);
+        continue;
+      }
+
+      const currentSleep = monthLog.wellness.sleep[day] !== undefined ? monthLog.wellness.sleep[day] : '';
+
+      const input = document.createElement('input');
+      input.type = 'text';
+      input.maxLength = 3;
+      input.placeholder = '-';
+      input.value = currentSleep;
+      input.title = `Sleep Day ${day} (Hours)`;
+
+      input.addEventListener('change', (e) => {
+        pushHistory();
+        const val = parseFloat(e.target.value);
+        if (!isNaN(val) && val >= 0 && val <= 24) {
+          monthLog.wellness.sleep[day] = Math.round(val * 10) / 10;
+        } else if (e.target.value.trim() === '') {
+          delete monthLog.wellness.sleep[day];
+        } else {
+          e.target.value = monthLog.wellness.sleep[day] || '';
+        }
+        saveStateToStorage();
+        renderWellnessTrendChart();
+      });
+
+      td.appendChild(input);
+      sleepTr.appendChild(td);
+    }
+    tbody.appendChild(sleepTr);
+  }
+
+  // --- 6. Analysis Sidebar Table ---
+  function renderAnalysisTable() {
+    const tbody = document.getElementById('analysisTableBody');
+    tbody.innerHTML = '';
+
+    const daysCount = getDaysInMonth(state.year, state.month);
+    const monthLog = getMonthLogData();
+
+    if (state.habits.length === 0) {
+      tbody.innerHTML = `<tr><td colspan="6" style="text-align: center; color: var(--text-muted);">No habits</td></tr>`;
+      return;
+    }
+
+    state.habits.forEach(habit => {
+      let actual = 0;
+      if (monthLog.habits[habit.id]) {
+        for (let d = 1; d <= daysCount; d++) {
+          if (monthLog.habits[habit.id][d]) actual++;
+        }
+      }
+
+      const goal = habit.targetDays || daysCount;
+      const left = Math.max(0, goal - actual);
+      const pct = goal > 0 ? Math.round((actual / goal) * 100) : 0;
+
+      const tr = document.createElement('tr');
+      tr.innerHTML = `
+        <td class="td-habit-name" title="${habit.name}">${habit.emoji} ${escapeHtml(habit.name)}</td>
+        <td>${goal}</td>
+        <td>${actual}</td>
+        <td>${left}</td>
+        <td>
+          <div class="mini-progress-track">
+            <div class="mini-progress-fill" style="width: ${Math.min(100, pct)}%"></div>
+          </div>
+        </td>
+        <td class="td-pct">${pct}%</td>
+      `;
+      tbody.appendChild(tr);
+    });
+  }
+
+  // --- 7. Top 10 Habits Leaderboard ---
+  function renderTopHabitsList() {
+    const list = document.getElementById('topHabitsList');
+    list.innerHTML = '';
+
+    const daysCount = getDaysInMonth(state.year, state.month);
+    const monthLog = getMonthLogData();
+
+    if (state.habits.length === 0) {
+      list.innerHTML = `<div style="text-align: center; color: var(--text-muted); font-size: 11px; padding: 12px;">No habits tracked yet.</div>`;
+      return;
+    }
+
+    // Rank habits by completion count and current active streak
+    const ranked = state.habits.map(habit => {
+      let count = 0;
+      let currentStreak = 0;
+      let maxStreak = 0;
+
+      if (monthLog.habits[habit.id]) {
+        for (let d = 1; d <= daysCount; d++) {
+          if (monthLog.habits[habit.id][d]) {
+            count++;
+            currentStreak++;
+            if (currentStreak > maxStreak) maxStreak = currentStreak;
+          } else {
+            currentStreak = 0;
+          }
+        }
+      }
+
+      const goal = habit.targetDays || daysCount;
+      const pct = goal > 0 ? Math.round((count / goal) * 100) : 0;
+
+      return {
+        ...habit,
+        count,
+        maxStreak,
+        pct
+      };
+    });
+
+    ranked.sort((a, b) => b.count - a.count || b.maxStreak - a.maxStreak);
+
+    ranked.slice(0, 10).forEach((habit, idx) => {
+      const item = document.createElement('div');
+      item.className = `top-habit-item rank-${idx + 1}`;
+      item.innerHTML = `
+        <div class="top-habit-rank-group">
+          <span class="top-habit-rank">${idx + 1}</span>
+          <span class="top-habit-label">${habit.emoji} ${escapeHtml(habit.name)}</span>
+        </div>
+        <span class="top-habit-score-badge">${habit.pct}% (${habit.count}d)</span>
+      `;
+      list.appendChild(item);
+    });
+  }
+
+  // --- 8. Wellness Trend SVG Line Graph (Mood & Sleep) ---
+  function renderWellnessTrendChart() {
+    const svg = document.getElementById('wellnessSvg');
+    const avgSleepStat = document.getElementById('avgSleepStat');
+    const avgMoodStat = document.getElementById('avgMoodStat');
+    svg.innerHTML = '';
+
+    const daysCount = getDaysInMonth(state.year, state.month);
+    const monthLog = getMonthLogData();
+
+    const width = 1000;
+    const height = 150;
+    const paddingX = 40;
+    const paddingY = 20;
+
+    const chartWidth = width - paddingX * 2;
+    const chartHeight = height - paddingY * 2;
+
+    // Background horizontal grid lines
+    for (let i = 0; i <= 4; i++) {
+      const y = paddingY + (chartHeight / 4) * i;
+      const line = document.createElementNS('http://www.w3.org/2000/svg', 'line');
+      line.setAttribute('x1', paddingX);
+      line.setAttribute('x2', width - paddingX);
+      line.setAttribute('y1', y);
+      line.setAttribute('y2', y);
+      line.setAttribute('class', 'chart-grid-line');
+      svg.appendChild(line);
+    }
+
+    // Points calculation
+    const moodPoints = [];
+    const sleepPoints = [];
+    let moodSum = 0;
+    let moodCount = 0;
+    let sleepSum = 0;
+    let sleepCount = 0;
+
+    for (let day = 1; day <= daysCount; day++) {
+      const x = paddingX + ((day - 1) / (daysCount - 1)) * chartWidth;
+
+      // Mood: scale 1 to 5 -> chartHeight down to 0
+      const moodVal = monthLog.wellness.mood[day];
+      if (moodVal !== undefined) {
+        const moodY = paddingY + chartHeight - ((moodVal - 1) / 4) * chartHeight;
+        moodPoints.push({ x, y: moodY, day, val: moodVal });
+        moodSum += moodVal;
+        moodCount++;
+      }
+
+      // Sleep: scale 4h to 10h -> chartHeight down to 0
+      const sleepVal = monthLog.wellness.sleep[day];
+      if (sleepVal !== undefined) {
+        const clamped = Math.max(4, Math.min(10, sleepVal));
+        const sleepY = paddingY + chartHeight - ((clamped - 4) / 6) * chartHeight;
+        sleepPoints.push({ x, y: sleepY, day, val: sleepVal });
+        sleepSum += sleepVal;
+        sleepCount++;
+      }
+    }
+
+    // Draw Mood Path (Green)
+    if (moodPoints.length > 1) {
+      const moodPathData = generateSvgPath(moodPoints);
+      const path = document.createElementNS('http://www.w3.org/2000/svg', 'path');
+      path.setAttribute('d', moodPathData);
+      path.setAttribute('class', 'chart-line-mood');
+      svg.appendChild(path);
+    }
+
+    // Draw Mood Points
+    moodPoints.forEach(p => {
+      const circle = document.createElementNS('http://www.w3.org/2000/svg', 'circle');
+      circle.setAttribute('cx', p.x);
+      circle.setAttribute('cy', p.y);
+      circle.setAttribute('r', 3.5);
+      circle.setAttribute('fill', 'var(--accent-green)');
+      circle.setAttribute('class', 'chart-point');
+      const title = document.createElementNS('http://www.w3.org/2000/svg', 'title');
+      title.textContent = `Day ${p.day}: Mood ${p.val}/5`;
+      circle.appendChild(title);
+      svg.appendChild(circle);
+    });
+
+    // Draw Sleep Path (Blue)
+    if (sleepPoints.length > 1) {
+      const sleepPathData = generateSvgPath(sleepPoints);
+      const path = document.createElementNS('http://www.w3.org/2000/svg', 'path');
+      path.setAttribute('d', sleepPathData);
+      path.setAttribute('class', 'chart-line-sleep');
+      svg.appendChild(path);
+    }
+
+    // Draw Sleep Points
+    sleepPoints.forEach(p => {
+      const circle = document.createElementNS('http://www.w3.org/2000/svg', 'circle');
+      circle.setAttribute('cx', p.x);
+      circle.setAttribute('cy', p.y);
+      circle.setAttribute('r', 3.5);
+      circle.setAttribute('fill', 'var(--accent-blue)');
+      circle.setAttribute('class', 'chart-point');
+      const title = document.createElementNS('http://www.w3.org/2000/svg', 'title');
+      title.textContent = `Day ${p.day}: Sleep ${p.val}h`;
+      circle.appendChild(title);
+      svg.appendChild(circle);
+    });
+
+    // Update Average Badges
+    const avgMood = moodCount > 0 ? (moodSum / moodCount).toFixed(1) : '-';
+    const avgSleep = sleepCount > 0 ? (sleepSum / sleepCount).toFixed(1) : '-';
+    avgMoodStat.textContent = `Avg Mood: ${avgMood} / 5`;
+    avgSleepStat.textContent = `Avg Sleep: ${avgSleep}h`;
+  }
+
+  function generateSvgPath(points) {
+    if (points.length === 0) return '';
+    return points.reduce((acc, point, i) => {
+      return i === 0 ? `M ${point.x} ${point.y}` : `${acc} L ${point.x} ${point.y}`;
+    }, '');
+  }
+
+  // --- 9. Footer Month Navigation Tabs ---
+  function renderMonthTabs() {
+    const nav = document.getElementById('monthTabsNav');
+    nav.innerHTML = '';
+
+    MONTH_NAMES.forEach((name, idx) => {
+      const monthKey = `${state.year}-${idx}`;
+      const log = state.logs[monthKey];
+      const daysCount = getDaysInMonth(state.year, idx);
+      const totalGoal = state.habits.length * daysCount;
+      let completed = 0;
+
+      if (log && log.habits) {
+        state.habits.forEach(h => {
+          if (log.habits[h.id]) {
+            for (let d = 1; d <= daysCount; d++) {
+              if (log.habits[h.id][d]) completed++;
+            }
+          }
+        });
+      }
+
+      const pct = totalGoal > 0 ? Math.round((completed / totalGoal) * 100) : 0;
+
+      const btn = document.createElement('button');
+      btn.className = `month-tab-btn ${idx === state.month ? 'active' : ''}`;
+      btn.innerHTML = `
+        <span>${name}</span>
+        <span class="tab-pct-badge">${pct}%</span>
+      `;
+
+      btn.addEventListener('click', () => {
+        switchMonth(idx);
+      });
+
+      nav.appendChild(btn);
+    });
+  }
+
+  // --- Undo / Redo History Engine ---
+  const MAX_HISTORY = 40;
+  const undoStack = [];
+  const redoStack = [];
+
+  function cloneStateSnapshot(s = state) {
+    return JSON.stringify({
+      year: s.year,
+      month: s.month,
+      habits: s.habits,
+      logs: s.logs,
+      theme: s.theme
+    });
+  }
+
+  function pushHistory() {
+    undoStack.push(cloneStateSnapshot());
+    if (undoStack.length > MAX_HISTORY) {
+      undoStack.shift();
+    }
+    // Clear redo stack on new action
+    redoStack.length = 0;
+    updateUndoRedoButtons();
+  }
+
+  function handleUndo() {
+    if (undoStack.length === 0) return;
+    const currentSnapshot = cloneStateSnapshot();
+    redoStack.push(currentSnapshot);
+
+    const prevSnapshot = undoStack.pop();
+    try {
+      const parsed = JSON.parse(prevSnapshot);
+      state.year = parsed.year;
+      state.month = parsed.month;
+      state.habits = parsed.habits;
+      state.logs = parsed.logs;
+      state.theme = parsed.theme;
+      saveStateToStorage();
+      populateCalendarDropdowns();
+      renderApp();
+      showToast('Undone! ↩️');
+    } catch (e) {
+      console.error('Failed to undo state', e);
+    }
+    updateUndoRedoButtons();
+  }
+
+  function handleRedo() {
+    if (redoStack.length === 0) return;
+    const currentSnapshot = cloneStateSnapshot();
+    undoStack.push(currentSnapshot);
+
+    const nextSnapshot = redoStack.pop();
+    try {
+      const parsed = JSON.parse(nextSnapshot);
+      state.year = parsed.year;
+      state.month = parsed.month;
+      state.habits = parsed.habits;
+      state.logs = parsed.logs;
+      state.theme = parsed.theme;
+      saveStateToStorage();
+      populateCalendarDropdowns();
+      renderApp();
+      showToast('Redone! ↪️');
+    } catch (e) {
+      console.error('Failed to redo state', e);
+    }
+    updateUndoRedoButtons();
+  }
+
+  function updateUndoRedoButtons() {
+    const undoBtn = document.getElementById('undoBtn');
+    const redoBtn = document.getElementById('redoBtn');
+    if (undoBtn) undoBtn.disabled = undoStack.length === 0;
+    if (redoBtn) redoBtn.disabled = redoStack.length === 0;
+  }
+
+  // --- Actions & Event Handlers ---
+  function toggleHabitDay(habitId, day, checked) {
+    pushHistory();
+    const monthLog = getMonthLogData();
+    if (!monthLog.habits[habitId]) {
+      monthLog.habits[habitId] = {};
+    }
+
+    if (checked) {
+      monthLog.habits[habitId][day] = true;
+    } else {
+      delete monthLog.habits[habitId][day];
+    }
+
+    saveStateToStorage();
+
+    // Partial re-renders for max performance
+    renderDailyProgressChart();
+    renderWeeklyProgressChart();
+    renderOverallStatsAndKpis();
+    renderAnalysisTable();
+    renderTopHabitsList();
+    renderMonthTabs();
+    updateUndoRedoButtons();
+  }
+
+  function switchMonth(newMonth) {
+    state.month = parseInt(newMonth, 10);
+    saveStateToStorage();
+    renderApp();
+  }
+
+  function switchYear(newYear) {
+    state.year = parseInt(newYear, 10);
+    saveStateToStorage();
+    renderApp();
+  }
+
+  function highlightDayColumn(day) {
+    const header = document.getElementById(`headerDayCol_${day}`);
+    if (header) {
+      header.scrollIntoView({ behavior: 'smooth', inline: 'center', block: 'nearest' });
+      header.style.backgroundColor = 'var(--accent-white)';
+      header.style.color = 'var(--text-inverse)';
+      setTimeout(() => {
+        header.style.backgroundColor = '';
+        header.style.color = '';
+      }, 700);
+    }
+  }
+
+  function checkAllToday() {
+    pushHistory();
+    const todayObj = new Date();
+    const day = todayObj.getDate();
+    const monthLog = getMonthLogData();
+
+    state.habits.forEach(habit => {
+      if (!monthLog.habits[habit.id]) monthLog.habits[habit.id] = {};
+      monthLog.habits[habit.id][day] = true;
+    });
+
+    saveStateToStorage();
+    renderApp();
+    showToast(`Checked off all habits for Today (Day ${day})! 🎉`);
+  }
+
+  function clearMonthData() {
+    if (confirm(`Are you sure you want to reset all checked habits for ${MONTH_NAMES[state.month]} ${state.year}?`)) {
+      pushHistory();
+      const monthKey = getCurrentMonthKey();
+      if (state.logs[monthKey]) {
+        state.logs[monthKey].habits = {};
+        saveStateToStorage();
+        renderApp();
+        showToast('Month data reset successfully.');
+      }
+    }
+  }
+
+  // --- Habit Form Modals (Add / Edit / Delete) ---
+  function openAddHabitModal() {
+    document.getElementById('modalHabitTitle').textContent = 'Add New Habit';
+    document.getElementById('habitEditId').value = '';
+    document.getElementById('habitNameInput').value = '';
+    document.getElementById('habitEmojiInput').value = '✨';
+    document.getElementById('habitCategoryInput').value = 'Health';
+    document.getElementById('habitTargetDaysInput').value = getDaysInMonth(state.year, state.month);
+
+    document.getElementById('habitModal').classList.remove('hidden');
+    document.getElementById('habitNameInput').focus();
+  }
+
+  function openEditHabitModal(habitId) {
+    const habit = state.habits.find(h => h.id === habitId);
+    if (!habit) return;
+
+    document.getElementById('modalHabitTitle').textContent = 'Edit Habit';
+    document.getElementById('habitEditId').value = habit.id;
+    document.getElementById('habitNameInput').value = habit.name;
+    document.getElementById('habitEmojiInput').value = habit.emoji || '✨';
+    document.getElementById('habitCategoryInput').value = habit.category || 'Health';
+    document.getElementById('habitTargetDaysInput').value = habit.targetDays || 31;
+
+    document.getElementById('habitModal').classList.remove('hidden');
+    document.getElementById('habitNameInput').focus();
+  }
+
+  function handleSaveHabit(e) {
+    e.preventDefault();
+    const editId = document.getElementById('habitEditId').value;
+    const name = document.getElementById('habitNameInput').value.trim();
+    const emoji = document.getElementById('habitEmojiInput').value.trim() || '✨';
+    const category = document.getElementById('habitCategoryInput').value;
+    const targetDays = parseInt(document.getElementById('habitTargetDaysInput').value, 10) || 31;
+
+    if (!name) return;
+    pushHistory();
+
+    if (editId) {
+      const habit = state.habits.find(h => h.id === editId);
+      if (habit) {
+        habit.name = name;
+        habit.emoji = emoji;
+        habit.category = category;
+        habit.targetDays = targetDays;
+      }
+      showToast('Habit updated successfully!');
+    } else {
+      const newHabit = {
+        id: 'h_' + Date.now(),
+        name,
+        emoji,
+        category,
+        targetDays
+      };
+      state.habits.push(newHabit);
+      showToast('New habit added!');
+    }
+
+    saveStateToStorage();
+    document.getElementById('habitModal').classList.add('hidden');
+    renderApp();
+  }
+
+  function deleteHabit(habitId) {
+    const habit = state.habits.find(h => h.id === habitId);
+    if (!habit) return;
+
+    if (confirm(`Delete habit "${habit.name}"?`)) {
+      pushHistory();
+      state.habits = state.habits.filter(h => h.id !== habitId);
+      saveStateToStorage();
+      renderApp();
+      showToast(`Deleted "${habit.name}"`);
+    }
+  }
+
+  function applyPreset(presetKey) {
+    if (!PRESETS[presetKey]) return;
+    if (confirm('Load this routine? You can add, edit, or customize habits anytime.')) {
+      pushHistory();
+      state.habits = JSON.parse(JSON.stringify(PRESETS[presetKey]));
+      saveStateToStorage();
+      document.getElementById('presetsModal').classList.add('hidden');
+      renderApp();
+      showToast('Routine preset applied! 🚀');
+    }
+  }
+
+  // --- Notion Export & File Handlers ---
+  function copyNotionMarkdownTable() {
+    const daysCount = getDaysInMonth(state.year, state.month);
+    const monthLog = getMonthLogData();
+
+    let md = `# Habit Tracker - ${MONTH_NAMES[state.month]} ${state.year}\n\n`;
+    md += `| Habit | Goal | Actual | % | 1 | 5 | 10 | 15 | 20 | 25 | 30 |\n`;
+    md += `| :--- | :--- | :--- | :--- | :---: | :---: | :---: | :---: | :---: | :---: | :---: |\n`;
+
+    state.habits.forEach(h => {
+      let actual = 0;
+      if (monthLog.habits[h.id]) {
+        for (let d = 1; d <= daysCount; d++) {
+          if (monthLog.habits[h.id][d]) actual++;
+        }
+      }
+      const goal = h.targetDays || daysCount;
+      const pct = goal > 0 ? Math.round((actual / goal) * 100) : 0;
+
+      const d1 = monthLog.habits[h.id] && monthLog.habits[h.id][1] ? '✅' : '⬜';
+      const d5 = monthLog.habits[h.id] && monthLog.habits[h.id][5] ? '✅' : '⬜';
+      const d10 = monthLog.habits[h.id] && monthLog.habits[h.id][10] ? '✅' : '⬜';
+      const d15 = monthLog.habits[h.id] && monthLog.habits[h.id][15] ? '✅' : '⬜';
+      const d20 = monthLog.habits[h.id] && monthLog.habits[h.id][20] ? '✅' : '⬜';
+      const d25 = monthLog.habits[h.id] && monthLog.habits[h.id][25] ? '✅' : '⬜';
+      const d30 = monthLog.habits[h.id] && monthLog.habits[h.id][30] ? '✅' : '⬜';
+
+      md += `| ${h.emoji} ${h.name} | ${goal} | ${actual} | ${pct}% | ${d1} | ${d5} | ${d10} | ${d15} | ${d20} | ${d25} | ${d30} |\n`;
+    });
+
+    navigator.clipboard.writeText(md).then(() => {
+      showToast('Notion Markdown table copied to clipboard! 📋');
+    }).catch(() => {
+      showToast('Could not copy directly, please check browser permissions.');
+    });
+  }
+
+  function exportMonthlyPdf() {
+    document.getElementById('exportModal').classList.add('hidden');
+    const prevTitle = document.title;
+    document.title = `Habit_Tracker_${MONTH_NAMES[state.month]}_${state.year}`;
+    setTimeout(() => {
+      window.print();
+      document.title = prevTitle;
+    }, 150);
+  }
+
+  function downloadCsv() {
+    const daysCount = getDaysInMonth(state.year, state.month);
+    const monthLog = getMonthLogData();
+
+    let csv = `Habit,Category,Goal,Actual,Percentage`;
+    for (let d = 1; d <= daysCount; d++) csv += `,Day_${d}`;
+    csv += `\n`;
+
+    state.habits.forEach(h => {
+      let actual = 0;
+      let dayChecks = [];
+      for (let d = 1; d <= daysCount; d++) {
+        const isChecked = !!(monthLog.habits[h.id] && monthLog.habits[h.id][d]);
+        if (isChecked) actual++;
+        dayChecks.push(isChecked ? '1' : '0');
+      }
+      const goal = h.targetDays || daysCount;
+      const pct = goal > 0 ? Math.round((actual / goal) * 100) : 0;
+      csv += `"${h.emoji} ${h.name}","${h.category}",${goal},${actual},${pct}%,${dayChecks.join(',')}\n`;
+    });
+
+    const blob = new Blob([csv], { type: 'text/csv;charset=utf-8;' });
+    const url = URL.createObjectURL(blob);
+    const link = document.createElement('a');
+    link.href = url;
+    link.download = `Habit_Tracker_${MONTH_NAMES[state.month]}_${state.year}.csv`;
+    link.click();
+    URL.revokeObjectURL(url);
+    showToast('CSV downloaded!');
+  }
+
+  function validateAndSanitizeState(raw) {
+    if (!raw || typeof raw !== 'object') {
+      throw new Error('Invalid JSON format: expected an object.');
+    }
+
+    const cleanState = {
+      version: 1,
+      year: typeof raw.year === 'number' && raw.year >= 2026 && raw.year <= 2100 ? raw.year : 2026,
+      month: typeof raw.month === 'number' && raw.month >= 0 && raw.month <= 11 ? raw.month : new Date().getMonth(),
+      habits: [],
+      logs: {},
+      theme: raw.theme === 'light' ? 'light' : 'dark',
+      lastSynced: new Date().toISOString()
+    };
+
+    // Sanitize Habits
+    if (Array.isArray(raw.habits) && raw.habits.length > 0) {
+      cleanState.habits = raw.habits.map((h, i) => ({
+        id: String(h.id || 'h_' + (Date.now() + i)),
+        name: String(h.name || 'Habit ' + (i + 1)).trim(),
+        emoji: String(h.emoji || '✨').trim(),
+        category: String(h.category || 'General').trim(),
+        targetDays: typeof h.targetDays === 'number' && h.targetDays > 0 ? h.targetDays : 31
+      }));
+    } else {
+      cleanState.habits = JSON.parse(JSON.stringify(PRESETS.reference));
+    }
+
+    // Sanitize Logs
+    if (raw.logs && typeof raw.logs === 'object') {
+      Object.keys(raw.logs).forEach(key => {
+        const monthLog = raw.logs[key];
+        if (monthLog && typeof monthLog === 'object') {
+          cleanState.logs[key] = {
+            habits: {},
+            wellness: {
+              mood: {},
+              sleep: {}
+            }
+          };
+
+          // Sanitize habit checks
+          if (monthLog.habits && typeof monthLog.habits === 'object') {
+            Object.keys(monthLog.habits).forEach(hId => {
+              cleanState.logs[key].habits[hId] = {};
+              if (monthLog.habits[hId] && typeof monthLog.habits[hId] === 'object') {
+                Object.keys(monthLog.habits[hId]).forEach(day => {
+                  if (monthLog.habits[hId][day]) {
+                    cleanState.logs[key].habits[hId][day] = true;
+                  }
+                });
+              }
+            });
+          }
+
+          // Sanitize wellness
+          if (monthLog.wellness && typeof monthLog.wellness === 'object') {
+            if (monthLog.wellness.mood && typeof monthLog.wellness.mood === 'object') {
+              Object.keys(monthLog.wellness.mood).forEach(day => {
+                const score = parseInt(monthLog.wellness.mood[day], 10);
+                if (!isNaN(score) && score >= 1 && score <= 5) {
+                  cleanState.logs[key].wellness.mood[day] = score;
+                }
+              });
+            }
+            if (monthLog.wellness.sleep && typeof monthLog.wellness.sleep === 'object') {
+              Object.keys(monthLog.wellness.sleep).forEach(day => {
+                const hours = parseFloat(monthLog.wellness.sleep[day]);
+                if (!isNaN(hours) && hours >= 0 && hours <= 24) {
+                  cleanState.logs[key].wellness.sleep[day] = hours;
+                }
+              });
+            }
+          }
+        }
+      });
+    }
+
+    return cleanState;
+  }
+
+  function downloadJsonBackup() {
+    state.version = 1;
+    state.lastExported = new Date().toISOString();
+    const jsonStr = JSON.stringify(state, null, 2);
+    const blob = new Blob([jsonStr], { type: 'application/json;charset=utf-8;' });
+    const url = URL.createObjectURL(blob);
+    const link = document.createElement('a');
+    link.href = url;
+    link.download = `Habit_Tracker_Backup_${state.year}_${MONTH_NAMES[state.month]}.json`;
+    link.click();
+    URL.revokeObjectURL(url);
+    showToast('JSON backup downloaded! 💾');
+  }
+
+  function copyJsonText() {
+    state.version = 1;
+    state.lastExported = new Date().toISOString();
+    const jsonStr = JSON.stringify(state, null, 2);
+    navigator.clipboard.writeText(jsonStr).then(() => {
+      showToast('JSON copied! Paste on any device to sync. 📋');
+    }).catch(() => {
+      showToast('Please allow clipboard permissions or use Download JSON.');
+    });
+  }
+
+  function togglePasteJsonSection() {
+    const sec = document.getElementById('pasteJsonSection');
+    sec.classList.toggle('hidden');
+    if (!sec.classList.contains('hidden')) {
+      const textarea = document.getElementById('pasteJsonTextarea');
+      textarea.focus();
+    }
+  }
+
+  function applyPastedJson() {
+    const textarea = document.getElementById('pasteJsonTextarea');
+    const content = textarea.value.trim();
+    if (!content) {
+      alert('Please paste your JSON backup data into the box.');
+      return;
+    }
+
+    try {
+      const parsed = JSON.parse(content);
+      const clean = validateAndSanitizeState(parsed);
+      state = clean;
+      saveStateToStorage();
+      renderApp();
+      textarea.value = '';
+      document.getElementById('pasteJsonSection').classList.add('hidden');
+      document.getElementById('exportModal').classList.add('hidden');
+      showToast('Cross-device data synced successfully! 🚀');
+    } catch (err) {
+      alert('Invalid JSON data: ' + err.message);
+    }
+  }
+
+  function cancelPasteJson() {
+    document.getElementById('pasteJsonTextarea').value = '';
+    document.getElementById('pasteJsonSection').classList.add('hidden');
+  }
+
+  function handleImportJson(e) {
+    const file = e.target.files[0];
+    if (!file) return;
+
+    const reader = new FileReader();
+    reader.onload = function(evt) {
+      try {
+        const imported = JSON.parse(evt.target.result);
+        const clean = validateAndSanitizeState(imported);
+        state = clean;
+        saveStateToStorage();
+        renderApp();
+        document.getElementById('exportModal').classList.add('hidden');
+        showToast('JSON backup restored successfully! 🚀');
+      } catch (err) {
+        alert('Failed to parse backup JSON file: ' + err.message);
+      } finally {
+        e.target.value = '';
+      }
+    };
+    reader.readAsText(file);
+  }
+
+  // --- UI Toast & Helpers ---
+  function showToast(message) {
+    const container = document.getElementById('toastContainer');
+    const toast = document.createElement('div');
+    toast.className = 'toast';
+    toast.innerHTML = `
+      <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="20 6 9 17 4 12"></polyline></svg>
+      <span>${escapeHtml(message)}</span>
+    `;
+    container.appendChild(toast);
+    setTimeout(() => {
+      toast.style.opacity = '0';
+      toast.style.transition = 'opacity 0.3s ease';
+      setTimeout(() => toast.remove(), 300);
+    }, 2800);
+  }
+
+  function escapeHtml(str) {
+    if (!str) return '';
+    return str.replace(/&/g, '&amp;')
+              .replace(/</g, '&lt;')
+              .replace(/>/g, '&gt;')
+              .replace(/"/g, '&quot;')
+              .replace(/'/g, '&#039;');
+  }
+
+  // --- Global Event Listeners ---
+  function setupEventListeners() {
+    // Dropdown change handlers
+    document.getElementById('monthSelect').addEventListener('change', (e) => switchMonth(e.target.value));
+    document.getElementById('yearSelect').addEventListener('change', (e) => switchYear(e.target.value));
+
+    // Today Button
+    document.getElementById('todayBtn').addEventListener('click', () => {
+      const now = new Date();
+      state.year = now.getFullYear();
+      state.month = now.getMonth();
+      saveStateToStorage();
+      renderApp();
+      setTimeout(() => highlightDayColumn(now.getDate()), 150);
+    });
+
+    // Theme Toggle Button
+    document.getElementById('themeToggleBtn').addEventListener('click', () => {
+      state.theme = state.theme === 'dark' ? 'light' : 'dark';
+      saveStateToStorage();
+      applyTheme();
+    });
+
+    // Quick Matrix Actions
+    document.getElementById('batchCheckTodayBtn').addEventListener('click', checkAllToday);
+    document.getElementById('clearMonthBtn').addEventListener('click', clearMonthData);
+
+    // Modal Triggers
+    document.getElementById('addHabitBtn').addEventListener('click', openAddHabitModal);
+    document.getElementById('closeHabitModalBtn').addEventListener('click', () => {
+      document.getElementById('habitModal').classList.add('hidden');
+    });
+    document.getElementById('cancelHabitBtn').addEventListener('click', () => {
+      document.getElementById('habitModal').classList.add('hidden');
+    });
+    document.getElementById('habitForm').addEventListener('submit', handleSaveHabit);
+
+    // Presets Modal
+    document.getElementById('presetTemplatesBtn').addEventListener('click', () => {
+      document.getElementById('presetsModal').classList.remove('hidden');
+    });
+    document.getElementById('closePresetsModalBtn').addEventListener('click', () => {
+      document.getElementById('presetsModal').classList.add('hidden');
+    });
+    document.querySelectorAll('.preset-card').forEach(card => {
+      card.querySelector('.apply-preset-btn').addEventListener('click', () => {
+        applyPreset(card.dataset.preset);
+      });
+    });
+
+    // How to Use Modal
+    document.getElementById('howToUseBtn').addEventListener('click', () => {
+      document.getElementById('howToUseModal').classList.remove('hidden');
+    });
+    document.getElementById('closeHowToUseModalBtn').addEventListener('click', () => {
+      document.getElementById('howToUseModal').classList.add('hidden');
+    });
+
+    // Export Modal
+    document.getElementById('exportModalBtn').addEventListener('click', () => {
+      document.getElementById('exportModal').classList.remove('hidden');
+    });
+    document.getElementById('closeExportModalBtn').addEventListener('click', () => {
+      document.getElementById('exportModal').classList.add('hidden');
+    });
+    document.getElementById('downloadPdfBtn').addEventListener('click', exportMonthlyPdf);
+    document.getElementById('copyNotionMdBtn').addEventListener('click', copyNotionMarkdownTable);
+    document.getElementById('downloadCsvBtn').addEventListener('click', downloadCsv);
+    document.getElementById('downloadJsonBtn').addEventListener('click', downloadJsonBackup);
+    document.getElementById('copyJsonTextBtn').addEventListener('click', copyJsonText);
+    document.getElementById('togglePasteJsonBtn').addEventListener('click', togglePasteJsonSection);
+    document.getElementById('applyPastedJsonBtn').addEventListener('click', applyPastedJson);
+    document.getElementById('cancelPasteJsonBtn').addEventListener('click', cancelPasteJson);
+    document.getElementById('importJsonInput').addEventListener('change', handleImportJson);
+
+    // Table Event Delegation (Edit/Delete icons)
+    document.getElementById('habitTableBody').addEventListener('click', (e) => {
+      const editBtn = e.target.closest('.edit-habit-btn');
+      if (editBtn) {
+        openEditHabitModal(editBtn.dataset.id);
+        return;
+      }
+      const deleteBtn = e.target.closest('.delete-habit-btn');
+      if (deleteBtn) {
+        deleteHabit(deleteBtn.dataset.id);
+      }
+    });
+
+    // Undo & Redo Button Handlers
+    document.getElementById('undoBtn').addEventListener('click', handleUndo);
+    document.getElementById('redoBtn').addEventListener('click', handleRedo);
+
+    // Global Keyboard Shortcuts (Ctrl+Z, Ctrl+Y, Ctrl+Shift+Z, Cmd+Z, Cmd+Shift+Z)
+    window.addEventListener('keydown', (e) => {
+      if (['INPUT', 'TEXTAREA', 'SELECT'].includes(document.activeElement.tagName)) {
+        return;
+      }
+      if ((e.ctrlKey || e.metaKey) && e.key.toLowerCase() === 'z') {
+        if (e.shiftKey) {
+          e.preventDefault();
+          handleRedo();
+        } else {
+          e.preventDefault();
+          handleUndo();
+        }
+      } else if ((e.ctrlKey || e.metaKey) && e.key.toLowerCase() === 'y') {
+        e.preventDefault();
+        handleRedo();
+      }
+    });
+
+    // Close Modals on background click
+    window.addEventListener('click', (e) => {
+      ['habitModal', 'presetsModal', 'howToUseModal', 'exportModal'].forEach(modalId => {
+        const modal = document.getElementById(modalId);
+        if (e.target === modal) {
+          modal.classList.add('hidden');
+        }
+      });
+    });
+  }
+
+  // Run on DOM ready
+  if (document.readyState === 'loading') {
+    document.addEventListener('DOMContentLoaded', init);
+  } else {
+    init();
+  }
+
+})();
+
+</script>
+</body>
+</html>
