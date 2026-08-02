@@ -1081,6 +1081,16 @@
     });
   }
 
+  function exportMonthlyPdf() {
+    document.getElementById('exportModal').classList.add('hidden');
+    const prevTitle = document.title;
+    document.title = `Habit_Tracker_${MONTH_NAMES[state.month]}_${state.year}`;
+    setTimeout(() => {
+      window.print();
+      document.title = prevTitle;
+    }, 150);
+  }
+
   function downloadCsv() {
     const daysCount = getDaysInMonth(state.year, state.month);
     const monthLog = getMonthLogData();
@@ -1246,6 +1256,7 @@
     document.getElementById('closeExportModalBtn').addEventListener('click', () => {
       document.getElementById('exportModal').classList.add('hidden');
     });
+    document.getElementById('downloadPdfBtn').addEventListener('click', exportMonthlyPdf);
     document.getElementById('copyNotionMdBtn').addEventListener('click', copyNotionMarkdownTable);
     document.getElementById('downloadCsvBtn').addEventListener('click', downloadCsv);
     document.getElementById('downloadJsonBtn').addEventListener('click', downloadJsonBackup);
