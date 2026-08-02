@@ -1122,13 +1122,147 @@
     showToast('CSV downloaded!');
   }
 
+  function validateAndSanitizeState(raw) {
+    if (!raw || typeof raw !== 'object') {
+      throw new Error('Invalid JSON format: expected an object.');
+    }
+
+    const cleanState = {
+      version: 1,
+      year: typeof raw.year === 'number' && raw.year >= 2020 && raw.year <= 2040 ? raw.year : new Date().getFullYear(),
+      month: typeof raw.month === 'number' && raw.month >= 0 && raw.month <= 11 ? raw.month : new Date().getMonth(),
+      habits: [],
+      logs: {},
+      theme: raw.theme === 'light' ? 'light' : 'dark',
+      lastSynced: new Date().toISOString()
+    };
+
+    // Sanitize Habits
+    if (Array.isArray(raw.habits) && raw.habits.length > 0) {
+      cleanState.habits = raw.habits.map((h, i) => ({
+        id: String(h.id || 'h_' + (Date.now() + i)),
+        name: String(h.name || 'Habit ' + (i + 1)).trim(),
+        emoji: String(h.emoji || '✨').trim(),
+        category: String(h.category || 'General').trim(),
+        targetDays: typeof h.targetDays === 'number' && h.targetDays > 0 ? h.targetDays : 31
+      }));
+    } else {
+      cleanState.habits = JSON.parse(JSON.stringify(PRESETS.reference));
+    }
+
+    // Sanitize Logs
+    if (raw.logs && typeof raw.logs === 'object') {
+      Object.keys(raw.logs).forEach(key => {
+        const monthLog = raw.logs[key];
+        if (monthLog && typeof monthLog === 'object') {
+          cleanState.logs[key] = {
+            habits: {},
+            wellness: {
+              mood: {},
+              sleep: {}
+            }
+          };
+
+          // Sanitize habit checks
+          if (monthLog.habits && typeof monthLog.habits === 'object') {
+            Object.keys(monthLog.habits).forEach(hId => {
+              cleanState.logs[key].habits[hId] = {};
+              if (monthLog.habits[hId] && typeof monthLog.habits[hId] === 'object') {
+                Object.keys(monthLog.habits[hId]).forEach(day => {
+                  if (monthLog.habits[hId][day]) {
+                    cleanState.logs[key].habits[hId][day] = true;
+                  }
+                });
+              }
+            });
+          }
+
+          // Sanitize wellness
+          if (monthLog.wellness && typeof monthLog.wellness === 'object') {
+            if (monthLog.wellness.mood && typeof monthLog.wellness.mood === 'object') {
+              Object.keys(monthLog.wellness.mood).forEach(day => {
+                const score = parseInt(monthLog.wellness.mood[day], 10);
+                if (!isNaN(score) && score >= 1 && score <= 5) {
+                  cleanState.logs[key].wellness.mood[day] = score;
+                }
+              });
+            }
+            if (monthLog.wellness.sleep && typeof monthLog.wellness.sleep === 'object') {
+              Object.keys(monthLog.wellness.sleep).forEach(day => {
+                const hours = parseFloat(monthLog.wellness.sleep[day]);
+                if (!isNaN(hours) && hours >= 0 && hours <= 24) {
+                  cleanState.logs[key].wellness.sleep[day] = hours;
+                }
+              });
+            }
+          }
+        }
+      });
+    }
+
+    return cleanState;
+  }
+
   function downloadJsonBackup() {
-    const dataStr = 'data:text/json;charset=utf-8,' + encodeURIComponent(JSON.stringify(state, null, 2));
+    state.version = 1;
+    state.lastExported = new Date().toISOString();
+    const jsonStr = JSON.stringify(state, null, 2);
+    const blob = new Blob([jsonStr], { type: 'application/json;charset=utf-8;' });
+    const url = URL.createObjectURL(blob);
     const link = document.createElement('a');
-    link.setAttribute('href', dataStr);
-    link.setAttribute('download', `Habit_OS_Backup_${state.year}.json`);
+    link.href = url;
+    link.download = `Habit_Tracker_Backup_${state.year}_${MONTH_NAMES[state.month]}.json`;
     link.click();
-    showToast('JSON backup saved!');
+    URL.revokeObjectURL(url);
+    showToast('JSON backup downloaded! 💾');
+  }
+
+  function copyJsonText() {
+    state.version = 1;
+    state.lastExported = new Date().toISOString();
+    const jsonStr = JSON.stringify(state, null, 2);
+    navigator.clipboard.writeText(jsonStr).then(() => {
+      showToast('JSON copied! Paste on any device to sync. 📋');
+    }).catch(() => {
+      showToast('Please allow clipboard permissions or use Download JSON.');
+    });
+  }
+
+  function togglePasteJsonSection() {
+    const sec = document.getElementById('pasteJsonSection');
+    sec.classList.toggle('hidden');
+    if (!sec.classList.contains('hidden')) {
+      const textarea = document.getElementById('pasteJsonTextarea');
+      textarea.focus();
+    }
+  }
+
+  function applyPastedJson() {
+    const textarea = document.getElementById('pasteJsonTextarea');
+    const content = textarea.value.trim();
+    if (!content) {
+      alert('Please paste your JSON backup data into the box.');
+      return;
+    }
+
+    try {
+      const parsed = JSON.parse(content);
+      const clean = validateAndSanitizeState(parsed);
+      state = clean;
+      saveStateToStorage();
+      renderApp();
+      textarea.value = '';
+      document.getElementById('pasteJsonSection').classList.add('hidden');
+      document.getElementById('exportModal').classList.add('hidden');
+      showToast('Cross-device data synced successfully! 🚀');
+    } catch (err) {
+      alert('Invalid JSON data: ' + err.message);
+    }
+  }
+
+  function cancelPasteJson() {
+    document.getElementById('pasteJsonTextarea').value = '';
+    document.getElementById('pasteJsonSection').classList.add('hidden');
   }
 
   function handleImportJson(e) {
@@ -1139,17 +1273,16 @@
     reader.onload = function(evt) {
       try {
         const imported = JSON.parse(evt.target.result);
-        if (imported && Array.isArray(imported.habits)) {
-          state = imported;
-          saveStateToStorage();
-          renderApp();
-          document.getElementById('exportModal').classList.add('hidden');
-          showToast('Data restored successfully!');
-        } else {
-          alert('Invalid backup file format.');
-        }
+        const clean = validateAndSanitizeState(imported);
+        state = clean;
+        saveStateToStorage();
+        renderApp();
+        document.getElementById('exportModal').classList.add('hidden');
+        showToast('JSON backup restored successfully! 🚀');
       } catch (err) {
-        alert('Failed to parse backup JSON file.');
+        alert('Failed to parse backup JSON file: ' + err.message);
+      } finally {
+        e.target.value = '';
       }
     };
     reader.readAsText(file);
@@ -1260,6 +1393,10 @@
     document.getElementById('copyNotionMdBtn').addEventListener('click', copyNotionMarkdownTable);
     document.getElementById('downloadCsvBtn').addEventListener('click', downloadCsv);
     document.getElementById('downloadJsonBtn').addEventListener('click', downloadJsonBackup);
+    document.getElementById('copyJsonTextBtn').addEventListener('click', copyJsonText);
+    document.getElementById('togglePasteJsonBtn').addEventListener('click', togglePasteJsonSection);
+    document.getElementById('applyPastedJsonBtn').addEventListener('click', applyPastedJson);
+    document.getElementById('cancelPasteJsonBtn').addEventListener('click', cancelPasteJson);
     document.getElementById('importJsonInput').addEventListener('change', handleImportJson);
 
     // Table Event Delegation (Edit/Delete icons)
