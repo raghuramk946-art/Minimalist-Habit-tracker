@@ -1,0 +1,17 @@
+{
+  "name": "minimalist-habit-tracker",
+  "version": "1.0.0",
+  "description": "Minimalist Notion-Style Habit Tracker & Analytics Dashboard",
+  "scripts": {
+    "dev": "node dev-server.js",
+    "start": "node dev-server.js"
+  },
+  "keywords": [
+    "habit-tracker",
+    "notion",
+    "productivity",
+    "dashboard"
+  ],
+  "author": "raghu",
+  "license": "MIT"
+}
