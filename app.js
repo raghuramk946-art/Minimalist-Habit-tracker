@@ -8,7 +8,7 @@
   'use strict';
 
   // --- Constants & Defaults ---
-  const STORAGE_KEY = 'notion_habit_os_v1';
+  const STORAGE_KEY = 'notion_habit_os_v2';
   const MONTH_NAMES = [
     'January', 'February', 'March', 'April', 'May', 'June',
     'July', 'August', 'September', 'October', 'November', 'December'
@@ -64,11 +64,11 @@
   };
 
   // --- State Object ---
+  const today = new Date();
   let state = {
-    year: 2026,
-    month: 2, // 0 = Jan, 2 = March (matching photos)
+    year: today.getFullYear(),
+    month: today.getMonth(),
     habits: [],
-    // logs structure: { "year-month": { habitId: { dayNumber: boolean }, wellness: { mood: { day: score }, sleep: { day: hours } } } }
     logs: {},
     theme: 'dark'
   };
@@ -105,43 +105,12 @@
   }
 
   function seedInitialState() {
-    state.year = 2026;
-    state.month = 2; // March
+    const now = new Date();
+    state.year = now.getFullYear();
+    state.month = now.getMonth();
     state.habits = JSON.parse(JSON.stringify(PRESETS.reference));
     state.logs = {};
     state.theme = 'dark';
-
-    // Seed realistic checks for March 2026 matching the photo (days 1-21 completed with realistic distribution)
-    const monthKey = `2026-2`;
-    state.logs[monthKey] = {
-      habits: {},
-      wellness: {
-        mood: {},
-        sleep: {}
-      }
-    };
-
-    state.habits.forEach((habit, idx) => {
-      state.logs[monthKey].habits[habit.id] = {};
-      const targetRate = [0.95, 0.90, 0.85, 0.90, 0.78, 0.82, 0.80, 0.92, 0.75, 0.88, 0.85, 0.80][idx % 12];
-      
-      for (let day = 1; day <= 21; day++) {
-        // Deterministic pseudo-random based on day and habit index
-        const rand = ((day * 13 + idx * 7) % 100) / 100;
-        if (rand < targetRate) {
-          state.logs[monthKey].habits[habit.id][day] = true;
-        }
-      }
-    });
-
-    // Seed Wellness logs for days 1-21
-    for (let day = 1; day <= 21; day++) {
-      const moodScores = [4, 5, 5, 4, 3, 5, 4, 4, 5, 5, 3, 4, 5, 5, 4, 4, 5, 4, 5, 4, 5];
-      const sleepHours = [7.5, 8.0, 7.0, 8.5, 6.5, 8.0, 7.5, 8.0, 7.0, 8.5, 7.0, 7.5, 8.0, 8.0, 7.5, 7.0, 8.5, 7.5, 8.0, 8.0, 7.5];
-      state.logs[monthKey].wellness.mood[day] = moodScores[(day - 1) % moodScores.length];
-      state.logs[monthKey].wellness.sleep[day] = sleepHours[(day - 1) % sleepHours.length];
-    }
-
     saveStateToStorage();
   }
 
