@@ -66,7 +66,7 @@
   // --- State Object ---
   const today = new Date();
   let state = {
-    year: today.getFullYear(),
+    year: Math.max(2026, Math.min(2100, today.getFullYear())),
     month: today.getMonth(),
     habits: [],
     logs: {},
@@ -87,6 +87,9 @@
       const saved = localStorage.getItem(STORAGE_KEY);
       if (saved) {
         state = JSON.parse(saved);
+        if (!state.year || state.year < 2026 || state.year > 2100) {
+          state.year = 2026;
+        }
       } else {
         seedInitialState();
       }
@@ -106,7 +109,7 @@
 
   function seedInitialState() {
     const now = new Date();
-    state.year = now.getFullYear();
+    state.year = Math.max(2026, Math.min(2100, now.getFullYear()));
     state.month = now.getMonth();
     state.habits = JSON.parse(JSON.stringify(PRESETS.reference));
     state.logs = {};
@@ -152,8 +155,7 @@
     });
 
     yearSelect.innerHTML = '';
-    const currentYear = new Date().getFullYear();
-    for (let y = currentYear - 2; y <= currentYear + 4; y++) {
+    for (let y = 2026; y <= 2100; y++) {
       const opt = document.createElement('option');
       opt.value = y;
       opt.textContent = y;
@@ -1098,7 +1100,7 @@
 
     const cleanState = {
       version: 1,
-      year: typeof raw.year === 'number' && raw.year >= 2020 && raw.year <= 2040 ? raw.year : new Date().getFullYear(),
+      year: typeof raw.year === 'number' && raw.year >= 2026 && raw.year <= 2100 ? raw.year : 2026,
       month: typeof raw.month === 'number' && raw.month >= 0 && raw.month <= 11 ? raw.month : new Date().getMonth(),
       habits: [],
       logs: {},
@@ -1333,22 +1335,12 @@
       });
     });
 
-    // Notion Guide Modal
-    document.getElementById('notionGuideBtn').addEventListener('click', () => {
-      document.getElementById('notionModal').classList.remove('hidden');
+    // How to Use Modal
+    document.getElementById('howToUseBtn').addEventListener('click', () => {
+      document.getElementById('howToUseModal').classList.remove('hidden');
     });
-    document.getElementById('closeNotionModalBtn').addEventListener('click', () => {
-      document.getElementById('notionModal').classList.add('hidden');
-    });
-    document.querySelectorAll('.notion-guide-tabs .tab-btn').forEach(btn => {
-      btn.addEventListener('click', () => {
-        document.querySelectorAll('.notion-guide-tabs .tab-btn').forEach(b => b.classList.remove('active'));
-        btn.classList.add('active');
-        const tab = btn.dataset.tab;
-        document.getElementById('tabContentEmbed').classList.toggle('hidden', tab !== 'embed');
-        document.getElementById('tabContentDatabase').classList.toggle('hidden', tab !== 'database');
-        document.getElementById('tabContentFormulas').classList.toggle('hidden', tab !== 'formulas');
-      });
+    document.getElementById('closeHowToUseModalBtn').addEventListener('click', () => {
+      document.getElementById('howToUseModal').classList.add('hidden');
     });
 
     // Export Modal
@@ -1383,7 +1375,7 @@
 
     // Close Modals on background click
     window.addEventListener('click', (e) => {
-      ['habitModal', 'presetsModal', 'notionModal', 'exportModal'].forEach(modalId => {
+      ['habitModal', 'presetsModal', 'howToUseModal', 'exportModal'].forEach(modalId => {
         const modal = document.getElementById(modalId);
         if (e.target === modal) {
           modal.classList.add('hidden');

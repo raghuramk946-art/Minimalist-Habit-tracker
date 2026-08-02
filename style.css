@@ -1398,62 +1398,67 @@ body {
   line-height: 1.4;
 }
 
-/* Notion Guide Modal Styles */
-.notion-guide-tabs {
+/* How to Use Guide Modal Styles */
+.how-to-use-grid {
   display: flex;
-  gap: 8px;
-  margin-bottom: 16px;
-  border-bottom: 1px solid var(--border-subtle);
-  padding-bottom: 8px;
+  flex-direction: column;
+  gap: 12px;
 }
 
-.tab-btn {
-  background: transparent;
-  border: none;
-  color: var(--text-muted);
-  font-size: 12px;
-  font-weight: 600;
-  padding: 6px 12px;
-  border-radius: var(--radius-sm);
-  cursor: pointer;
-}
-
-.tab-btn.active {
-  background-color: var(--bg-tertiary);
-  color: var(--text-primary);
-}
-
-.callout-box {
-  background-color: var(--bg-secondary);
-  border-left: 3px solid var(--accent-blue);
-  padding: 10px 14px;
-  border-radius: var(--radius-sm);
-  margin-top: 14px;
-  font-size: 12px;
-}
-
-.code-snippet-block {
-  margin-top: 12px;
+.guide-step-card {
+  display: flex;
+  align-items: flex-start;
+  gap: 14px;
   background-color: var(--bg-secondary);
   border: 1px solid var(--border-subtle);
   border-radius: var(--radius-sm);
-  overflow: hidden;
+  padding: 14px;
+  transition: border-color var(--transition-fast), transform var(--transition-fast);
 }
 
-.code-title {
-  padding: 6px 10px;
-  font-size: 10px;
-  font-weight: 700;
-  color: var(--text-muted);
-  border-bottom: 1px solid var(--border-subtle);
+.guide-step-card:hover {
+  border-color: var(--border-strong);
+  transform: translateY(-1px);
 }
 
-.code-snippet-block pre {
-  padding: 10px;
-  font-family: var(--font-mono);
-  font-size: 11px;
+.step-badge {
+  flex-shrink: 0;
+  width: 32px;
+  height: 32px;
+  border-radius: 50%;
+  background-color: var(--bg-tertiary);
+  border: 1px solid var(--border-strong);
   color: var(--text-primary);
-  overflow-x: auto;
+  font-family: var(--font-mono);
+  font-weight: 800;
+  font-size: 13px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.step-info h4 {
+  font-size: 13px;
+  font-weight: 700;
+  margin-bottom: 4px;
+  color: var(--text-primary);
+}
+
+.step-info p {
+  font-size: 12px;
+  color: var(--text-secondary);
+  line-height: 1.5;
+}
+
+.guide-footer-tip {
+  margin-top: 14px;
+  background-color: var(--bg-secondary);
+  border-left: 3px solid var(--accent-white);
+  padding: 12px 14px;
+  border-radius: var(--radius-sm);
+  font-size: 12px;
+  color: var(--text-primary);
+  line-height: 1.5;
 }
 
 /* Export Options */

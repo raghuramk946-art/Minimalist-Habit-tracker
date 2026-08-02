@@ -48,9 +48,9 @@
           <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"></path><polyline points="14 2 14 8 20 8"></polyline><line x1="16" y1="13" x2="8" y2="13"></line><line x1="16" y1="17" x2="8" y2="17"></line><polyline points="10 9 9 9 8 9"></polyline></svg>
           <span>Presets</span>
         </button>
-        <button id="notionGuideBtn" class="btn btn-secondary" title="Notion Setup Guide & Formula">
-          <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M4 19.5A2.5 2.5 0 0 1 6.5 17H20"></path><path d="M6.5 2H20v20H6.5A2.5 2.5 0 0 1 4 19.5v-15A2.5 2.5 0 0 1 6.5 2z"></path></svg>
-          <span>Notion Setup</span>
+        <button id="howToUseBtn" class="btn btn-secondary" title="How to Use & Feature Guide">
+          <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"></circle><path d="M9.09 9a3 3 0 0 1 5.83 1c0 2-3 3-3 3"></path><line x1="12" y1="17" x2="12.01" y2="17"></line></svg>
+          <span>How to Use</span>
         </button>
         <button id="exportModalBtn" class="btn btn-secondary" title="Export to Notion / CSV / JSON">
           <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"></path><polyline points="7 10 12 15 17 10"></polyline><line x1="12" y1="15" x2="12" y2="3"></line></svg>
@@ -331,75 +331,65 @@
     </div>
   </div>
 
-  <!-- 3. Notion Setup Guide & Database Formula Modal -->
-  <div id="notionModal" class="modal-backdrop hidden" role="dialog" aria-modal="true" aria-labelledby="modalNotionTitle">
+  <!-- 3. HOW TO USE Guide Modal -->
+  <div id="howToUseModal" class="modal-backdrop hidden" role="dialog" aria-modal="true" aria-labelledby="modalHowToUseTitle">
     <div class="modal-dialog modal-lg">
       <div class="modal-header">
-        <h3 id="modalNotionTitle">Notion Setup Guide & Formulas</h3>
-        <button class="modal-close-btn" id="closeNotionModalBtn">&times;</button>
+        <h3 id="modalHowToUseTitle">⚡ How to Use the Habit Tracker</h3>
+        <button class="modal-close-btn" id="closeHowToUseModalBtn">&times;</button>
       </div>
-      <div class="modal-body markdown-body">
-        <div class="notion-guide-tabs">
-          <button class="tab-btn active" data-tab="embed">Option 1: Embed Live App in Notion</button>
-          <button class="tab-btn" data-tab="database">Option 2: Native Notion Database</button>
-          <button class="tab-btn" data-tab="formulas">Option 3: Notion Formulas 2.0</button>
-        </div>
-
-        <div class="tab-content" id="tabContentEmbed">
-          <h4>🌟 Recommended: Embed This Interactive App in Notion</h4>
-          <p>You can embed this exact interactive dashboard directly inside any Notion page:</p>
-          <ol>
-            <li>Host this app or run it locally.</li>
-            <li>In your Notion page, type <code>/embed</code> and press Enter.</li>
-            <li>Paste your app URL and expand the block full-width!</li>
-          </ol>
-          <div class="callout-box">
-            <strong>💡 Pro-Tip:</strong> The app auto-saves all data to local browser storage, keeping your Notion setup lightning-fast without cluttering your Notion block limits.
-          </div>
-        </div>
-
-        <div class="tab-content hidden" id="tabContentDatabase">
-          <h4>🗂️ Native Notion Habit Tracker Database Structure</h4>
-          <p>To recreate this habit matrix natively in Notion:</p>
-          <ul>
-            <li><strong>Habits Database:</strong>
-              <ul>
-                <li><code>Name</code> (Title) - Habit Name & Emoji</li>
-                <li><code>Goal</code> (Number) - 31</li>
-                <li><code>Daily Logs</code> (Relation to Daily Log database)</li>
-                <li><code>Actual</code> (Rollup: Count of checked days)</li>
-                <li><code>Progress Bar</code> (Formula: Progress Bar visual)</li>
-                <li><code>Success Rate %</code> (Formula: <code>round(prop("Actual") / prop("Goal") * 100) + "%"</code>)</li>
-              </ul>
-            </li>
-            <li><strong>Daily Log Database:</strong>
-              <ul>
-                <li><code>Date</code> (Date)</li>
-                <li><code>Day of Week</code> (Formula)</li>
-                <li><code>Habits Completed</code> (Relation to Habits)</li>
-                <li><code>Mood</code> (Select: 1-5)</li>
-                <li><code>Hours of Sleep</code> (Number)</li>
-              </ul>
-            </li>
-          </ul>
-        </div>
-
-        <div class="tab-content hidden" id="tabContentFormulas">
-          <h4>⚡ Notion Formulas 2.0 Code Snippets</h4>
-          <p>Copy-paste these formulas into your Notion properties:</p>
+      <div class="modal-body">
+        <div class="how-to-use-grid">
           
-          <div class="code-snippet-block">
-            <div class="code-title">Progress Bar Formula (Formulas 2.0):</div>
-            <pre><code>let(
-  pct, prop("Actual") / prop("Goal"),
-  repeat("■", round(pct * 15)) + repeat("□", 15 - round(pct * 15)) + " " + round(pct * 100) + "%"
-)</code></pre>
+          <!-- Step 1 -->
+          <div class="guide-step-card">
+            <div class="step-badge">01</div>
+            <div class="step-info">
+              <h4>Track Your Daily Habits</h4>
+              <p>Check off completed habits on today's column in the <strong>31-Day Matrix</strong>. Click <strong>"Add Habit"</strong> to create custom habits with emojis, or pick curated routines from <strong>"Presets"</strong>. Finished everything today? Hit <strong>"✓ Check Today"</strong> for instant completion!</p>
+            </div>
           </div>
 
-          <div class="code-snippet-block">
-            <div class="code-title">Streak Calculator Formula:</div>
-            <pre><code>if(prop("Actual") >= 21, "🔥 " + prop("Actual") + " Day Streak!", "⚡ " + prop("Actual") + " Days")</code></pre>
+          <!-- Step 2 -->
+          <div class="guide-step-card">
+            <div class="step-badge">02</div>
+            <div class="step-info">
+              <h4>Watch Live Analytics & Streaks</h4>
+              <p>Your performance updates in real-time across the <strong>Daily & Weekly Progress Bars</strong>, circular <strong>Donut % Gauge</strong>, and <strong>Goal / Completed / Left</strong> rollups. View your most consistent routines in the <strong>Top Habits Leaderboard</strong>.</p>
+            </div>
           </div>
+
+          <!-- Step 3 -->
+          <div class="guide-step-card">
+            <div class="step-badge">03</div>
+            <div class="step-info">
+              <h4>Log Daily Wellness (Mood & Sleep)</h4>
+              <p>Under the habit matrix, enter your <strong>Mood (1 to 5)</strong> and <strong>Hours of Sleep (e.g. 7.5h)</strong>. The interactive <strong>Wellness Trend Graph</strong> correlates your sleep duration with daily mood and energy patterns.</p>
+            </div>
+          </div>
+
+          <!-- Step 4 -->
+          <div class="guide-step-card">
+            <div class="step-badge">04</div>
+            <div class="step-info">
+              <h4>Seamless Multi-Year & Month Navigation</h4>
+              <p>Click any month tab (<strong>Jan – Dec</strong>) at the bottom or select any year from <strong>2026 to 2100</strong>. Each month dynamically computes exact days (28–31) and calendar day-of-week headers (Su, Mo, Tu, We, Th, Fr, Sa).</p>
+            </div>
+          </div>
+
+          <!-- Step 5 -->
+          <div class="guide-step-card">
+            <div class="step-badge">05</div>
+            <div class="step-info">
+              <h4>Export, Print PDF & Cloud Sync</h4>
+              <p>Click <strong>"Export"</strong> to download high-resolution printable <strong>PDF reports</strong>, copy <strong>Notion Markdown tables</strong>, or use <strong>JSON Sync</strong> to transfer your habits instantly across any phone, tablet, or PC without file downloads.</p>
+            </div>
+          </div>
+
+        </div>
+
+        <div class="guide-footer-tip">
+          <strong>💡 Pro-Tip:</strong> All progress is automatically saved to your browser in real-time. Simply bookmark this page or embed it inside Notion with <code>/embed</code> for effortless daily tracking!
         </div>
       </div>
     </div>
