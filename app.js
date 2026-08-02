@@ -177,6 +177,7 @@
     renderTopHabitsList();
     renderWellnessTrendChart();
     renderMonthTabs();
+    updateUndoRedoButtons();
   }
 
   // --- Header Display & Theme ---
@@ -532,6 +533,7 @@
       input.title = `Mood Day ${day} (1-5)`;
 
       input.addEventListener('change', (e) => {
+        pushHistory();
         const val = parseInt(e.target.value, 10);
         if (!isNaN(val) && val >= 1 && val <= 5) {
           monthLog.wellness.mood[day] = val;
@@ -574,6 +576,7 @@
       input.title = `Sleep Day ${day} (Hours)`;
 
       input.addEventListener('change', (e) => {
+        pushHistory();
         const val = parseFloat(e.target.value);
         if (!isNaN(val) && val >= 0 && val <= 24) {
           monthLog.wellness.sleep[day] = Math.round(val * 10) / 10;
@@ -852,8 +855,87 @@
     });
   }
 
+  // --- Undo / Redo History Engine ---
+  const MAX_HISTORY = 40;
+  const undoStack = [];
+  const redoStack = [];
+
+  function cloneStateSnapshot(s = state) {
+    return JSON.stringify({
+      year: s.year,
+      month: s.month,
+      habits: s.habits,
+      logs: s.logs,
+      theme: s.theme
+    });
+  }
+
+  function pushHistory() {
+    undoStack.push(cloneStateSnapshot());
+    if (undoStack.length > MAX_HISTORY) {
+      undoStack.shift();
+    }
+    // Clear redo stack on new action
+    redoStack.length = 0;
+    updateUndoRedoButtons();
+  }
+
+  function handleUndo() {
+    if (undoStack.length === 0) return;
+    const currentSnapshot = cloneStateSnapshot();
+    redoStack.push(currentSnapshot);
+
+    const prevSnapshot = undoStack.pop();
+    try {
+      const parsed = JSON.parse(prevSnapshot);
+      state.year = parsed.year;
+      state.month = parsed.month;
+      state.habits = parsed.habits;
+      state.logs = parsed.logs;
+      state.theme = parsed.theme;
+      saveStateToStorage();
+      populateCalendarDropdowns();
+      renderApp();
+      showToast('Undone! ↩️');
+    } catch (e) {
+      console.error('Failed to undo state', e);
+    }
+    updateUndoRedoButtons();
+  }
+
+  function handleRedo() {
+    if (redoStack.length === 0) return;
+    const currentSnapshot = cloneStateSnapshot();
+    undoStack.push(currentSnapshot);
+
+    const nextSnapshot = redoStack.pop();
+    try {
+      const parsed = JSON.parse(nextSnapshot);
+      state.year = parsed.year;
+      state.month = parsed.month;
+      state.habits = parsed.habits;
+      state.logs = parsed.logs;
+      state.theme = parsed.theme;
+      saveStateToStorage();
+      populateCalendarDropdowns();
+      renderApp();
+      showToast('Redone! ↪️');
+    } catch (e) {
+      console.error('Failed to redo state', e);
+    }
+    updateUndoRedoButtons();
+  }
+
+  function updateUndoRedoButtons() {
+    const undoBtn = document.getElementById('undoBtn');
+    const redoBtn = document.getElementById('redoBtn');
+    if (undoBtn) undoBtn.disabled = undoStack.length === 0;
+    if (redoBtn) redoBtn.disabled = redoStack.length === 0;
+  }
+
   // --- Actions & Event Handlers ---
   function toggleHabitDay(habitId, day, checked) {
+    pushHistory();
     const monthLog = getMonthLogData();
     if (!monthLog.habits[habitId]) {
       monthLog.habits[habitId] = {};
@@ -874,6 +956,7 @@
     renderAnalysisTable();
     renderTopHabitsList();
     renderMonthTabs();
+    updateUndoRedoButtons();
   }
 
   function switchMonth(newMonth) {
@@ -902,6 +985,7 @@
   }
 
   function checkAllToday() {
+    pushHistory();
     const todayObj = new Date();
     const day = todayObj.getDate();
     const monthLog = getMonthLogData();
@@ -918,6 +1002,7 @@
 
   function clearMonthData() {
     if (confirm(`Are you sure you want to reset all checked habits for ${MONTH_NAMES[state.month]} ${state.year}?`)) {
+      pushHistory();
       const monthKey = getCurrentMonthKey();
       if (state.logs[monthKey]) {
         state.logs[monthKey].habits = {};
@@ -965,6 +1050,7 @@
     const targetDays = parseInt(document.getElementById('habitTargetDaysInput').value, 10) || 31;
 
     if (!name) return;
+    pushHistory();
 
     if (editId) {
       const habit = state.habits.find(h => h.id === editId);
@@ -997,6 +1083,7 @@
     if (!habit) return;
 
     if (confirm(`Delete habit "${habit.name}"?`)) {
+      pushHistory();
       state.habits = state.habits.filter(h => h.id !== habitId);
       saveStateToStorage();
       renderApp();
@@ -1007,6 +1094,7 @@
   function applyPreset(presetKey) {
     if (!PRESETS[presetKey]) return;
     if (confirm('Load this routine? You can add, edit, or customize habits anytime.')) {
+      pushHistory();
       state.habits = JSON.parse(JSON.stringify(PRESETS[presetKey]));
       saveStateToStorage();
       document.getElementById('presetsModal').classList.add('hidden');
@@ -1370,6 +1458,29 @@
       const deleteBtn = e.target.closest('.delete-habit-btn');
       if (deleteBtn) {
         deleteHabit(deleteBtn.dataset.id);
+      }
+    });
+
+    // Undo & Redo Button Handlers
+    document.getElementById('undoBtn').addEventListener('click', handleUndo);
+    document.getElementById('redoBtn').addEventListener('click', handleRedo);
+
+    // Global Keyboard Shortcuts (Ctrl+Z, Ctrl+Y, Ctrl+Shift+Z, Cmd+Z, Cmd+Shift+Z)
+    window.addEventListener('keydown', (e) => {
+      if (['INPUT', 'TEXTAREA', 'SELECT'].includes(document.activeElement.tagName)) {
+        return;
+      }
+      if ((e.ctrlKey || e.metaKey) && e.key.toLowerCase() === 'z') {
+        if (e.shiftKey) {
+          e.preventDefault();
+          handleRedo();
+        } else {
+          e.preventDefault();
+          handleUndo();
+        }
+      } else if ((e.ctrlKey || e.metaKey) && e.key.toLowerCase() === 'y') {
+        e.preventDefault();
+        handleRedo();
       }
     });
 

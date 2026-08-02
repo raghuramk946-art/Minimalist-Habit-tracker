@@ -195,6 +195,7 @@ body {
 .btn {
   display: inline-flex;
   align-items: center;
+  justify-content: center;
   gap: 6px;
   padding: 6px 12px;
   border-radius: var(--radius-sm);
@@ -205,6 +206,14 @@ body {
   border: 1px solid transparent;
   transition: all var(--transition-fast);
   white-space: nowrap;
+}
+
+.btn:disabled,
+.btn[disabled] {
+  opacity: 0.35;
+  cursor: not-allowed;
+  pointer-events: none;
+  transform: none !important;
 }
 
 .btn-primary {

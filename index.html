@@ -136,6 +136,14 @@
               <span class="habit-count-tag" id="habitCountTag">12 Habits Active</span>
             </div>
             <div class="matrix-quick-actions">
+              <button id="undoBtn" class="btn btn-xs btn-subtle" title="Undo last action (Ctrl+Z)" disabled>
+                <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M3 7v6h6"></path><path d="M21 17a9 9 0 0 0-9-9 9 9 0 0 0-6 2.3L3 13"></path></svg>
+                <span>Undo</span>
+              </button>
+              <button id="redoBtn" class="btn btn-xs btn-subtle" title="Redo last undone action (Ctrl+Y)" disabled>
+                <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M21 7v6h-6"></path><path d="M3 17a9 9 0 0 1 9-9 9 9 0 0 1 6 2.3l3 2.7"></path></svg>
+                <span>Redo</span>
+              </button>
               <button id="batchCheckTodayBtn" class="btn btn-xs btn-subtle" title="Check off all habits for Today">✓ Check Today</button>
               <button id="clearMonthBtn" class="btn btn-xs btn-danger-subtle" title="Reset checks for this month">Clear Month</button>
             </div>
@@ -345,8 +353,8 @@
           <div class="guide-step-card">
             <div class="step-badge">01</div>
             <div class="step-info">
-              <h4>Track Your Daily Habits</h4>
-              <p>Check off completed habits on today's column in the <strong>31-Day Matrix</strong>. Click <strong>"Add Habit"</strong> to create custom habits with emojis, or pick curated routines from <strong>"Presets"</strong>. Finished everything today? Hit <strong>"✓ Check Today"</strong> for instant completion!</p>
+              <h4>Track Habits & Instant Undo / Redo</h4>
+              <p>Check off completed habits in the <strong>31-Day Matrix</strong>. Use <strong>"✓ Check Today"</strong> for instant full completion, or use the <strong>Undo / Redo</strong> buttons (or <code>Ctrl+Z</code> / <code>Ctrl+Y</code>) anytime to reverse or restore any mistake!</p>
             </div>
           </div>
 
