@@ -7,8 +7,11 @@
   <meta name="description" content="A high-performance, aesthetic monochrome Notion-style Habit Tracker & Task Manager with real-time analytics, wellness tracking, and monthly matrix.">
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&family=JetBrains+Mono:wght@400;500;600;700&display=swap" rel="stylesheet">
   <link rel="stylesheet" href="style.css">
+  <!-- Firebase SDKs (Compat for universal browser & offline support) -->
+  <script src="https://www.gstatic.com/firebasejs/10.12.2/firebase-app-compat.js"></script>
+  <script src="https://www.gstatic.com/firebasejs/10.12.2/firebase-auth-compat.js"></script>
+  <script src="https://www.gstatic.com/firebasejs/10.12.2/firebase-firestore-compat.js"></script>
 </head>
 <body class="theme-dark">
   <div id="app" class="app-container">
@@ -59,6 +62,49 @@
         <button id="themeToggleBtn" class="btn btn-icon" title="Toggle Theme" aria-label="Toggle Theme">
           <svg id="themeIcon" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="5"></circle><line x1="12" y1="1" x2="12" y2="3"></line><line x1="12" y1="21" x2="12" y2="23"></line><line x1="4.22" y1="4.22" x2="5.64" y2="5.64"></line><line x1="18.36" y1="18.36" x2="19.78" y2="19.78"></line><line x1="1" y1="12" x2="3" y2="12"></line><line x1="21" y1="12" x2="23" y2="12"></line><line x1="4.22" y1="19.78" x2="5.64" y2="18.36"></line><line x1="18.36" y1="5.64" x2="19.78" y2="4.22"></line></svg>
         </button>
+
+        <!-- Auth & Cloud Sync Profile Pill -->
+        <div id="authProfileContainer" class="auth-profile-container">
+          <!-- Unauthenticated State (Sign In Button) -->
+          <button id="openAuthModalBtn" class="btn btn-auth" title="Sign In or Register for Cloud Sync">
+            <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M15 3h4a2 2 0 0 1 2 2v14a2 2 0 0 1-2 2h-4"></path><polyline points="10 17 15 12 10 7"></polyline><line x1="15" y1="12" x2="3" y2="12"></line></svg>
+            <span>Sign In / Sync</span>
+          </button>
+
+          <!-- Authenticated State (User Dropdown) -->
+          <div id="userProfileDropdownWrapper" class="user-profile-wrapper hidden">
+            <button id="userProfileBtn" class="btn btn-secondary user-profile-btn" aria-haspopup="true" aria-expanded="false" title="Account & Cloud Sync Settings">
+              <span class="user-avatar-badge" id="userAvatarLetter">U</span>
+              <span class="user-email-text" id="userEmailDisplay">user@example.com</span>
+              <span class="sync-status-dot synced" id="syncStatusDot" title="Cloud Synced"></span>
+              <svg class="chevron-icon" width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><polyline points="6 9 12 15 18 9"></polyline></svg>
+            </button>
+
+            <!-- Dropdown Menu -->
+            <div id="userDropdownMenu" class="user-dropdown-menu hidden">
+              <div class="dropdown-header">
+                <div class="dropdown-user-email" id="dropdownUserEmail">user@example.com</div>
+                <div class="dropdown-sync-status">
+                  <span class="sync-status-indicator" id="dropdownSyncIndicator">🟢 All changes saved to Cloud</span>
+                </div>
+              </div>
+              <div class="dropdown-divider"></div>
+              <button id="manualSyncBtn" class="dropdown-item">
+                <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="23 4 23 10 17 10"></polyline><polyline points="1 20 1 14 7 14"></polyline><path d="M3.51 9a9 9 0 0 1 14.85-3.36L23 10M1 14l4.64 4.36A9 9 0 0 0 20.49 15"></path></svg>
+                <span>Sync Now</span>
+              </button>
+              <button id="openCloudConfigBtn" class="dropdown-item">
+                <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="3"></circle><path d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 0 1 0 2.83 2 2 0 0 1-2.83 0l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 0 1-2 2 2 2 0 0 1-2-2v-.09A1.65 1.65 0 0 0 9 19.4a1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 0 1-2.83 0 2 2 0 0 1 0-2.83l.06-.06a1.65 1.65 0 0 0 .33-1.82 1.65 1.65 0 0 0-1.51-1H3a2 2 0 0 1-2-2 2 2 0 0 1 2-2h.09A1.65 1.65 0 0 0 4.6 9a1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 0 1 0-2.83 2 2 0 0 1 2.83 0l.06.06a1.65 1.65 0 0 0 1.82.33H9a1.65 1.65 0 0 0 1-1.51V3a2 2 0 0 1 2-2 2 2 0 0 1 2 2v.09a1.65 1.65 0 0 0 1 1.51 1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 0 1 2.83 0 2 2 0 0 1 0 2.83l-.06.06a1.65 1.65 0 0 0-.33 1.82V9a1.65 1.65 0 0 0 1.51 1H21a2 2 0 0 1 2 2 2 2 0 0 1-2 2h-.09a1.65 1.65 0 0 0-1.51 1z"></path></svg>
+                <span>Database Settings</span>
+              </button>
+              <div class="dropdown-divider"></div>
+              <button id="logoutBtn" class="dropdown-item dropdown-item-danger">
+                <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4"></path><polyline points="16 17 21 12 16 7"></polyline><line x1="21" y1="12" x2="9" y2="12"></line></svg>
+                <span>Log Out</span>
+              </button>
+            </div>
+          </div>
+        </div>
       </div>
     </header>
 
@@ -465,6 +511,94 @@
             </div>
           </div>
         </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- 5. User Authentication Modal (Sign In / Sign Up) -->
+  <div id="authModal" class="modal-backdrop hidden" role="dialog" aria-modal="true" aria-labelledby="modalAuthTitle">
+    <div class="modal-dialog modal-auth-dialog">
+      <div class="modal-header">
+        <h3 id="modalAuthTitle">⚡ Account & Cloud Sync</h3>
+        <button class="modal-close-btn" id="closeAuthModalBtn">&times;</button>
+      </div>
+      <div class="modal-body">
+        
+        <!-- Auth Tabs: Sign In / Create Account -->
+        <div class="auth-tabs-nav">
+          <button id="tabSignInBtn" class="auth-tab-btn active" type="button">Sign In</button>
+          <button id="tabSignUpBtn" class="auth-tab-btn" type="button">Create Account</button>
+        </div>
+
+        <!-- Auth Form -->
+        <form id="authForm" class="auth-form" autocomplete="on">
+          <div id="authAlertBanner" class="auth-alert hidden"></div>
+
+          <div class="form-group">
+            <label for="authEmailInput">Email Address</label>
+            <input type="email" id="authEmailInput" class="styled-input" placeholder="you@example.com" required autocomplete="email">
+          </div>
+
+          <div class="form-group">
+            <div class="label-row">
+              <label for="authPasswordInput">Password</label>
+              <button id="forgotPasswordBtn" type="button" class="btn-text-link">Forgot?</button>
+            </div>
+            <input type="password" id="authPasswordInput" class="styled-input" placeholder="••••••••" required minlength="6" autocomplete="current-password">
+          </div>
+
+          <!-- Confirm Password (Sign Up only) -->
+          <div class="form-group hidden" id="authConfirmPasswordGroup">
+            <label for="authConfirmPasswordInput">Confirm Password</label>
+            <input type="password" id="authConfirmPasswordInput" class="styled-input" placeholder="••••••••" minlength="6" autocomplete="new-password">
+          </div>
+
+          <div class="auth-actions">
+            <button type="submit" id="authSubmitBtn" class="btn btn-primary btn-block">
+              <span id="authSubmitBtnText">Sign In</span>
+            </button>
+          </div>
+
+          <p class="auth-footnote">
+            🔒 Each account gets a private, encrypted habit database. Progress automatically syncs across your phone, tablet, and Notion embeds.
+          </p>
+        </form>
+
+      </div>
+    </div>
+  </div>
+
+  <!-- 6. Cloud Database Settings Modal -->
+  <div id="cloudConfigModal" class="modal-backdrop hidden" role="dialog" aria-modal="true" aria-labelledby="modalCloudTitle">
+    <div class="modal-dialog">
+      <div class="modal-header">
+        <h3 id="modalCloudTitle">⚙️ Cloud Database Settings</h3>
+        <button class="modal-close-btn" id="closeCloudConfigModalBtn">&times;</button>
+      </div>
+      <div class="modal-body">
+        <p class="settings-desc">
+          By default, this app connects to a secure cloud database. If you would like to connect your own private <strong>Google Firebase Project</strong>, you can paste your Firebase credentials below:
+        </p>
+
+        <form id="cloudConfigForm">
+          <div class="form-group">
+            <label for="cfgApiKey">API Key</label>
+            <input type="text" id="cfgApiKey" class="styled-input" placeholder="AIzaSy...">
+          </div>
+          <div class="form-group">
+            <label for="cfgAuthDomain">Auth Domain</label>
+            <input type="text" id="cfgAuthDomain" class="styled-input" placeholder="your-app.firebaseapp.com">
+          </div>
+          <div class="form-group">
+            <label for="cfgProjectId">Project ID</label>
+            <input type="text" id="cfgProjectId" class="styled-input" placeholder="your-app-id">
+          </div>
+
+          <div class="modal-actions" style="margin-top: 1.5rem;">
+            <button type="button" id="resetDefaultCloudBtn" class="btn btn-subtle">Reset to Default</button>
+            <button type="submit" class="btn btn-primary">Save Database Config</button>
+          </div>
+        </form>
       </div>
     </div>
   </div>

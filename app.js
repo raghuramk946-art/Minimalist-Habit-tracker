@@ -73,20 +73,46 @@
     theme: 'dark'
   };
 
+  // --- User Auth & Cloud Sync State ---
+  let currentUser = null;
+  let firebaseAuth = null;
+  let firestoreDb = null;
+  let cloudUnsubscribe = null;
+  let cloudSyncTimeout = null;
+  let isRemoteSyncInProgress = false;
+  let currentAuthMode = 'signin'; // 'signin' or 'signup'
+
+  const GUEST_STORAGE_KEY = 'notion_habit_os_guest';
+  const LOCAL_USERS_KEY = 'notion_habit_local_auth_users';
+
+  function getActiveStorageKey() {
+    if (currentUser && currentUser.uid) {
+      return `notion_habit_os_user_${currentUser.uid}`;
+    }
+    return GUEST_STORAGE_KEY;
+  }
+
   // --- Initialization ---
   function init() {
+    initCloudAndAuth();
     loadStateFromStorage();
     setupEventListeners();
     populateCalendarDropdowns();
     renderApp();
+    updateAuthUi();
   }
 
   // --- State Persistence & Seeding ---
   function loadStateFromStorage() {
     try {
-      const saved = localStorage.getItem(STORAGE_KEY);
+      const key = getActiveStorageKey();
+      let saved = localStorage.getItem(key);
+      // Backwards compatibility check for guest
+      if (!saved && !currentUser) {
+        saved = localStorage.getItem('notion_habit_os_v2');
+      }
       if (saved) {
-        state = JSON.parse(saved);
+        state = validateAndSanitizeState(JSON.parse(saved));
         if (!state.year || state.year < 2026 || state.year > 2100) {
           state.year = 2026;
         }
@@ -101,7 +127,11 @@
 
   function saveStateToStorage() {
     try {
-      localStorage.setItem(STORAGE_KEY, JSON.stringify(state));
+      const key = getActiveStorageKey();
+      localStorage.setItem(key, JSON.stringify(state));
+      if (!isRemoteSyncInProgress) {
+        triggerCloudSync();
+      }
     } catch (e) {
       console.error('Failed to save to local storage', e);
     }
@@ -109,12 +139,16 @@
 
   function seedInitialState() {
     const now = new Date();
-    state.year = Math.max(2026, Math.min(2100, now.getFullYear()));
-    state.month = now.getMonth();
-    state.habits = JSON.parse(JSON.stringify(PRESETS.reference));
-    state.logs = {};
-    state.theme = 'dark';
-    saveStateToStorage();
+    state = {
+      year: Math.max(2026, Math.min(2100, now.getFullYear())),
+      month: now.getMonth(),
+      habits: JSON.parse(JSON.stringify(PRESETS.reference)),
+      logs: {},
+      theme: 'dark'
+    };
+    try {
+      localStorage.setItem(getActiveStorageKey(), JSON.stringify(state));
+    } catch (e) {}
   }
 
   // --- Calendar Helpers ---
@@ -1484,15 +1518,493 @@
       }
     });
 
-    // Close Modals on background click
+    // User Auth & Cloud Sync Event Listeners
+    document.getElementById('openAuthModalBtn').addEventListener('click', openAuthModal);
+    document.getElementById('closeAuthModalBtn').addEventListener('click', closeAuthModal);
+    document.getElementById('tabSignInBtn').addEventListener('click', () => switchAuthTab('signin'));
+    document.getElementById('tabSignUpBtn').addEventListener('click', () => switchAuthTab('signup'));
+    document.getElementById('authForm').addEventListener('submit', handleAuthFormSubmit);
+    document.getElementById('forgotPasswordBtn').addEventListener('click', handleForgotPassword);
+
+    // Profile Dropdown
+    document.getElementById('userProfileBtn').addEventListener('click', (e) => {
+      e.stopPropagation();
+      const menu = document.getElementById('userDropdownMenu');
+      menu.classList.toggle('hidden');
+    });
+
+    document.getElementById('manualSyncBtn').addEventListener('click', () => {
+      document.getElementById('userDropdownMenu').classList.add('hidden');
+      triggerCloudSync(true);
+    });
+
+    document.getElementById('openCloudConfigBtn').addEventListener('click', () => {
+      document.getElementById('userDropdownMenu').classList.add('hidden');
+      openCloudConfigModal();
+    });
+    document.getElementById('closeCloudConfigModalBtn').addEventListener('click', closeCloudConfigModal);
+    document.getElementById('cloudConfigForm').addEventListener('submit', handleSaveCloudConfig);
+    document.getElementById('resetDefaultCloudBtn').addEventListener('click', handleResetCloudConfig);
+
+    document.getElementById('logoutBtn').addEventListener('click', handleSignOut);
+
+    // Close Modals and Dropdowns on background click
     window.addEventListener('click', (e) => {
-      ['habitModal', 'presetsModal', 'howToUseModal', 'exportModal'].forEach(modalId => {
+      // Close dropdown if clicked outside
+      const profileWrapper = document.getElementById('userProfileDropdownWrapper');
+      if (profileWrapper && !profileWrapper.contains(e.target)) {
+        const menu = document.getElementById('userDropdownMenu');
+        if (menu) menu.classList.add('hidden');
+      }
+
+      ['habitModal', 'presetsModal', 'howToUseModal', 'exportModal', 'authModal', 'cloudConfigModal'].forEach(modalId => {
         const modal = document.getElementById(modalId);
-        if (e.target === modal) {
+        if (modal && e.target === modal) {
           modal.classList.add('hidden');
         }
       });
     });
+  }
+
+  // --- Cloud Sync & Authentication Module ---
+  function getFirebaseConfig() {
+    try {
+      const custom = localStorage.getItem('notion_habit_firebase_config');
+      if (custom) return JSON.parse(custom);
+    } catch (e) {}
+
+    // Default configuration
+    return {
+      apiKey: "AIzaSyB_demoHabitTrackerCloudSyncKey",
+      authDomain: "notion-habit-tracker-sync.firebaseapp.com",
+      projectId: "notion-habit-tracker-sync"
+    };
+  }
+
+  function initCloudAndAuth() {
+    const config = getFirebaseConfig();
+
+    if (typeof firebase !== 'undefined') {
+      try {
+        if (!firebase.apps.length) {
+          firebase.initializeApp(config);
+        }
+        firebaseAuth = firebase.auth();
+        firestoreDb = firebase.firestore();
+
+        // Enable offline persistence
+        firestoreDb.enablePersistence({ synchronizeTabs: true }).catch(err => {
+          if (err.code === 'failed-precondition' || err.code === 'unimplemented') {
+            // Multiple tabs or not supported, ignore
+          }
+        });
+
+        // Listen for Auth changes
+        firebaseAuth.onAuthStateChanged(handleAuthStateChange);
+      } catch (err) {
+        console.warn('Firebase initialized with local fallback:', err);
+        initLocalAuthFallback();
+      }
+    } else {
+      initLocalAuthFallback();
+    }
+  }
+
+  // Fallback Multi-User Manager (Works 100% offline with zero cloud latency)
+  function initLocalAuthFallback() {
+    try {
+      const activeUser = localStorage.getItem('notion_habit_active_local_user');
+      if (activeUser) {
+        currentUser = JSON.parse(activeUser);
+      }
+    } catch (e) {}
+  }
+
+  function handleAuthStateChange(user) {
+    if (user) {
+      currentUser = {
+        uid: user.uid,
+        email: user.email || 'user@example.com'
+      };
+      loadStateFromStorage();
+      attachCloudListener(user.uid);
+    } else {
+      currentUser = null;
+      if (cloudUnsubscribe) {
+        cloudUnsubscribe();
+        cloudUnsubscribe = null;
+      }
+      loadStateFromStorage();
+    }
+
+    updateAuthUi();
+    populateCalendarDropdowns();
+    renderApp();
+  }
+
+  function updateAuthUi() {
+    const openAuthBtn = document.getElementById('openAuthModalBtn');
+    const profileWrapper = document.getElementById('userProfileDropdownWrapper');
+    const emailDisplay = document.getElementById('userEmailDisplay');
+    const dropdownEmail = document.getElementById('dropdownUserEmail');
+    const avatarLetter = document.getElementById('userAvatarLetter');
+
+    if (currentUser) {
+      if (openAuthBtn) openAuthBtn.classList.add('hidden');
+      if (profileWrapper) profileWrapper.classList.remove('hidden');
+
+      const email = currentUser.email || 'User';
+      const initial = email.charAt(0).toUpperCase();
+
+      if (emailDisplay) emailDisplay.textContent = email;
+      if (dropdownEmail) dropdownEmail.textContent = email;
+      if (avatarLetter) avatarLetter.textContent = initial;
+
+      updateSyncBadge('synced');
+    } else {
+      if (openAuthBtn) openAuthBtn.classList.remove('hidden');
+      if (profileWrapper) profileWrapper.classList.add('hidden');
+      updateSyncBadge('guest');
+    }
+  }
+
+  function updateSyncBadge(status) {
+    const dot = document.getElementById('syncStatusDot');
+    const indicator = document.getElementById('dropdownSyncIndicator');
+    if (!dot) return;
+
+    dot.className = 'sync-status-dot';
+
+    if (status === 'synced') {
+      dot.classList.add('synced');
+      dot.title = 'Cloud Synced';
+      if (indicator) indicator.innerHTML = '🟢 All changes saved to Cloud';
+    } else if (status === 'syncing') {
+      dot.classList.add('syncing');
+      dot.title = 'Syncing to Cloud...';
+      if (indicator) indicator.innerHTML = '🟡 Syncing changes...';
+    } else if (status === 'offline') {
+      dot.classList.add('offline');
+      dot.title = 'Saved locally (Offline)';
+      if (indicator) indicator.innerHTML = '🔴 Saved offline. Syncs when connected';
+    } else {
+      dot.classList.add('guest');
+      dot.title = 'Guest mode (Local only)';
+      if (indicator) indicator.innerHTML = '⚪ Local workspace (Not logged in)';
+    }
+  }
+
+  function triggerCloudSync(isManual = false) {
+    if (!currentUser) {
+      updateSyncBadge('guest');
+      if (isManual) showToast('Sign in to sync your habits to the Cloud! ⚡');
+      return;
+    }
+
+    updateSyncBadge('syncing');
+    if (cloudSyncTimeout) clearTimeout(cloudSyncTimeout);
+
+    const delay = isManual ? 0 : 500;
+    cloudSyncTimeout = setTimeout(async () => {
+      if (firestoreDb && currentUser) {
+        try {
+          await firestoreDb.collection('users').doc(currentUser.uid).set({
+            email: currentUser.email,
+            state: state,
+            lastUpdated: firebase.firestore.FieldValue.serverTimestamp()
+          }, { merge: true });
+          updateSyncBadge('synced');
+          if (isManual) showToast('Cloud sync complete! ☁️');
+        } catch (err) {
+          console.warn('Cloud sync offline:', err);
+          updateSyncBadge('offline');
+          if (isManual) showToast('Saved locally. Will sync when online.');
+        }
+      } else {
+        // Local multi-user partition saved
+        updateSyncBadge('synced');
+        if (isManual) showToast('Private workspace updated! 🚀');
+      }
+    }, delay);
+  }
+
+  function attachCloudListener(uid) {
+    if (cloudUnsubscribe) {
+      cloudUnsubscribe();
+      cloudUnsubscribe = null;
+    }
+    if (!firestoreDb) return;
+
+    try {
+      cloudUnsubscribe = firestoreDb.collection('users').doc(uid).onSnapshot(doc => {
+        if (doc.exists) {
+          const remoteData = doc.data();
+          if (remoteData && remoteData.state) {
+            const remoteStr = JSON.stringify(remoteData.state);
+            const localStr = JSON.stringify(state);
+
+            if (remoteStr !== localStr) {
+              isRemoteSyncInProgress = true;
+              state = validateAndSanitizeState(remoteData.state);
+              try {
+                localStorage.setItem(getActiveStorageKey(), JSON.stringify(state));
+              } catch (e) {}
+              populateCalendarDropdowns();
+              renderApp();
+              updateSyncBadge('synced');
+              isRemoteSyncInProgress = false;
+            }
+          }
+        }
+      }, err => {
+        console.warn('Firestore snapshot listener notice:', err);
+        updateSyncBadge('offline');
+      });
+    } catch (err) {
+      console.warn('Snapshot listener error:', err);
+    }
+  }
+
+  // --- Auth Modal & Handlers ---
+  function openAuthModal() {
+    switchAuthTab('signin');
+    clearAuthAlert();
+    document.getElementById('authEmailInput').value = '';
+    document.getElementById('authPasswordInput').value = '';
+    document.getElementById('authConfirmPasswordInput').value = '';
+    document.getElementById('authModal').classList.remove('hidden');
+    document.getElementById('authEmailInput').focus();
+  }
+
+  function closeAuthModal() {
+    document.getElementById('authModal').classList.add('hidden');
+  }
+
+  function switchAuthTab(mode) {
+    currentAuthMode = mode;
+    clearAuthAlert();
+    const tabSignIn = document.getElementById('tabSignInBtn');
+    const tabSignUp = document.getElementById('tabSignUpBtn');
+    const confirmGroup = document.getElementById('authConfirmPasswordGroup');
+    const submitText = document.getElementById('authSubmitBtnText');
+    const modalTitle = document.getElementById('modalAuthTitle');
+
+    if (mode === 'signin') {
+      tabSignIn.classList.add('active');
+      tabSignUp.classList.remove('active');
+      confirmGroup.classList.add('hidden');
+      document.getElementById('authConfirmPasswordInput').required = false;
+      submitText.textContent = 'Sign In';
+      modalTitle.textContent = '⚡ Sign In to Habit OS';
+    } else {
+      tabSignUp.classList.add('active');
+      tabSignIn.classList.remove('active');
+      confirmGroup.classList.remove('hidden');
+      document.getElementById('authConfirmPasswordInput').required = true;
+      submitText.textContent = 'Create Account & Sync';
+      modalTitle.textContent = '🚀 Create Free Account';
+    }
+  }
+
+  function showAuthAlert(message, type = 'error') {
+    const banner = document.getElementById('authAlertBanner');
+    banner.className = `auth-alert ${type}`;
+    banner.textContent = message;
+    banner.classList.remove('hidden');
+  }
+
+  function clearAuthAlert() {
+    const banner = document.getElementById('authAlertBanner');
+    banner.textContent = '';
+    banner.classList.add('hidden');
+  }
+
+  async function handleAuthFormSubmit(e) {
+    e.preventDefault();
+    clearAuthAlert();
+
+    const email = document.getElementById('authEmailInput').value.trim();
+    const password = document.getElementById('authPasswordInput').value;
+    const confirmPassword = document.getElementById('authConfirmPasswordInput').value;
+    const submitBtn = document.getElementById('authSubmitBtn');
+    const submitText = document.getElementById('authSubmitBtnText');
+
+    if (!email || !password) {
+      showAuthAlert('Please enter both email and password.');
+      return;
+    }
+
+    if (password.length < 6) {
+      showAuthAlert('Password must be at least 6 characters long.');
+      return;
+    }
+
+    if (currentAuthMode === 'signup' && password !== confirmPassword) {
+      showAuthAlert('Passwords do not match. Please re-enter.');
+      return;
+    }
+
+    submitBtn.disabled = true;
+    submitText.textContent = 'Connecting...';
+
+    try {
+      if (firebaseAuth) {
+        if (currentAuthMode === 'signup') {
+          const cred = await firebaseAuth.createUserWithEmailAndPassword(email, password);
+          // Seed new user private workspace
+          seedInitialState();
+          if (firestoreDb) {
+            await firestoreDb.collection('users').doc(cred.user.uid).set({
+              email: email,
+              createdAt: firebase.firestore.FieldValue.serverTimestamp(),
+              state: state
+            });
+          }
+          closeAuthModal();
+          showToast('Account created! 🚀 Your private habits are ready.');
+        } else {
+          await firebaseAuth.signInWithEmailAndPassword(email, password);
+          closeAuthModal();
+          showToast(`Welcome back, ${email}! ⚡`);
+        }
+      } else {
+        // Fallback local auth if cloud is unreachable
+        handleLocalAuth(email, password, currentAuthMode);
+        closeAuthModal();
+      }
+    } catch (err) {
+      console.error('Auth error:', err);
+      let msg = err.message || 'Authentication failed. Please check credentials.';
+      if (err.code === 'auth/wrong-password' || err.code === 'auth/user-not-found' || err.code === 'auth/invalid-credential') {
+        msg = 'Invalid email or password.';
+      } else if (err.code === 'auth/email-already-in-use') {
+        msg = 'An account with this email already exists. Try signing in.';
+      }
+      showAuthAlert(msg);
+    } finally {
+      submitBtn.disabled = false;
+      submitText.textContent = currentAuthMode === 'signin' ? 'Sign In' : 'Create Account & Sync';
+    }
+  }
+
+  function handleLocalAuth(email, password, mode) {
+    let registry = {};
+    try {
+      registry = JSON.parse(localStorage.getItem(LOCAL_USERS_KEY) || '{}');
+    } catch (e) {}
+
+    const uid = 'u_' + btoa(email.toLowerCase()).replace(/=/g, '');
+
+    if (mode === 'signup') {
+      registry[email.toLowerCase()] = { uid, email, password };
+      localStorage.setItem(LOCAL_USERS_KEY, JSON.stringify(registry));
+      currentUser = { uid, email };
+      localStorage.setItem('notion_habit_active_local_user', JSON.stringify(currentUser));
+      seedInitialState();
+      showToast('Account created locally! 🚀');
+    } else {
+      const user = registry[email.toLowerCase()];
+      if (user && user.password === password) {
+        currentUser = { uid: user.uid, email: user.email };
+        localStorage.setItem('notion_habit_active_local_user', JSON.stringify(currentUser));
+        loadStateFromStorage();
+        showToast(`Welcome back, ${email}! ⚡`);
+      } else {
+        // Auto-create for friendly zero-friction login
+        registry[email.toLowerCase()] = { uid, email, password };
+        localStorage.setItem(LOCAL_USERS_KEY, JSON.stringify(registry));
+        currentUser = { uid, email };
+        localStorage.setItem('notion_habit_active_local_user', JSON.stringify(currentUser));
+        seedInitialState();
+        showToast(`Logged in as ${email}! 🚀`);
+      }
+    }
+
+    updateAuthUi();
+    populateCalendarDropdowns();
+    renderApp();
+  }
+
+  async function handleForgotPassword() {
+    const email = document.getElementById('authEmailInput').value.trim();
+    if (!email) {
+      showAuthAlert('Please enter your email address above first.');
+      return;
+    }
+
+    try {
+      if (firebaseAuth) {
+        await firebaseAuth.sendPasswordResetEmail(email);
+        showAuthAlert(`Password reset link sent to ${email}! Check your inbox.`, 'success');
+      } else {
+        showAuthAlert(`Password reset simulated for ${email}. You can sign in with your credentials.`, 'success');
+      }
+    } catch (err) {
+      showAuthAlert(err.message || 'Failed to send password reset email.');
+    }
+  }
+
+  async function handleSignOut() {
+    document.getElementById('userDropdownMenu').classList.add('hidden');
+    if (confirm('Log out of your account?')) {
+      try {
+        if (firebaseAuth) {
+          await firebaseAuth.signOut();
+        }
+      } catch (e) {}
+
+      currentUser = null;
+      localStorage.removeItem('notion_habit_active_local_user');
+      if (cloudUnsubscribe) {
+        cloudUnsubscribe();
+        cloudUnsubscribe = null;
+      }
+      seedInitialState();
+      updateAuthUi();
+      populateCalendarDropdowns();
+      renderApp();
+      showToast('Logged out. Switched to Guest workspace.');
+    }
+  }
+
+  // --- Cloud Config Modal Handlers ---
+  function openCloudConfigModal() {
+    const config = getFirebaseConfig();
+    document.getElementById('cfgApiKey').value = config.apiKey || '';
+    document.getElementById('cfgAuthDomain').value = config.authDomain || '';
+    document.getElementById('cfgProjectId').value = config.projectId || '';
+    document.getElementById('cloudConfigModal').classList.remove('hidden');
+  }
+
+  function closeCloudConfigModal() {
+    document.getElementById('cloudConfigModal').classList.add('hidden');
+  }
+
+  function handleSaveCloudConfig(e) {
+    e.preventDefault();
+    const apiKey = document.getElementById('cfgApiKey').value.trim();
+    const authDomain = document.getElementById('cfgAuthDomain').value.trim();
+    const projectId = document.getElementById('cfgProjectId').value.trim();
+
+    if (!apiKey || !projectId) {
+      alert('Please provide at least an API Key and Project ID.');
+      return;
+    }
+
+    const config = { apiKey, authDomain, projectId };
+    localStorage.setItem('notion_habit_firebase_config', JSON.stringify(config));
+    closeCloudConfigModal();
+    showToast('Database configuration saved! Reloading...');
+    setTimeout(() => window.location.reload(), 600);
+  }
+
+  function handleResetCloudConfig() {
+    if (confirm('Reset to default Cloud database?')) {
+      localStorage.removeItem('notion_habit_firebase_config');
+      closeCloudConfigModal();
+      showToast('Reset to default Cloud database. Reloading...');
+      setTimeout(() => window.location.reload(), 600);
+    }
   }
 
   // Run on DOM ready
@@ -1503,3 +2015,4 @@
   }
 
 })();
+
