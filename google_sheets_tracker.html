@@ -3388,36 +3388,29 @@ body {
           <div class="guide-step-card">
             <div class="step-badge">06</div>
             <div class="step-info">
-              <h4>Export, Print PDF & Cloud Sync</h4>
-              <p>Click <strong>"Export"</strong> to download high-resolution printable <strong>PDF reports</strong>, copy <strong>Notion Markdown tables</strong>, or use <strong>JSON Sync</strong> to transfer your habits instantly across any phone, tablet, or PC without file downloads.</p>
+              <h4>Export & Print PDF / CSV</h4>
+              <p>Click <strong>"Export"</strong> to download high-resolution printable <strong>PDF reports</strong> of your monthly dashboard, or export all data to <strong>CSV</strong> for spreadsheet analysis in Excel or Google Sheets.</p>
             </div>
           </div>
 
         </div>
 
         <div class="guide-footer-tip">
-          <strong>💡 Pro-Tip:</strong> All progress is automatically saved to your browser in real-time. Simply bookmark this page or embed it inside Notion with <code>/embed</code> for effortless daily tracking!
+          <strong>💡 Pro-Tip:</strong> All progress is automatically saved and cloud-synced in real-time. Simply sign in with your Habit OS account to access your habits across all your devices!
         </div>
       </div>
     </div>
   </div>
 
-  <!-- 4. Export / Import Modal -->
+  <!-- 4. Export Modal -->
   <div id="exportModal" class="modal-backdrop hidden" role="dialog" aria-modal="true" aria-labelledby="modalExportTitle">
     <div class="modal-dialog">
       <div class="modal-header">
-        <h3 id="modalExportTitle">Export & Backup Tracker Data</h3>
+        <h3 id="modalExportTitle">Export Habit Tracker Data</h3>
         <button class="modal-close-btn" id="closeExportModalBtn">&times;</button>
       </div>
       <div class="modal-body">
         <div class="export-options-list">
-          <div class="export-option-card">
-            <div>
-              <strong>📋 Copy Notion Markdown Table</strong>
-              <p>Generates a formatted Markdown table ready to paste directly into any Notion page.</p>
-            </div>
-            <button id="copyNotionMdBtn" class="btn btn-secondary">Copy Table</button>
-          </div>
           <div class="export-option-card">
             <div>
               <strong>📄 Export / Save as PDF</strong>
@@ -3431,28 +3424,6 @@ body {
               <p>Export all 12 months with per-day matrix, mood, and sleep data.</p>
             </div>
             <button id="downloadCsvBtn" class="btn btn-secondary">Download CSV</button>
-          </div>
-          <div class="export-option-card">
-            <div>
-              <strong>💾 JSON Backup & Cross-Device Sync</strong>
-              <p>Transfer your habits, streaks, and history seamlessly across any device (Phone, Tablet, PC).</p>
-            </div>
-            <div class="btn-group">
-              <button id="downloadJsonBtn" class="btn btn-secondary" title="Download .json file">Download JSON</button>
-              <label class="btn btn-subtle file-upload-btn" title="Upload .json file">
-                Upload JSON
-                <input type="file" id="importJsonInput" accept=".json,application/json" class="hidden">
-              </label>
-              <button id="copyJsonTextBtn" class="btn btn-subtle" title="Copy raw JSON text to clipboard">Copy Text</button>
-              <button id="togglePasteJsonBtn" class="btn btn-subtle" title="Paste JSON text to restore">Paste & Sync</button>
-            </div>
-          </div>
-          <div id="pasteJsonSection" class="paste-json-container hidden">
-            <textarea id="pasteJsonTextarea" placeholder="Paste your exported JSON code here..." rows="4"></textarea>
-            <div class="paste-json-actions">
-              <button id="applyPastedJsonBtn" class="btn btn-primary btn-sm">Apply & Sync Data</button>
-              <button id="cancelPasteJsonBtn" class="btn btn-subtle btn-sm">Cancel</button>
-            </div>
           </div>
         </div>
       </div>
@@ -4925,43 +4896,7 @@ body {
     }
   }
 
-  // --- Notion Export & File Handlers ---
-  function copyNotionMarkdownTable() {
-    const daysCount = getDaysInMonth(state.year, state.month);
-    const monthLog = getMonthLogData();
-
-    let md = `# Habit Tracker - ${MONTH_NAMES[state.month]} ${state.year}\n\n`;
-    md += `| Habit | Goal | Actual | % | 1 | 5 | 10 | 15 | 20 | 25 | 30 |\n`;
-    md += `| :--- | :--- | :--- | :--- | :---: | :---: | :---: | :---: | :---: | :---: | :---: |\n`;
-
-    state.habits.forEach(h => {
-      let actual = 0;
-      if (monthLog.habits[h.id]) {
-        for (let d = 1; d <= daysCount; d++) {
-          if (monthLog.habits[h.id][d]) actual++;
-        }
-      }
-      const goal = h.targetDays || daysCount;
-      const pct = goal > 0 ? Math.round((actual / goal) * 100) : 0;
-
-      const d1 = monthLog.habits[h.id] && monthLog.habits[h.id][1] ? '✅' : '⬜';
-      const d5 = monthLog.habits[h.id] && monthLog.habits[h.id][5] ? '✅' : '⬜';
-      const d10 = monthLog.habits[h.id] && monthLog.habits[h.id][10] ? '✅' : '⬜';
-      const d15 = monthLog.habits[h.id] && monthLog.habits[h.id][15] ? '✅' : '⬜';
-      const d20 = monthLog.habits[h.id] && monthLog.habits[h.id][20] ? '✅' : '⬜';
-      const d25 = monthLog.habits[h.id] && monthLog.habits[h.id][25] ? '✅' : '⬜';
-      const d30 = monthLog.habits[h.id] && monthLog.habits[h.id][30] ? '✅' : '⬜';
-
-      md += `| ${h.emoji} ${h.name} | ${goal} | ${actual} | ${pct}% | ${d1} | ${d5} | ${d10} | ${d15} | ${d20} | ${d25} | ${d30} |\n`;
-    });
-
-    navigator.clipboard.writeText(md).then(() => {
-      showToast('Notion Markdown table copied to clipboard! 📋');
-    }).catch(() => {
-      showToast('Could not copy directly, please check browser permissions.');
-    });
-  }
-
+  // --- Export & File Handlers (PDF & CSV) ---
   function exportMonthlyPdf() {
     document.getElementById('exportModal').classList.add('hidden');
     const prevTitle = document.title;
@@ -5000,12 +4935,12 @@ body {
     link.download = `Habit_Tracker_${MONTH_NAMES[state.month]}_${state.year}.csv`;
     link.click();
     URL.revokeObjectURL(url);
-    showToast('CSV downloaded!');
+    showToast('CSV report downloaded! 📊');
   }
 
   function validateAndSanitizeState(raw) {
     if (!raw || typeof raw !== 'object') {
-      throw new Error('Invalid JSON format: expected an object.');
+      throw new Error('Invalid state format: expected an object.');
     }
 
     const cleanState = {
@@ -5082,91 +5017,6 @@ body {
     }
 
     return cleanState;
-  }
-
-  function downloadJsonBackup() {
-    state.version = 1;
-    state.lastExported = new Date().toISOString();
-    const jsonStr = JSON.stringify(state, null, 2);
-    const blob = new Blob([jsonStr], { type: 'application/json;charset=utf-8;' });
-    const url = URL.createObjectURL(blob);
-    const link = document.createElement('a');
-    link.href = url;
-    link.download = `Habit_Tracker_Backup_${state.year}_${MONTH_NAMES[state.month]}.json`;
-    link.click();
-    URL.revokeObjectURL(url);
-    showToast('JSON backup downloaded! 💾');
-  }
-
-  function copyJsonText() {
-    state.version = 1;
-    state.lastExported = new Date().toISOString();
-    const jsonStr = JSON.stringify(state, null, 2);
-    navigator.clipboard.writeText(jsonStr).then(() => {
-      showToast('JSON copied! Paste on any device to sync. 📋');
-    }).catch(() => {
-      showToast('Please allow clipboard permissions or use Download JSON.');
-    });
-  }
-
-  function togglePasteJsonSection() {
-    const sec = document.getElementById('pasteJsonSection');
-    sec.classList.toggle('hidden');
-    if (!sec.classList.contains('hidden')) {
-      const textarea = document.getElementById('pasteJsonTextarea');
-      textarea.focus();
-    }
-  }
-
-  function applyPastedJson() {
-    const textarea = document.getElementById('pasteJsonTextarea');
-    const content = textarea.value.trim();
-    if (!content) {
-      alert('Please paste your JSON backup data into the box.');
-      return;
-    }
-
-    try {
-      const parsed = JSON.parse(content);
-      const clean = validateAndSanitizeState(parsed);
-      state = clean;
-      saveStateToStorage();
-      renderApp();
-      textarea.value = '';
-      document.getElementById('pasteJsonSection').classList.add('hidden');
-      document.getElementById('exportModal').classList.add('hidden');
-      showToast('Cross-device data synced successfully! 🚀');
-    } catch (err) {
-      alert('Invalid JSON data: ' + err.message);
-    }
-  }
-
-  function cancelPasteJson() {
-    document.getElementById('pasteJsonTextarea').value = '';
-    document.getElementById('pasteJsonSection').classList.add('hidden');
-  }
-
-  function handleImportJson(e) {
-    const file = e.target.files[0];
-    if (!file) return;
-
-    const reader = new FileReader();
-    reader.onload = function(evt) {
-      try {
-        const imported = JSON.parse(evt.target.result);
-        const clean = validateAndSanitizeState(imported);
-        state = clean;
-        saveStateToStorage();
-        renderApp();
-        document.getElementById('exportModal').classList.add('hidden');
-        showToast('JSON backup restored successfully! 🚀');
-      } catch (err) {
-        alert('Failed to parse backup JSON file: ' + err.message);
-      } finally {
-        e.target.value = '';
-      }
-    };
-    reader.readAsText(file);
   }
 
   // --- Modern SaaS UI Toast & Notifications ---
@@ -5264,7 +5114,7 @@ body {
       document.getElementById('howToUseModal').classList.add('hidden');
     });
 
-    // Export & Backup Modal
+    // Export Modal (PDF & CSV)
     document.getElementById('exportModalBtn').addEventListener('click', () => {
       document.getElementById('exportModal').classList.remove('hidden');
     });
@@ -5272,14 +5122,7 @@ body {
       document.getElementById('exportModal').classList.add('hidden');
     });
     document.getElementById('downloadPdfBtn').addEventListener('click', exportMonthlyPdf);
-    document.getElementById('copyNotionMdBtn').addEventListener('click', copyNotionMarkdownTable);
     document.getElementById('downloadCsvBtn').addEventListener('click', downloadCsv);
-    document.getElementById('downloadJsonBtn').addEventListener('click', downloadJsonBackup);
-    document.getElementById('copyJsonTextBtn').addEventListener('click', copyJsonText);
-    document.getElementById('togglePasteJsonBtn').addEventListener('click', togglePasteJsonSection);
-    document.getElementById('applyPastedJsonBtn').addEventListener('click', applyPastedJson);
-    document.getElementById('cancelPasteJsonBtn').addEventListener('click', cancelPasteJson);
-    document.getElementById('importJsonInput').addEventListener('change', handleImportJson);
 
     // Table Event Delegation (Edit/Delete icons)
     document.getElementById('habitTableBody').addEventListener('click', (e) => {

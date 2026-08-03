@@ -475,36 +475,29 @@
           <div class="guide-step-card">
             <div class="step-badge">06</div>
             <div class="step-info">
-              <h4>Export, Print PDF & Cloud Sync</h4>
-              <p>Click <strong>"Export"</strong> to download high-resolution printable <strong>PDF reports</strong>, copy <strong>Notion Markdown tables</strong>, or use <strong>JSON Sync</strong> to transfer your habits instantly across any phone, tablet, or PC without file downloads.</p>
+              <h4>Export & Print PDF / CSV</h4>
+              <p>Click <strong>"Export"</strong> to download high-resolution printable <strong>PDF reports</strong> of your monthly dashboard, or export all data to <strong>CSV</strong> for spreadsheet analysis in Excel or Google Sheets.</p>
             </div>
           </div>
 
         </div>
 
         <div class="guide-footer-tip">
-          <strong>💡 Pro-Tip:</strong> All progress is automatically saved to your browser in real-time. Simply bookmark this page or embed it inside Notion with <code>/embed</code> for effortless daily tracking!
+          <strong>💡 Pro-Tip:</strong> All progress is automatically saved and cloud-synced in real-time. Simply sign in with your Habit OS account to access your habits across all your devices!
         </div>
       </div>
     </div>
   </div>
 
-  <!-- 4. Export / Import Modal -->
+  <!-- 4. Export Modal -->
   <div id="exportModal" class="modal-backdrop hidden" role="dialog" aria-modal="true" aria-labelledby="modalExportTitle">
     <div class="modal-dialog">
       <div class="modal-header">
-        <h3 id="modalExportTitle">Export & Backup Tracker Data</h3>
+        <h3 id="modalExportTitle">Export Habit Tracker Data</h3>
         <button class="modal-close-btn" id="closeExportModalBtn">&times;</button>
       </div>
       <div class="modal-body">
         <div class="export-options-list">
-          <div class="export-option-card">
-            <div>
-              <strong>📋 Copy Notion Markdown Table</strong>
-              <p>Generates a formatted Markdown table ready to paste directly into any Notion page.</p>
-            </div>
-            <button id="copyNotionMdBtn" class="btn btn-secondary">Copy Table</button>
-          </div>
           <div class="export-option-card">
             <div>
               <strong>📄 Export / Save as PDF</strong>
@@ -518,28 +511,6 @@
               <p>Export all 12 months with per-day matrix, mood, and sleep data.</p>
             </div>
             <button id="downloadCsvBtn" class="btn btn-secondary">Download CSV</button>
-          </div>
-          <div class="export-option-card">
-            <div>
-              <strong>💾 JSON Backup & Cross-Device Sync</strong>
-              <p>Transfer your habits, streaks, and history seamlessly across any device (Phone, Tablet, PC).</p>
-            </div>
-            <div class="btn-group">
-              <button id="downloadJsonBtn" class="btn btn-secondary" title="Download .json file">Download JSON</button>
-              <label class="btn btn-subtle file-upload-btn" title="Upload .json file">
-                Upload JSON
-                <input type="file" id="importJsonInput" accept=".json,application/json" class="hidden">
-              </label>
-              <button id="copyJsonTextBtn" class="btn btn-subtle" title="Copy raw JSON text to clipboard">Copy Text</button>
-              <button id="togglePasteJsonBtn" class="btn btn-subtle" title="Paste JSON text to restore">Paste & Sync</button>
-            </div>
-          </div>
-          <div id="pasteJsonSection" class="paste-json-container hidden">
-            <textarea id="pasteJsonTextarea" placeholder="Paste your exported JSON code here..." rows="4"></textarea>
-            <div class="paste-json-actions">
-              <button id="applyPastedJsonBtn" class="btn btn-primary btn-sm">Apply & Sync Data</button>
-              <button id="cancelPasteJsonBtn" class="btn btn-subtle btn-sm">Cancel</button>
-            </div>
           </div>
         </div>
       </div>
