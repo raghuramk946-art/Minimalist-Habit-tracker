@@ -1926,10 +1926,12 @@
     const fullNameGroup = document.getElementById('fullNameGroup');
     const securitySection = document.getElementById('signUpSecuritySection');
     const rememberRow = document.getElementById('rememberMeRow');
+    const forgotPasswordBtn = document.getElementById('forgotPasswordBtn');
     const submitText = document.getElementById('authSubmitBtnText');
     const modalTitle = document.getElementById('modalAuthTitle');
     const modalSubtitle = document.getElementById('modalAuthSubtitle');
     const confirmInput = document.getElementById('authConfirmPasswordInput');
+    const passwordInput = document.getElementById('authPasswordInput');
 
     if (mode === 'signin') {
       if (tabSignIn) tabSignIn.classList.add('active');
@@ -1937,7 +1939,11 @@
       if (fullNameGroup) fullNameGroup.classList.add('hidden');
       if (securitySection) securitySection.classList.add('hidden');
       if (rememberRow) rememberRow.classList.remove('hidden');
-      if (confirmInput) confirmInput.required = false;
+      if (forgotPasswordBtn) forgotPasswordBtn.classList.remove('hidden');
+      if (confirmInput) {
+        confirmInput.required = false;
+        confirmInput.value = '';
+      }
       if (submitText) submitText.textContent = 'Sign In to Account';
       if (modalTitle) modalTitle.textContent = 'Welcome to Habit OS';
       if (modalSubtitle) modalSubtitle.textContent = 'Sign in to access your cloud-synced habit dashboard.';
@@ -1947,10 +1953,14 @@
       if (fullNameGroup) fullNameGroup.classList.remove('hidden');
       if (securitySection) securitySection.classList.remove('hidden');
       if (rememberRow) rememberRow.classList.add('hidden');
+      if (forgotPasswordBtn) forgotPasswordBtn.classList.add('hidden');
       if (confirmInput) confirmInput.required = true;
       if (submitText) submitText.textContent = 'Create Free Account';
       if (modalTitle) modalTitle.textContent = 'Get Started with Habit OS';
       if (modalSubtitle) modalSubtitle.textContent = 'Join thousands of builders achieving their daily goals.';
+      if (passwordInput && passwordInput.value) {
+        updatePasswordStrength(passwordInput.value);
+      }
     }
   }
 

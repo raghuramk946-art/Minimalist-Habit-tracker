@@ -2395,6 +2395,10 @@ body {
   margin: 10px 0;
 }
 
+.signup-security-section.hidden {
+  display: none !important;
+}
+
 .password-strength-container {
   margin-bottom: 8px;
 }
