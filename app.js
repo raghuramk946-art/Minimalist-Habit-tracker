@@ -1719,13 +1719,15 @@
       if (custom) return JSON.parse(custom);
     } catch (e) {}
 
-    // Modern SaaS Default Firebase Configuration
+    // Live Firebase Project Configuration
     return {
-      apiKey: "AIzaSyB_demoHabitTrackerCloudSyncKey",
-      authDomain: "notion-habit-tracker-sync.firebaseapp.com",
-      projectId: "notion-habit-tracker-sync",
-      storageBucket: "notion-habit-tracker-sync.appspot.com",
-      appId: "1:10000000000:web:abcdef123456"
+      apiKey: "AIzaSyBJgHyWCi7WphbTr-osIIg5LlxJULoQsFc",
+      authDomain: "myday-8a542.firebaseapp.com",
+      projectId: "myday-8a542",
+      storageBucket: "myday-8a542.firebasestorage.app",
+      messagingSenderId: "583558493192",
+      appId: "1:583558493192:web:3508478590846ff8b74dbd",
+      measurementId: "G-QHXQ5LYF1Q"
     };
   }
 
