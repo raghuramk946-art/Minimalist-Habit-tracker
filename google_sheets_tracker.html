@@ -1937,10 +1937,10 @@ body {
 /* 3. Premium SaaS Account Dropdown Menu */
 .saas-account-menu {
   position: absolute;
-  top: calc(100% + 10px);
+  top: calc(100% + 8px);
   right: 0;
   width: 270px;
-  background: rgba(15, 18, 26, 0.95);
+  background: rgba(15, 18, 26, 0.96);
   backdrop-filter: blur(24px);
   -webkit-backdrop-filter: blur(24px);
   border: 1px solid rgba(255, 255, 255, 0.1);
@@ -1949,13 +1949,28 @@ body {
   padding: 8px;
   z-index: 1200;
   transform-origin: top right;
-  animation: saas-menu-spring 0.24s var(--spring-easing);
+  animation: saas-menu-spring 0.18s cubic-bezier(0.16, 1, 0.3, 1);
+}
+
+.saas-account-menu.hidden {
+  display: none !important;
+  opacity: 0 !important;
+  visibility: hidden !important;
+  pointer-events: none !important;
+}
+
+.user-profile-wrapper.hidden {
+  display: none !important;
+}
+
+.unauth-buttons-wrapper.hidden {
+  display: none !important;
 }
 
 @keyframes saas-menu-spring {
   from {
     opacity: 0;
-    transform: scale(0.94) translateY(-6px);
+    transform: scale(0.95) translateY(-4px);
   }
   to {
     opacity: 1;
@@ -3022,23 +3037,6 @@ body {
                     <span class="menu-item-subtag" id="menuSubtag">Pro Plan &bull; Active</span>
                   </div>
                   <span class="badge-upgrade-glow" id="menuUpgradeActionLabel">Manage</span>
-                </button>
-
-                <button id="menuSettingsBtn" class="account-menu-item" type="button">
-                  <span class="menu-item-icon">⚙</span>
-                  <span class="menu-item-label">Settings</span>
-                </button>
-
-                <button id="menuThemeBtn" class="account-menu-item" type="button">
-                  <span class="menu-item-icon">🌙</span>
-                  <span class="menu-item-label">Theme</span>
-                  <span class="menu-item-shortcut" id="themeShortcutLabel">Dark</span>
-                </button>
-
-                <button id="menuShortcutsBtn" class="account-menu-item" type="button">
-                  <span class="menu-item-icon">⌨</span>
-                  <span class="menu-item-label">Keyboard Shortcuts</span>
-                  <span class="menu-item-shortcut">Ctrl+/</span>
                 </button>
               </div>
 
@@ -5302,6 +5300,20 @@ body {
 
     // Global Keyboard Shortcuts
     window.addEventListener('keydown', (e) => {
+      // Escape key closes account menu and any active modal dialogs
+      if (e.key === 'Escape') {
+        closeAccountMenu();
+        [
+          'habitModal', 'presetsModal', 'howToUseModal', 'exportModal',
+          'saasAuthModal', 'subscriptionModal', 'profileModal',
+          'shortcutsModal', 'cloudConfigModal'
+        ].forEach(modalId => {
+          const modal = document.getElementById(modalId);
+          if (modal) modal.classList.add('hidden');
+        });
+        return;
+      }
+
       if (['INPUT', 'TEXTAREA', 'SELECT'].includes(document.activeElement.tagName)) {
         return;
       }
@@ -5379,7 +5391,9 @@ body {
       userProfileBtn.addEventListener('click', (e) => {
         e.stopPropagation();
         const menu = document.getElementById('saasAccountMenu');
-        if (menu) menu.classList.toggle('hidden');
+        if (menu) {
+          menu.classList.toggle('hidden');
+        }
       });
     }
 
@@ -5404,29 +5418,6 @@ body {
       menuSubBtn.addEventListener('click', () => {
         closeAccountMenu();
         openSubscriptionModal();
-      });
-    }
-
-    const menuSettingsBtn = document.getElementById('menuSettingsBtn');
-    if (menuSettingsBtn) {
-      menuSettingsBtn.addEventListener('click', () => {
-        closeAccountMenu();
-        openCloudConfigModal();
-      });
-    }
-
-    const menuThemeBtn = document.getElementById('menuThemeBtn');
-    if (menuThemeBtn) {
-      menuThemeBtn.addEventListener('click', () => {
-        toggleTheme();
-      });
-    }
-
-    const menuShortcutsBtn = document.getElementById('menuShortcutsBtn');
-    if (menuShortcutsBtn) {
-      menuShortcutsBtn.addEventListener('click', () => {
-        closeAccountMenu();
-        openShortcutsModal();
       });
     }
 
@@ -5615,6 +5606,9 @@ body {
     const menuAvatar = document.getElementById('menuAvatarCircle');
     const menuDisplayName = document.getElementById('menuDisplayName');
     const menuEmail = document.getElementById('menuEmail');
+
+    // Always ensure dropdown starts/stays closed by default
+    closeAccountMenu();
 
     if (currentUser) {
       if (unauthWrapper) unauthWrapper.classList.add('hidden');

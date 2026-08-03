@@ -1512,6 +1512,20 @@
 
     // Global Keyboard Shortcuts
     window.addEventListener('keydown', (e) => {
+      // Escape key closes account menu and any active modal dialogs
+      if (e.key === 'Escape') {
+        closeAccountMenu();
+        [
+          'habitModal', 'presetsModal', 'howToUseModal', 'exportModal',
+          'saasAuthModal', 'subscriptionModal', 'profileModal',
+          'shortcutsModal', 'cloudConfigModal'
+        ].forEach(modalId => {
+          const modal = document.getElementById(modalId);
+          if (modal) modal.classList.add('hidden');
+        });
+        return;
+      }
+
       if (['INPUT', 'TEXTAREA', 'SELECT'].includes(document.activeElement.tagName)) {
         return;
       }
@@ -1589,7 +1603,9 @@
       userProfileBtn.addEventListener('click', (e) => {
         e.stopPropagation();
         const menu = document.getElementById('saasAccountMenu');
-        if (menu) menu.classList.toggle('hidden');
+        if (menu) {
+          menu.classList.toggle('hidden');
+        }
       });
     }
 
@@ -1614,29 +1630,6 @@
       menuSubBtn.addEventListener('click', () => {
         closeAccountMenu();
         openSubscriptionModal();
-      });
-    }
-
-    const menuSettingsBtn = document.getElementById('menuSettingsBtn');
-    if (menuSettingsBtn) {
-      menuSettingsBtn.addEventListener('click', () => {
-        closeAccountMenu();
-        openCloudConfigModal();
-      });
-    }
-
-    const menuThemeBtn = document.getElementById('menuThemeBtn');
-    if (menuThemeBtn) {
-      menuThemeBtn.addEventListener('click', () => {
-        toggleTheme();
-      });
-    }
-
-    const menuShortcutsBtn = document.getElementById('menuShortcutsBtn');
-    if (menuShortcutsBtn) {
-      menuShortcutsBtn.addEventListener('click', () => {
-        closeAccountMenu();
-        openShortcutsModal();
       });
     }
 
@@ -1825,6 +1818,9 @@
     const menuAvatar = document.getElementById('menuAvatarCircle');
     const menuDisplayName = document.getElementById('menuDisplayName');
     const menuEmail = document.getElementById('menuEmail');
+
+    // Always ensure dropdown starts/stays closed by default
+    closeAccountMenu();
 
     if (currentUser) {
       if (unauthWrapper) unauthWrapper.classList.add('hidden');
