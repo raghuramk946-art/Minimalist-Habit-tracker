@@ -1732,81 +1732,163 @@ body {
 }
 
 /* ==========================================================================
-   USER AUTHENTICATION & CLOUD SYNC STYLES
+   MODERN SAAS AUTHENTICATION, ACCOUNT HUB & SUBSCRIPTION STYLES
+   Inspired by: Linear, Notion, Raycast, Vercel, Stripe & Apple Human Interface
    ========================================================================== */
 
-.auth-profile-container {
+:root {
+  --saas-blue: #4F8CFF;
+  --saas-blue-glow: rgba(79, 140, 255, 0.25);
+  --saas-purple: #7C3AED;
+  --saas-purple-glow: rgba(124, 58, 237, 0.25);
+  --glass-bg: rgba(18, 22, 31, 0.75);
+  --glass-border: rgba(255, 255, 255, 0.09);
+  --spring-easing: cubic-bezier(0.16, 1, 0.3, 1);
+}
+
+/* 1. Header Auth Container */
+.saas-auth-container {
   position: relative;
   display: flex;
   align-items: center;
 }
 
-.btn-auth {
+.unauth-buttons-wrapper {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.btn-ghost-saas {
+  background: transparent;
+  border: 1px solid transparent;
+  color: var(--text-secondary);
+  font-size: 12px;
+  font-weight: 500;
+  padding: 6px 10px;
+  border-radius: 8px;
+  cursor: pointer;
+  transition: all 0.2s var(--spring-easing);
+}
+
+.btn-ghost-saas:hover {
+  color: var(--text-primary);
+  background: rgba(255, 255, 255, 0.05);
+  transform: translateY(-1px);
+}
+
+.btn-primary-saas {
   display: inline-flex;
   align-items: center;
   gap: 6px;
-  background: var(--accent-white);
-  color: var(--text-inverse);
-  font-weight: 600;
+  background: var(--saas-blue);
+  color: #ffffff;
+  border: 1px solid rgba(255, 255, 255, 0.15);
   font-size: 12px;
-  padding: 6px 12px;
-  border-radius: 6px;
-  border: 1px solid transparent;
+  font-weight: 600;
+  padding: 6px 14px;
+  border-radius: 8px;
   cursor: pointer;
-  transition: all 0.2s cubic-bezier(0.16, 1, 0.3, 1);
-  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.2);
+  box-shadow: 0 2px 10px var(--saas-blue-glow);
+  transition: all 0.2s var(--spring-easing);
 }
 
-.btn-auth:hover {
-  opacity: 0.9;
-  transform: translateY(-1px);
-  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.3);
+.btn-primary-saas:hover {
+  background: #3b7ced;
+  transform: translateY(-1px) scale(1.02);
+  box-shadow: 0 4px 16px rgba(79, 140, 255, 0.4);
 }
 
+.btn-primary-saas:active {
+  transform: scale(0.98);
+}
+
+/* 2. Authenticated User Profile Pill */
 .user-profile-wrapper {
   position: relative;
 }
 
-.user-profile-btn {
+.user-profile-pill {
   display: inline-flex;
   align-items: center;
-  gap: 7px;
-  padding: 4px 8px 4px 6px;
-  border-radius: 20px;
-  font-size: 12px;
-  background: var(--bg-tertiary);
-  border: 1px solid var(--border-strong);
+  gap: 8px;
+  padding: 4px 10px 4px 4px;
+  background: rgba(255, 255, 255, 0.04);
+  border: 1px solid var(--border-subtle);
+  border-radius: 24px;
   color: var(--text-primary);
   cursor: pointer;
+  transition: all 0.2s var(--spring-easing);
 }
 
-.user-profile-btn:hover {
-  background: var(--bg-secondary);
-  border-color: var(--accent-white);
+.user-profile-pill:hover {
+  background: rgba(255, 255, 255, 0.08);
+  border-color: rgba(255, 255, 255, 0.2);
+  transform: translateY(-1px);
+}
+
+.avatar-ring-container {
+  display: flex;
+  align-items: center;
+  justify-content: center;
 }
 
 .user-avatar-badge {
   display: inline-flex;
   align-items: center;
   justify-content: center;
-  width: 22px;
-  height: 22px;
+  width: 24px;
+  height: 24px;
   border-radius: 50%;
-  background: linear-gradient(135deg, #3b82f6, #8b5cf6);
+  background: linear-gradient(135deg, #4F8CFF 0%, #7C3AED 100%);
   color: #ffffff;
   font-size: 11px;
   font-weight: 700;
   text-transform: uppercase;
+  box-shadow: 0 2px 6px rgba(79, 140, 255, 0.3);
 }
 
-.user-email-text {
-  font-family: var(--font-mono);
-  font-size: 11px;
+.user-name-text {
+  font-size: 12px;
   font-weight: 600;
-  max-width: 120px;
+  max-width: 110px;
   overflow: hidden;
   text-overflow: ellipsis;
   white-space: nowrap;
+}
+
+.saas-plan-badge {
+  font-size: 9px;
+  font-weight: 800;
+  font-family: var(--font-mono);
+  letter-spacing: 0.05em;
+  padding: 2px 6px;
+  border-radius: 4px;
+  background: linear-gradient(135deg, rgba(79, 140, 255, 0.2), rgba(124, 58, 237, 0.2));
+  color: #93c5fd;
+  border: 1px solid rgba(79, 140, 255, 0.35);
+  text-transform: uppercase;
+}
+
+.saas-plan-badge.free {
+  background: rgba(255, 255, 255, 0.06);
+  color: var(--text-secondary);
+  border-color: rgba(255, 255, 255, 0.1);
+}
+
+.saas-plan-badge.premium {
+  background: linear-gradient(135deg, rgba(245, 158, 11, 0.2), rgba(239, 68, 68, 0.2));
+  color: #fcd34d;
+  border-color: rgba(245, 158, 11, 0.4);
+}
+
+.saas-plan-badge-mini {
+  font-size: 9px;
+  font-weight: 800;
+  padding: 1px 5px;
+  border-radius: 3px;
+  background: var(--saas-blue);
+  color: #ffffff;
 }
 
 .sync-status-dot {
@@ -1818,18 +1900,18 @@ body {
 
 .sync-status-dot.synced {
   background: #22c55e;
-  box-shadow: 0 0 6px rgba(34, 197, 94, 0.7);
+  box-shadow: 0 0 6px rgba(34, 197, 94, 0.8);
 }
 
 .sync-status-dot.syncing {
   background: #eab308;
-  box-shadow: 0 0 6px rgba(234, 179, 8, 0.7);
+  box-shadow: 0 0 6px rgba(234, 179, 8, 0.8);
   animation: pulse-sync 1.2s infinite ease-in-out;
 }
 
 .sync-status-dot.offline {
   background: #ef4444;
-  box-shadow: 0 0 6px rgba(239, 68, 68, 0.7);
+  box-shadow: 0 0 6px rgba(239, 68, 68, 0.8);
 }
 
 .sync-status-dot.guest {
@@ -1837,99 +1919,333 @@ body {
 }
 
 @keyframes pulse-sync {
-  0% { transform: scale(0.9); opacity: 0.6; }
-  50% { transform: scale(1.3); opacity: 1; }
-  100% { transform: scale(0.9); opacity: 0.6; }
+  0% { transform: scale(0.85); opacity: 0.5; }
+  50% { transform: scale(1.35); opacity: 1; }
+  100% { transform: scale(0.85); opacity: 0.5; }
 }
 
-.chevron-icon {
-  opacity: 0.6;
-  transition: transform 0.2s ease;
-}
-
-.user-dropdown-menu {
+/* 3. Premium SaaS Account Dropdown Menu */
+.saas-account-menu {
   position: absolute;
-  top: calc(100% + 8px);
+  top: calc(100% + 10px);
   right: 0;
-  min-width: 250px;
-  background: var(--bg-card);
-  border: 1px solid var(--border-strong);
-  box-shadow: 0 16px 36px rgba(0, 0, 0, 0.45);
-  border-radius: 8px;
-  padding: 6px;
+  width: 270px;
+  background: rgba(15, 18, 26, 0.95);
+  backdrop-filter: blur(24px);
+  -webkit-backdrop-filter: blur(24px);
+  border: 1px solid rgba(255, 255, 255, 0.1);
+  box-shadow: 0 20px 40px -8px rgba(0, 0, 0, 0.6), 0 0 0 1px rgba(255, 255, 255, 0.05);
+  border-radius: 16px;
+  padding: 8px;
   z-index: 1200;
-  animation: slide-fade-in 0.18s cubic-bezier(0.16, 1, 0.3, 1);
+  transform-origin: top right;
+  animation: saas-menu-spring 0.24s var(--spring-easing);
 }
 
-.dropdown-header {
+@keyframes saas-menu-spring {
+  from {
+    opacity: 0;
+    transform: scale(0.94) translateY(-6px);
+  }
+  to {
+    opacity: 1;
+    transform: scale(1) translateY(0);
+  }
+}
+
+.account-menu-header {
+  display: flex;
+  align-items: center;
+  gap: 10px;
   padding: 8px 10px;
 }
 
-.dropdown-user-email {
-  font-size: 12px;
+.header-avatar-circle {
+  width: 34px;
+  height: 34px;
+  border-radius: 50%;
+  background: linear-gradient(135deg, #4F8CFF, #7C3AED);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  color: #fff;
   font-weight: 700;
+  font-size: 13px;
+  flex-shrink: 0;
+  box-shadow: 0 2px 8px var(--saas-blue-glow);
+}
+
+.header-user-meta {
+  overflow: hidden;
+}
+
+.meta-name-row {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+}
+
+.meta-display-name {
+  font-size: 13px;
+  font-weight: 600;
   color: var(--text-primary);
-  word-break: break-all;
-  font-family: var(--font-mono);
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
 }
 
-.dropdown-sync-status {
+.meta-email {
   font-size: 11px;
-  color: var(--text-secondary);
-  margin-top: 4px;
+  color: var(--text-muted);
+  font-family: var(--font-mono);
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  margin-top: 1px;
 }
 
-.dropdown-divider {
+.account-menu-divider {
   height: 1px;
-  background: var(--border-subtle);
-  margin: 4px 0;
+  background: rgba(255, 255, 255, 0.08);
+  margin: 6px 0;
 }
 
-.dropdown-item {
+.account-menu-list {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+}
+
+.account-menu-item {
   width: 100%;
   display: flex;
   align-items: center;
-  gap: 8px;
+  gap: 10px;
   padding: 8px 10px;
   border: none;
   background: transparent;
   color: var(--text-primary);
   font-size: 12px;
   font-weight: 500;
-  border-radius: 6px;
+  border-radius: 8px;
   cursor: pointer;
   text-align: left;
-  transition: background 0.15s ease, color 0.15s ease;
+  transition: all 0.15s ease;
 }
 
-.dropdown-item:hover {
-  background: var(--bg-tertiary);
+.account-menu-item:hover {
+  background: rgba(255, 255, 255, 0.06);
+  transform: translateX(2px);
 }
 
-.dropdown-item-danger {
+.menu-item-icon {
+  font-size: 14px;
+  width: 18px;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.menu-item-label {
+  flex: 1;
+}
+
+.menu-item-shortcut {
+  font-size: 10px;
+  font-family: var(--font-mono);
+  color: var(--text-muted);
+  background: rgba(255, 255, 255, 0.05);
+  padding: 2px 5px;
+  border-radius: 4px;
+  border: 1px solid rgba(255, 255, 255, 0.08);
+}
+
+/* Cloud Sync status row inside menu */
+.account-menu-item-sync {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 6px 10px;
+  border-radius: 8px;
+  background: rgba(255, 255, 255, 0.02);
+}
+
+.sync-item-left {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+}
+
+.sync-item-text {
+  display: flex;
+  flex-direction: column;
+}
+
+.sync-status-subtext {
+  font-size: 10px;
+  color: var(--text-secondary);
+}
+
+.btn-mini-sync {
+  font-size: 10px;
+  font-weight: 600;
+  padding: 3px 8px;
+  border-radius: 6px;
+  background: rgba(255, 255, 255, 0.08);
+  color: var(--text-primary);
+  border: 1px solid rgba(255, 255, 255, 0.1);
+  cursor: pointer;
+  transition: all 0.15s ease;
+}
+
+.btn-mini-sync:hover {
+  background: var(--saas-blue);
+  color: #fff;
+  border-color: var(--saas-blue);
+}
+
+/* Highlight upgrade subscription item */
+.account-menu-item.highlight-upgrade {
+  background: linear-gradient(135deg, rgba(79, 140, 255, 0.12), rgba(124, 58, 237, 0.12));
+  border: 1px solid rgba(79, 140, 255, 0.25);
+  margin: 3px 0;
+}
+
+.account-menu-item.highlight-upgrade:hover {
+  background: linear-gradient(135deg, rgba(79, 140, 255, 0.2), rgba(124, 58, 237, 0.2));
+  border-color: rgba(79, 140, 255, 0.4);
+}
+
+.menu-item-stacked {
+  display: flex;
+  flex-direction: column;
+  flex: 1;
+}
+
+.menu-item-subtag {
+  font-size: 10px;
+  color: #93c5fd;
+}
+
+.badge-upgrade-glow {
+  font-size: 9px;
+  font-weight: 800;
+  text-transform: uppercase;
+  padding: 2px 6px;
+  border-radius: 4px;
+  background: var(--saas-blue);
+  color: #fff;
+  box-shadow: 0 0 10px var(--saas-blue-glow);
+}
+
+.menu-item-danger {
   color: #f87171;
 }
 
-.dropdown-item-danger:hover {
+.menu-item-danger:hover {
   background: rgba(239, 68, 68, 0.12);
   color: #ef4444;
 }
 
-/* Auth Modal Specifics */
-.modal-auth-dialog {
-  max-width: 400px;
+/* 4. Centered Glassmorphic SaaS Auth Modal */
+.modal-saas-auth-dialog {
+  max-width: 440px;
+  width: 92%;
+  border-radius: 20px;
+  background: rgba(15, 18, 26, 0.88);
+  backdrop-filter: blur(28px);
+  -webkit-backdrop-filter: blur(28px);
+  border: 1px solid rgba(255, 255, 255, 0.12);
+  box-shadow: 0 30px 60px -12px rgba(0, 0, 0, 0.7), 0 0 0 1px rgba(255, 255, 255, 0.06);
+  position: relative;
+  overflow: hidden;
+  padding: 0;
+  animation: saas-modal-enter 0.28s var(--spring-easing);
 }
 
-.auth-tabs-nav {
+@keyframes saas-modal-enter {
+  from {
+    opacity: 0;
+    transform: scale(0.92) translateY(12px);
+  }
+  to {
+    opacity: 1;
+    transform: scale(1) translateY(0);
+  }
+}
+
+.auth-glow-mesh {
+  position: absolute;
+  top: -100px;
+  left: 50%;
+  transform: translateX(-50%);
+  width: 320px;
+  height: 200px;
+  background: radial-gradient(circle, rgba(79, 140, 255, 0.25) 0%, rgba(124, 58, 237, 0.1) 60%, transparent 80%);
+  filter: blur(40px);
+  pointer-events: none;
+  z-index: 0;
+}
+
+.auth-modal-header {
+  position: relative;
+  z-index: 1;
+  padding: 18px 22px 10px;
+  border-bottom: none;
   display: flex;
-  gap: 4px;
-  background: var(--bg-tertiary);
-  padding: 4px;
-  border-radius: 8px;
+  align-items: center;
+  justify-content: space-between;
+}
+
+.auth-brand-badge {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  font-size: 11px;
+  font-weight: 800;
+  letter-spacing: 0.1em;
+  color: var(--text-primary);
+  background: rgba(255, 255, 255, 0.05);
+  padding: 4px 10px;
+  border-radius: 16px;
+  border: 1px solid rgba(255, 255, 255, 0.08);
+}
+
+.auth-modal-body {
+  position: relative;
+  z-index: 1;
+  padding: 4px 24px 24px;
+}
+
+.auth-headings {
+  text-align: center;
   margin-bottom: 1.25rem;
 }
 
-.auth-tab-btn {
+.auth-headings h2 {
+  font-size: 20px;
+  font-weight: 700;
+  color: var(--text-primary);
+  letter-spacing: -0.02em;
+}
+
+.auth-headings p {
+  font-size: 12px;
+  color: var(--text-muted);
+  margin-top: 4px;
+}
+
+/* Sliding Tab Switcher */
+.saas-tabs-container {
+  display: flex;
+  background: rgba(255, 255, 255, 0.05);
+  border: 1px solid rgba(255, 255, 255, 0.08);
+  border-radius: 10px;
+  padding: 3px;
+  margin-bottom: 1.25rem;
+}
+
+.saas-tab-btn {
   flex: 1;
   padding: 8px 0;
   border: none;
@@ -1937,78 +2253,644 @@ body {
   color: var(--text-secondary);
   font-size: 12px;
   font-weight: 600;
-  border-radius: 6px;
+  border-radius: 8px;
   cursor: pointer;
-  transition: all 0.2s cubic-bezier(0.16, 1, 0.3, 1);
+  transition: all 0.2s var(--spring-easing);
 }
 
-.auth-tab-btn.active {
-  background: var(--bg-card);
+.saas-tab-btn.active {
+  background: rgba(255, 255, 255, 0.12);
   color: var(--text-primary);
-  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.2);
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.3);
 }
 
-.auth-alert {
-  padding: 10px 12px;
-  border-radius: 6px;
-  font-size: 12px;
-  margin-bottom: 1rem;
-  line-height: 1.4;
-}
-
-.auth-alert.error {
-  background: rgba(239, 68, 68, 0.15);
-  color: #fca5a5;
-  border: 1px solid rgba(239, 68, 68, 0.35);
-}
-
-.auth-alert.success {
-  background: rgba(34, 197, 94, 0.15);
-  color: #86efac;
-  border: 1px solid rgba(34, 197, 94, 0.35);
-}
-
-.label-row {
+/* Google OAuth Button */
+.btn-google-oauth {
+  width: 100%;
   display: flex;
-  justify-content: space-between;
+  align-items: center;
+  justify-content: center;
+  gap: 10px;
+  background: rgba(255, 255, 255, 0.06);
+  border: 1px solid rgba(255, 255, 255, 0.12);
+  color: var(--text-primary);
+  font-size: 13px;
+  font-weight: 600;
+  padding: 10px;
+  border-radius: 10px;
+  cursor: pointer;
+  transition: all 0.2s var(--spring-easing);
+}
+
+.btn-google-oauth:hover {
+  background: rgba(255, 255, 255, 0.1);
+  border-color: rgba(255, 255, 255, 0.2);
+  transform: translateY(-1px);
+}
+
+.btn-google-oauth:active {
+  transform: scale(0.99);
+}
+
+.auth-divider {
+  display: flex;
+  align-items: center;
+  text-align: center;
+  margin: 1.25rem 0 1rem;
+  color: var(--text-muted);
+  font-size: 10px;
+  font-weight: 700;
+  letter-spacing: 0.08em;
+}
+
+.auth-divider::before,
+.auth-divider::after {
+  content: '';
+  flex: 1;
+  border-bottom: 1px solid rgba(255, 255, 255, 0.08);
+}
+
+.auth-divider span {
+  padding: 0 10px;
+}
+
+/* Styled Inputs with Icons */
+.styled-input-saas {
+  width: 100%;
+  background: rgba(255, 255, 255, 0.04);
+  border: 1px solid rgba(255, 255, 255, 0.1);
+  color: var(--text-primary);
+  border-radius: 10px;
+  padding: 9px 12px;
+  font-size: 13px;
+  font-family: var(--font-sans);
+  outline: none;
+  transition: all 0.2s ease;
+}
+
+.styled-input-saas:focus {
+  background: rgba(255, 255, 255, 0.07);
+  border-color: var(--saas-blue);
+  box-shadow: 0 0 0 3px var(--saas-blue-glow);
+}
+
+.input-with-icon {
+  position: relative;
+  display: flex;
   align-items: center;
 }
 
-.btn-text-link {
-  border: none;
-  background: transparent;
-  color: var(--text-secondary);
-  font-size: 11px;
-  cursor: pointer;
-  text-decoration: underline;
-  padding: 0;
+.input-with-icon > svg:first-child {
+  position: absolute;
+  left: 12px;
+  color: var(--text-muted);
+  pointer-events: none;
 }
 
-.btn-text-link:hover {
+.input-with-icon .styled-input-saas {
+  padding-left: 36px;
+}
+
+.input-password-wrapper .styled-input-saas {
+  padding-right: 36px;
+}
+
+.toggle-password-visibility {
+  position: absolute;
+  right: 10px;
+  background: transparent;
+  border: none;
+  color: var(--text-muted);
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  padding: 4px;
+}
+
+.toggle-password-visibility:hover {
   color: var(--text-primary);
 }
 
-.btn-block {
-  width: 100%;
-  justify-content: center;
-  padding: 10px;
-  font-size: 13px;
-  font-weight: 600;
-  margin-top: 0.5rem;
+/* Password Strength & Requirements */
+.signup-security-section {
+  background: rgba(255, 255, 255, 0.02);
+  border: 1px solid rgba(255, 255, 255, 0.06);
+  border-radius: 10px;
+  padding: 10px 12px;
+  margin: 10px 0;
 }
 
-.auth-footnote {
+.password-strength-container {
+  margin-bottom: 8px;
+}
+
+.strength-labels {
+  display: flex;
+  justify-content: space-between;
+  font-size: 11px;
+  color: var(--text-secondary);
+  margin-bottom: 4px;
+}
+
+.strength-badge {
+  font-weight: 700;
+  font-size: 10px;
+  text-transform: uppercase;
+}
+
+.strength-badge.weak { color: #ef4444; }
+.strength-badge.fair { color: #f59e0b; }
+.strength-badge.good { color: #38bdf8; }
+.strength-badge.strong { color: #22c55e; }
+
+.strength-meter-bar {
+  width: 100%;
+  height: 4px;
+  background: rgba(255, 255, 255, 0.08);
+  border-radius: 2px;
+  overflow: hidden;
+}
+
+.meter-fill {
+  height: 100%;
+  width: 0%;
+  background: #ef4444;
+  border-radius: 2px;
+  transition: width 0.3s ease, background-color 0.3s ease;
+}
+
+.meter-fill.weak { width: 25%; background: #ef4444; }
+.meter-fill.fair { width: 50%; background: #f59e0b; }
+.meter-fill.good { width: 75%; background: #38bdf8; }
+.meter-fill.strong { width: 100%; background: #22c55e; }
+
+.requirements-checklist {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 4px 8px;
   font-size: 11px;
   color: var(--text-muted);
-  text-align: center;
-  margin-top: 1.25rem;
-  line-height: 1.5;
 }
 
-.settings-desc {
+.req-item {
+  display: flex;
+  align-items: center;
+  gap: 5px;
+  transition: color 0.2s ease;
+}
+
+.req-item.valid {
+  color: #86efac;
+}
+
+.req-item.valid .req-icon {
+  color: #22c55e;
+  font-weight: 800;
+}
+
+.remember-me-row {
+  margin: 10px 0 14px;
+}
+
+.custom-checkbox-label {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  cursor: pointer;
   font-size: 12px;
   color: var(--text-secondary);
-  line-height: 1.5;
-  margin-bottom: 1rem;
 }
+
+.custom-checkbox-label input {
+  display: none;
+}
+
+.checkbox-box {
+  width: 16px;
+  height: 16px;
+  border-radius: 4px;
+  background: rgba(255, 255, 255, 0.06);
+  border: 1px solid rgba(255, 255, 255, 0.2);
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  transition: all 0.15s ease;
+}
+
+.custom-checkbox-label input:checked + .checkbox-box {
+  background: var(--saas-blue);
+  border-color: var(--saas-blue);
+}
+
+.custom-checkbox-label input:checked + .checkbox-box::after {
+  content: '✓';
+  color: #fff;
+  font-size: 11px;
+  font-weight: 800;
+}
+
+.btn-saas-submit {
+  width: 100%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  background: var(--saas-blue);
+  color: #ffffff;
+  border: none;
+  font-size: 13px;
+  font-weight: 600;
+  padding: 11px;
+  border-radius: 10px;
+  cursor: pointer;
+  box-shadow: 0 4px 14px var(--saas-blue-glow);
+  transition: all 0.2s var(--spring-easing);
+  margin-top: 6px;
+}
+
+.btn-saas-submit:hover {
+  background: #3b7ced;
+  transform: translateY(-1px);
+  box-shadow: 0 6px 20px rgba(79, 140, 255, 0.4);
+}
+
+.btn-saas-submit:active {
+  transform: scale(0.99);
+}
+
+.auth-security-footer {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 6px;
+  font-size: 11px;
+  color: var(--text-muted);
+  margin-top: 1.25rem;
+  text-align: center;
+}
+
+/* 5. Stripe-Inspired Subscription & Pricing Deck */
+.modal-pricing-dialog {
+  max-width: 860px;
+  width: 95%;
+  border-radius: 20px;
+  background: rgba(14, 17, 24, 0.96);
+  backdrop-filter: blur(30px);
+  border: 1px solid rgba(255, 255, 255, 0.12);
+  padding: 0;
+  box-shadow: 0 30px 70px -15px rgba(0, 0, 0, 0.8);
+}
+
+.pricing-header {
+  padding: 24px 28px 16px;
+  border-bottom: 1px solid rgba(255, 255, 255, 0.08);
+}
+
+.pricing-badge-pill {
+  font-size: 10px;
+  font-weight: 800;
+  letter-spacing: 0.08em;
+  color: #93c5fd;
+  display: inline-block;
+  margin-bottom: 6px;
+}
+
+.pricing-title {
+  font-size: 22px;
+  font-weight: 700;
+  color: var(--text-primary);
+  letter-spacing: -0.02em;
+}
+
+.pricing-subtitle {
+  font-size: 13px;
+  color: var(--text-secondary);
+  margin-top: 4px;
+}
+
+.pricing-deck-grid {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 16px;
+  padding: 24px 28px;
+}
+
+@media (max-width: 768px) {
+  .pricing-deck-grid {
+    grid-template-columns: 1fr;
+  }
+}
+
+.pricing-card {
+  position: relative;
+  background: rgba(255, 255, 255, 0.03);
+  border: 1px solid rgba(255, 255, 255, 0.08);
+  border-radius: 16px;
+  padding: 20px;
+  display: flex;
+  flex-direction: column;
+  transition: all 0.25s var(--spring-easing);
+}
+
+.pricing-card:hover {
+  background: rgba(255, 255, 255, 0.05);
+  border-color: rgba(255, 255, 255, 0.16);
+  transform: translateY(-3px);
+}
+
+.pricing-card.popular {
+  background: linear-gradient(180deg, rgba(79, 140, 255, 0.1) 0%, rgba(124, 58, 237, 0.05) 100%);
+  border: 1.5px solid #4F8CFF;
+  box-shadow: 0 10px 30px -10px var(--saas-blue-glow);
+}
+
+.popular-ribbon {
+  position: absolute;
+  top: -11px;
+  left: 50%;
+  transform: translateX(-50%);
+  background: linear-gradient(135deg, #4F8CFF, #7C3AED);
+  color: #ffffff;
+  font-size: 9px;
+  font-weight: 800;
+  letter-spacing: 0.08em;
+  padding: 3px 10px;
+  border-radius: 12px;
+  box-shadow: 0 2px 8px var(--saas-blue-glow);
+}
+
+.card-plan-header {
+  display: flex;
+  flex-direction: column;
+  margin-bottom: 12px;
+}
+
+.plan-name {
+  font-size: 16px;
+  font-weight: 700;
+  color: var(--text-primary);
+}
+
+.plan-tag {
+  font-size: 11px;
+  color: var(--text-muted);
+}
+
+.plan-price {
+  display: flex;
+  align-items: baseline;
+  margin-bottom: 10px;
+}
+
+.plan-price .currency {
+  font-size: 16px;
+  font-weight: 600;
+  color: var(--text-secondary);
+}
+
+.plan-price .amount {
+  font-size: 32px;
+  font-weight: 800;
+  color: var(--text-primary);
+  letter-spacing: -0.03em;
+  margin: 0 2px;
+}
+
+.plan-price .period {
+  font-size: 12px;
+  color: var(--text-muted);
+}
+
+.plan-desc {
+  font-size: 12px;
+  color: var(--text-secondary);
+  line-height: 1.4;
+  margin-bottom: 16px;
+  min-height: 34px;
+}
+
+.btn-plan-action {
+  width: 100%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 6px;
+  padding: 9px 0;
+  border-radius: 8px;
+  font-size: 12px;
+  font-weight: 600;
+  cursor: pointer;
+  transition: all 0.2s ease;
+  margin-bottom: 18px;
+}
+
+.btn-plan-current {
+  background: rgba(255, 255, 255, 0.05);
+  border: 1px solid rgba(255, 255, 255, 0.1);
+  color: var(--text-muted);
+  cursor: default;
+}
+
+.btn-plan-pro {
+  background: var(--saas-blue);
+  color: #fff;
+  border: none;
+  box-shadow: 0 4px 12px var(--saas-blue-glow);
+}
+
+.btn-plan-pro:hover {
+  background: #3b7ced;
+  transform: translateY(-1px);
+}
+
+.btn-plan-premium {
+  background: linear-gradient(135deg, #f59e0b, #d97706);
+  color: #fff;
+  border: none;
+  box-shadow: 0 4px 12px rgba(245, 158, 11, 0.3);
+}
+
+.btn-plan-premium:hover {
+  opacity: 0.95;
+  transform: translateY(-1px);
+}
+
+.plan-features {
+  list-style: none;
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  font-size: 12px;
+  color: var(--text-primary);
+}
+
+.plan-features li {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.plan-features li.disabled {
+  color: var(--text-muted);
+}
+
+.check-icon {
+  color: #22c55e;
+  font-weight: 800;
+}
+
+.cross-icon {
+  color: var(--text-muted);
+  opacity: 0.5;
+}
+
+.pricing-guarantee-footer {
+  text-align: center;
+  padding: 14px 20px;
+  border-top: 1px solid rgba(255, 255, 255, 0.06);
+  font-size: 11px;
+  color: var(--text-muted);
+}
+
+/* 6. Profile & Shortcuts Modals */
+.modal-profile-dialog,
+.modal-shortcuts-dialog {
+  max-width: 460px;
+  border-radius: 18px;
+}
+
+.profile-hero-card {
+  display: flex;
+  align-items: center;
+  gap: 16px;
+  padding: 16px;
+  background: rgba(255, 255, 255, 0.04);
+  border: 1px solid rgba(255, 255, 255, 0.08);
+  border-radius: 12px;
+}
+
+.profile-avatar-large {
+  width: 52px;
+  height: 52px;
+  border-radius: 50%;
+  background: linear-gradient(135deg, #4F8CFF, #7C3AED);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  color: #fff;
+  font-size: 20px;
+  font-weight: 800;
+  box-shadow: 0 4px 14px var(--saas-blue-glow);
+}
+
+.profile-meta h4 {
+  font-size: 15px;
+  font-weight: 700;
+  color: var(--text-primary);
+}
+
+.profile-meta p {
+  font-size: 12px;
+  color: var(--text-muted);
+  font-family: var(--font-mono);
+  margin: 2px 0 6px;
+}
+
+.shortcuts-grid {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+}
+
+.shortcut-row {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 8px 12px;
+  background: rgba(255, 255, 255, 0.03);
+  border: 1px solid rgba(255, 255, 255, 0.06);
+  border-radius: 8px;
+  font-size: 12px;
+}
+
+.kbd-pill {
+  font-family: var(--font-mono);
+  font-size: 11px;
+  font-weight: 600;
+  background: rgba(255, 255, 255, 0.08);
+  border: 1px solid rgba(255, 255, 255, 0.15);
+  color: var(--text-primary);
+  padding: 3px 8px;
+  border-radius: 6px;
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.3);
+}
+
+/* 7. SaaS Toast Notifications */
+.toast-container {
+  position: fixed;
+  bottom: 24px;
+  right: 24px;
+  z-index: 9999;
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+  pointer-events: none;
+}
+
+.toast {
+  pointer-events: auto;
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  min-width: 280px;
+  max-width: 380px;
+  padding: 12px 16px;
+  background: rgba(18, 22, 31, 0.95);
+  backdrop-filter: blur(20px);
+  border: 1px solid rgba(255, 255, 255, 0.12);
+  border-radius: 12px;
+  box-shadow: 0 16px 36px rgba(0, 0, 0, 0.5), 0 0 0 1px rgba(255, 255, 255, 0.05);
+  color: var(--text-primary);
+  font-size: 13px;
+  font-weight: 500;
+  animation: toast-spring-in 0.3s var(--spring-easing);
+  transition: all 0.2s ease;
+}
+
+@keyframes toast-spring-in {
+  from {
+    opacity: 0;
+    transform: translateY(16px) scale(0.94);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0) scale(1);
+  }
+}
+
+.toast.toast-success {
+  border-left: 3px solid #22c55e;
+}
+
+.toast.toast-error {
+  border-left: 3px solid #ef4444;
+}
+
+.toast.toast-info {
+  border-left: 3px solid var(--saas-blue);
+}
+
+.toast.toast-warning {
+  border-left: 3px solid #f59e0b;
+}
+
+.toast-icon {
+  font-size: 16px;
+}
+
+.toast-message {
+  flex: 1;
+  line-height: 1.35;
+}
+
 
