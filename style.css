@@ -2279,6 +2279,100 @@ body {
   margin-bottom: 0.85rem;
 }
 
+/* Auth Alert Banner */
+.auth-alert {
+  display: flex;
+  align-items: flex-start;
+  gap: 10px;
+  padding: 10px 14px;
+  border-radius: 10px;
+  font-size: 12px;
+  line-height: 1.45;
+  margin-bottom: 0.85rem;
+  animation: auth-alert-fade 0.25s var(--spring-easing);
+  transition: all 0.2s ease;
+}
+
+@keyframes auth-alert-fade {
+  from {
+    opacity: 0;
+    transform: translateY(-6px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+.auth-alert.hidden {
+  display: none !important;
+}
+
+.auth-alert.error {
+  background: rgba(239, 68, 68, 0.12);
+  border: 1px solid rgba(239, 68, 68, 0.35);
+  color: #fca5a5;
+}
+
+.auth-alert.success {
+  background: rgba(34, 197, 94, 0.12);
+  border: 1px solid rgba(34, 197, 94, 0.35);
+  color: #86efac;
+}
+
+.auth-alert.info {
+  background: rgba(79, 140, 255, 0.12);
+  border: 1px solid rgba(79, 140, 255, 0.35);
+  color: #93c5fd;
+}
+
+.auth-alert .alert-icon {
+  font-size: 14px;
+  font-weight: 800;
+  flex-shrink: 0;
+  line-height: 1.2;
+}
+
+.auth-alert .alert-msg {
+  flex: 1;
+}
+
+/* Label Row with Text Link */
+.label-row {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin-bottom: 4px;
+}
+
+.label-row label {
+  margin-bottom: 0;
+}
+
+.btn-text-link {
+  background: transparent;
+  border: none;
+  color: var(--saas-blue);
+  font-size: 11px;
+  font-weight: 600;
+  cursor: pointer;
+  padding: 2px 4px;
+  border-radius: 4px;
+  transition: all 0.15s ease;
+}
+
+.btn-text-link:hover:not(:disabled) {
+  color: #70a3ff;
+  text-decoration: underline;
+}
+
+.btn-text-link:disabled {
+  color: var(--text-muted);
+  cursor: not-allowed;
+  opacity: 0.75;
+  text-decoration: none;
+}
+
 .saas-tab-btn {
   flex: 1;
   padding: 7px 0;

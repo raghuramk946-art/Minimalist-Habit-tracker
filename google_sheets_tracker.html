@@ -2289,6 +2289,100 @@ body {
   margin-bottom: 0.85rem;
 }
 
+/* Auth Alert Banner */
+.auth-alert {
+  display: flex;
+  align-items: flex-start;
+  gap: 10px;
+  padding: 10px 14px;
+  border-radius: 10px;
+  font-size: 12px;
+  line-height: 1.45;
+  margin-bottom: 0.85rem;
+  animation: auth-alert-fade 0.25s var(--spring-easing);
+  transition: all 0.2s ease;
+}
+
+@keyframes auth-alert-fade {
+  from {
+    opacity: 0;
+    transform: translateY(-6px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+.auth-alert.hidden {
+  display: none !important;
+}
+
+.auth-alert.error {
+  background: rgba(239, 68, 68, 0.12);
+  border: 1px solid rgba(239, 68, 68, 0.35);
+  color: #fca5a5;
+}
+
+.auth-alert.success {
+  background: rgba(34, 197, 94, 0.12);
+  border: 1px solid rgba(34, 197, 94, 0.35);
+  color: #86efac;
+}
+
+.auth-alert.info {
+  background: rgba(79, 140, 255, 0.12);
+  border: 1px solid rgba(79, 140, 255, 0.35);
+  color: #93c5fd;
+}
+
+.auth-alert .alert-icon {
+  font-size: 14px;
+  font-weight: 800;
+  flex-shrink: 0;
+  line-height: 1.2;
+}
+
+.auth-alert .alert-msg {
+  flex: 1;
+}
+
+/* Label Row with Text Link */
+.label-row {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin-bottom: 4px;
+}
+
+.label-row label {
+  margin-bottom: 0;
+}
+
+.btn-text-link {
+  background: transparent;
+  border: none;
+  color: var(--saas-blue);
+  font-size: 11px;
+  font-weight: 600;
+  cursor: pointer;
+  padding: 2px 4px;
+  border-radius: 4px;
+  transition: all 0.15s ease;
+}
+
+.btn-text-link:hover:not(:disabled) {
+  color: #70a3ff;
+  text-decoration: underline;
+}
+
+.btn-text-link:disabled {
+  color: var(--text-muted);
+  cursor: not-allowed;
+  opacity: 0.75;
+  text-decoration: none;
+}
+
 .saas-tab-btn {
   flex: 1;
   padding: 7px 0;
@@ -5689,8 +5783,18 @@ body {
     const banner = document.getElementById('authAlertBanner');
     if (!banner) return;
     banner.className = `auth-alert ${type}`;
-    banner.textContent = message;
+    const icon = type === 'success' ? '✓' : type === 'info' ? 'ℹ' : '⚠';
+    banner.innerHTML = `<span class="alert-icon">${icon}</span><div class="alert-msg">${escapeHtml(message)}</div>`;
     banner.classList.remove('hidden');
+  }
+
+  function escapeHtml(str) {
+    if (!str) return '';
+    return String(str)
+      .replace(/&/g, '&amp;')
+      .replace(/</g, '&lt;')
+      .replace(/>/g, '&gt;')
+      .replace(/"/g, '&quot;');
   }
 
   function clearAuthAlert() {
@@ -5909,28 +6013,105 @@ body {
     renderApp();
   }
 
+  let forgotPasswordCooldownTimer = null;
+
+  function startForgotPasswordCooldown(seconds = 60) {
+    const forgotBtn = document.getElementById('forgotPasswordBtn');
+    if (!forgotBtn) return;
+
+    if (forgotPasswordCooldownTimer) {
+      clearInterval(forgotPasswordCooldownTimer);
+      forgotPasswordCooldownTimer = null;
+    }
+
+    let remaining = seconds;
+    forgotBtn.disabled = true;
+    forgotBtn.textContent = `Resend in ${remaining}s`;
+
+    forgotPasswordCooldownTimer = setInterval(() => {
+      remaining--;
+      if (remaining > 0) {
+        forgotBtn.textContent = `Resend in ${remaining}s`;
+      } else {
+        clearInterval(forgotPasswordCooldownTimer);
+        forgotPasswordCooldownTimer = null;
+        forgotBtn.disabled = false;
+        forgotBtn.textContent = 'Resend reset link';
+      }
+    }, 1000);
+  }
+
   async function handleForgotPassword() {
-    const email = document.getElementById('authEmailInput').value.trim();
-    if (!email) {
-      showAuthAlert('Please enter your email address above first.');
+    const forgotBtn = document.getElementById('forgotPasswordBtn');
+    if (forgotBtn && forgotBtn.disabled) return;
+
+    const emailInput = document.getElementById('authEmailInput');
+    const email = emailInput ? emailInput.value.trim() : '';
+
+    // Validate email format
+    const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+    if (!email || !emailRegex.test(email)) {
+      showAuthAlert('Please enter a valid email address above first.', 'error');
+      if (emailInput) emailInput.focus();
       return;
     }
 
+    // Set loading state on button
+    if (forgotBtn) {
+      forgotBtn.disabled = true;
+      forgotBtn.textContent = 'Sending link...';
+    }
+    clearAuthAlert();
+
     try {
-      if (firebaseAuth) {
-        await firebaseAuth.sendPasswordResetEmail(email);
-        showAuthAlert(`Password reset link sent to ${email}! Check your inbox.`, 'success');
-      } else {
-        showAuthAlert(`Password reset link sent to ${email}.`, 'success');
+      if (!firebaseAuth) {
+        throw new Error('Authentication service is currently unavailable. Please check your network connection or cloud database configuration.');
       }
+
+      await firebaseAuth.sendPasswordResetEmail(email);
+
+      // Security requirement: Generic enumeration-safe success message
+      showAuthAlert(
+        `If an account exists for ${email}, a password reset link has been sent. Please check your Inbox, Spam, Junk, and Promotions folders.`,
+        'success'
+      );
+
+      // Start 60-second cooldown timer
+      startForgotPasswordCooldown(60);
     } catch (err) {
-      showAuthAlert(err.message || 'Failed to send password reset email.');
+      console.error('Firebase password reset error:', err);
+      let userMsg = 'Unable to send password reset email at this moment. Please try again.';
+
+      if (err.code === 'auth/invalid-email') {
+        userMsg = 'Please provide a valid email address.';
+      } else if (err.code === 'auth/too-many-requests') {
+        userMsg = 'Too many requests. Please wait a few minutes before trying again.';
+        startForgotPasswordCooldown(60);
+      } else if (err.code === 'auth/network-request-failed') {
+        userMsg = 'Network connection issue. Please check your internet connection and try again.';
+      } else if (err.code === 'auth/user-not-found') {
+        // Enforce generic message to prevent email enumeration
+        userMsg = `If an account exists for ${email}, a password reset link has been sent. Please check your Inbox, Spam, Junk, and Promotions folders.`;
+        showAuthAlert(userMsg, 'success');
+        startForgotPasswordCooldown(60);
+        return;
+      } else if (err.message && !err.code) {
+        userMsg = err.message;
+      }
+
+      showAuthAlert(userMsg, 'error');
+
+      // Re-enable button if no active cooldown
+      if (forgotBtn && !forgotPasswordCooldownTimer) {
+        forgotBtn.disabled = false;
+        forgotBtn.textContent = 'Forgot password?';
+      }
     }
   }
 
   async function handleSignOut() {
     closeAccountMenu();
-    if (confirm('Log out of your Habit OS account?')) {
+    if (confirm('Log out of your MYDAY account?')) {
       try {
         if (firebaseAuth) {
           await firebaseAuth.signOut();
