@@ -1451,9 +1451,6 @@
     const authForm = document.getElementById('saasAuthForm');
     if (authForm) authForm.addEventListener('submit', handleSaasAuthFormSubmit);
 
-    const googleBtn = document.getElementById('googleAuthBtn');
-    if (googleBtn) googleBtn.addEventListener('click', handleGoogleAuth);
-
     const forgotBtn = document.getElementById('forgotPasswordBtn');
     if (forgotBtn) forgotBtn.addEventListener('click', handleForgotPassword);
 
@@ -2146,53 +2143,6 @@
     } finally {
       submitBtn.disabled = false;
       submitText.textContent = currentAuthMode === 'signup' ? 'Create Free Account' : 'Sign In to Account';
-    }
-  }
-
-  // Google OAuth Login
-  async function handleGoogleAuth() {
-    clearAuthAlert();
-    const googleBtn = document.getElementById('googleAuthBtn');
-    const googleText = document.getElementById('googleAuthBtnText');
-    if (googleBtn) googleBtn.disabled = true;
-    if (googleText) googleText.textContent = 'Connecting with Google...';
-
-    try {
-      if (firebaseAuth && typeof firebase.auth.GoogleAuthProvider !== 'undefined') {
-        const provider = new firebase.auth.GoogleAuthProvider();
-        provider.addScope('profile');
-        provider.addScope('email');
-
-        const result = await firebaseAuth.signInWithPopup(provider);
-        const user = result.user;
-
-        // Save profile to Firestore
-        if (firestoreDb && user) {
-          await firestoreDb.collection('users').doc(user.uid).collection('profile').doc('info').set({
-            displayName: user.displayName || 'Google User',
-            email: user.email,
-            photoURL: user.photoURL || '',
-            lastLogin: firebase.firestore.FieldValue.serverTimestamp()
-          }, { merge: true });
-        }
-
-        closeSaasAuthModal();
-        showToast(`Signed in with Google! Welcome, ${user.displayName || user.email}. 🚀`, 'success');
-      } else {
-        // Simulated zero-latency OAuth fallback
-        const demoEmail = 'alex.morgan@gmail.com';
-        handleLocalSaasAuth(demoEmail, 'google_oauth_token', 'Alex Morgan', 'signup');
-        closeSaasAuthModal();
-        showToast('Signed in with Google! 🚀', 'success');
-      }
-    } catch (err) {
-      console.warn('Google Sign-In error:', err);
-      if (err.code !== 'auth/popup-closed-by-user') {
-        showAuthAlert(err.message || 'Google Sign-In was cancelled or encountered an error.');
-      }
-    } finally {
-      if (googleBtn) googleBtn.disabled = false;
-      if (googleText) googleText.textContent = 'Continue with Google';
     }
   }
 
