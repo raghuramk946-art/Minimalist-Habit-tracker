@@ -1965,7 +1965,10 @@
     const banner = document.getElementById('authAlertBanner');
     if (!banner) return;
     banner.className = `auth-alert ${type}`;
-    const icon = type === 'success' ? '✓' : type === 'info' ? 'ℹ' : '⚠';
+    let icon = '⚠';
+    if (type === 'success') icon = '✓';
+    else if (type === 'info') icon = 'ℹ';
+    else if (type === 'warning' || type === 'suggestion') icon = '💡';
     banner.innerHTML = `<span class="alert-icon">${icon}</span><div class="alert-msg">${escapeHtml(message)}</div>`;
     banner.classList.remove('hidden');
   }
@@ -2252,10 +2255,10 @@
 
       await firebaseAuth.sendPasswordResetEmail(email);
 
-      // Security requirement: Generic enumeration-safe success message
+      // Security requirement: Generic enumeration-safe suggestion message (Yellow Alert)
       showAuthAlert(
         `If an account exists for ${email}, a password reset link has been sent. Please check your Inbox, Spam, Junk, and Promotions folders.`,
-        'success'
+        'suggestion'
       );
 
       // Start 60-second cooldown timer
@@ -2272,9 +2275,9 @@
       } else if (err.code === 'auth/network-request-failed') {
         userMsg = 'Network connection issue. Please check your internet connection and try again.';
       } else if (err.code === 'auth/user-not-found') {
-        // Enforce generic message to prevent email enumeration
+        // Enforce generic message in yellow suggestion style
         userMsg = `If an account exists for ${email}, a password reset link has been sent. Please check your Inbox, Spam, Junk, and Promotions folders.`;
-        showAuthAlert(userMsg, 'success');
+        showAuthAlert(userMsg, 'suggestion');
         startForgotPasswordCooldown(60);
         return;
       } else if (err.message && !err.code) {

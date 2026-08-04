@@ -2320,6 +2320,19 @@ body {
   color: #86efac;
 }
 
+.auth-alert.warning,
+.auth-alert.suggestion {
+  background: rgba(245, 158, 11, 0.14);
+  border: 1px solid rgba(245, 158, 11, 0.45);
+  color: #fef08a;
+  box-shadow: 0 0 16px rgba(245, 158, 11, 0.1);
+}
+
+.auth-alert.warning .alert-icon,
+.auth-alert.suggestion .alert-icon {
+  color: #fbbf24;
+}
+
 .auth-alert.info {
   background: rgba(79, 140, 255, 0.12);
   border: 1px solid rgba(79, 140, 255, 0.35);
