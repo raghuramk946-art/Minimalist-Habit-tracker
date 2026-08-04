@@ -1942,8 +1942,8 @@
         confirmInput.value = '';
       }
       if (submitText) submitText.textContent = 'Sign In to Account';
-      if (modalTitle) modalTitle.textContent = 'Welcome to Habit OS';
-      if (modalSubtitle) modalSubtitle.textContent = 'Sign in to access your cloud-synced habit dashboard.';
+      if (modalTitle) modalTitle.textContent = 'Welcome to MYDAY';
+      if (modalSubtitle) modalSubtitle.textContent = 'Sign in to access your cloud-synced day tracker dashboard.';
     } else {
       if (tabSignUp) tabSignUp.classList.add('active');
       if (tabSignIn) tabSignIn.classList.remove('active');
@@ -1953,7 +1953,7 @@
       if (forgotPasswordBtn) forgotPasswordBtn.classList.add('hidden');
       if (confirmInput) confirmInput.required = true;
       if (submitText) submitText.textContent = 'Create Free Account';
-      if (modalTitle) modalTitle.textContent = 'Get Started with Habit OS';
+      if (modalTitle) modalTitle.textContent = 'Get Started with MYDAY';
       if (modalSubtitle) modalSubtitle.textContent = 'Join thousands of builders achieving their daily goals.';
       if (passwordInput && passwordInput.value) {
         updatePasswordStrength(passwordInput.value);
