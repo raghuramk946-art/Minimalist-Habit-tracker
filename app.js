@@ -69,6 +69,7 @@
     year: Math.max(2026, Math.min(2100, today.getFullYear())),
     month: today.getMonth(),
     habits: [],
+    monthlyHabits: {},
     logs: {},
     theme: 'dark'
   };
@@ -119,9 +120,11 @@
       } else {
         seedInitialState();
       }
+      syncCurrentMonthHabits();
     } catch (e) {
       console.warn('Could not read from local storage, using fresh state', e);
       seedInitialState();
+      syncCurrentMonthHabits();
     }
   }
 
@@ -142,7 +145,8 @@
     state = {
       year: Math.max(2026, Math.min(2100, now.getFullYear())),
       month: now.getMonth(),
-      habits: JSON.parse(JSON.stringify(PRESETS.reference)),
+      habits: [],
+      monthlyHabits: {},
       logs: {},
       theme: 'dark'
     };
@@ -151,7 +155,7 @@
     } catch (e) {}
   }
 
-  // --- Calendar Helpers ---
+  // --- Calendar & Month-Scoped Habit Helpers ---
   function getDaysInMonth(year, month) {
     return new Date(year, month + 1, 0).getDate();
   }
@@ -160,8 +164,33 @@
     return new Date(year, month, 1).getDay(); // 0 = Sun
   }
 
-  function getCurrentMonthKey() {
-    return `${state.year}-${state.month}`;
+  function getCurrentMonthKey(year = state.year, month = state.month) {
+    return `${year}-${month}`;
+  }
+
+  function getPreviousMonthKey(year = state.year, month = state.month) {
+    let prevM = month - 1;
+    let prevY = year;
+    if (prevM < 0) {
+      prevM = 11;
+      prevY = year - 1;
+    }
+    return `${prevY}-${prevM}`;
+  }
+
+  function getMonthHabits(monthKey = getCurrentMonthKey()) {
+    if (!state.monthlyHabits) {
+      state.monthlyHabits = {};
+    }
+    if (!state.monthlyHabits[monthKey]) {
+      state.monthlyHabits[monthKey] = [];
+    }
+    return state.monthlyHabits[monthKey];
+  }
+
+  function syncCurrentMonthHabits() {
+    const key = getCurrentMonthKey();
+    state.habits = getMonthHabits(key);
   }
 
   function getMonthLogData(monthKey = getCurrentMonthKey()) {
@@ -407,6 +436,24 @@
     const isCurrentRealMonth = todayObj.getFullYear() === state.year && todayObj.getMonth() === state.month;
     const realDay = todayObj.getDate();
 
+    // Check previous month for import availability
+    const prevKey = getPreviousMonthKey(state.year, state.month);
+    const prevHabits = getMonthHabits(prevKey);
+    const hasPrevHabits = prevHabits && prevHabits.length > 0;
+    const [prevYearStr, prevMonthIdxStr] = prevKey.split('-');
+    const prevMonthName = MONTH_NAMES[parseInt(prevMonthIdxStr, 10)];
+
+    // Sync quick-action import button visibility
+    const importQuickBtn = document.getElementById('importPrevMonthBtn');
+    if (importQuickBtn) {
+      if (hasPrevHabits) {
+        importQuickBtn.classList.remove('hidden');
+        importQuickBtn.title = `Import habits from ${prevMonthName} ${prevYearStr}`;
+      } else {
+        importQuickBtn.classList.add('hidden');
+      }
+    }
+
     // Row 1: Week Group Headers
     const weekRow = document.createElement('tr');
     weekRow.className = 'week-group-row';
@@ -466,8 +513,41 @@
     // Body: Habit Rows
     if (state.habits.length === 0) {
       const emptyRow = document.createElement('tr');
-      emptyRow.innerHTML = `<td colspan="32" style="text-align: center; padding: 24px; color: var(--text-muted);">No habits added yet. Click "+ Add Habit" or select a preset routine above!</td>`;
+      emptyRow.className = 'empty-habits-row';
+
+      let importActionHtml = '';
+      if (hasPrevHabits) {
+        importActionHtml = `
+          <button type="button" class="btn btn-sm btn-secondary" id="emptyImportPrevBtn" title="Copy habits from ${prevMonthName} ${prevYearStr}">
+            <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"></path><polyline points="7 10 12 15 17 10"></polyline><line x1="12" y1="15" x2="12" y2="3"></line></svg>
+            <span>Import Previous Month Habits</span>
+          </button>
+        `;
+      }
+
+      emptyRow.innerHTML = `
+        <td colspan="32" class="empty-habits-cell">
+          <div class="empty-habits-container">
+            <div class="empty-habits-icon-box">✨</div>
+            <div class="empty-habits-suggestion">Add habit to track</div>
+            <div class="empty-habits-actions">
+              <button type="button" class="btn btn-sm btn-primary" id="emptyAddHabitBtn">
+                <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><line x1="12" y1="5" x2="12" y2="19"></line><line x1="5" y1="12" x2="19" y2="12"></line></svg>
+                <span>Add Habit</span>
+              </button>
+              ${importActionHtml}
+            </div>
+          </div>
+        </td>
+      `;
       tbody.appendChild(emptyRow);
+
+      const emptyAddBtn = document.getElementById('emptyAddHabitBtn');
+      if (emptyAddBtn) emptyAddBtn.addEventListener('click', openAddHabitModal);
+
+      const emptyImportBtn = document.getElementById('emptyImportPrevBtn');
+      if (emptyImportBtn) emptyImportBtn.addEventListener('click', importPreviousMonthHabits);
+
       return;
     }
 
@@ -857,13 +937,14 @@
 
     MONTH_NAMES.forEach((name, idx) => {
       const monthKey = `${state.year}-${idx}`;
+      const monthHabits = getMonthHabits(monthKey);
       const log = state.logs[monthKey];
       const daysCount = getDaysInMonth(state.year, idx);
-      const totalGoal = state.habits.length * daysCount;
+      const totalGoal = monthHabits.length * daysCount;
       let completed = 0;
 
-      if (log && log.habits) {
-        state.habits.forEach(h => {
+      if (log && log.habits && monthHabits.length > 0) {
+        monthHabits.forEach(h => {
           if (log.habits[h.id]) {
             for (let d = 1; d <= daysCount; d++) {
               if (log.habits[h.id][d]) completed++;
@@ -898,7 +979,7 @@
     return JSON.stringify({
       year: s.year,
       month: s.month,
-      habits: s.habits,
+      monthlyHabits: s.monthlyHabits || {},
       logs: s.logs,
       theme: s.theme
     });
@@ -924,7 +1005,8 @@
       const parsed = JSON.parse(prevSnapshot);
       state.year = parsed.year;
       state.month = parsed.month;
-      state.habits = parsed.habits;
+      state.monthlyHabits = parsed.monthlyHabits || {};
+      syncCurrentMonthHabits();
       state.logs = parsed.logs;
       state.theme = parsed.theme;
       saveStateToStorage();
@@ -947,7 +1029,8 @@
       const parsed = JSON.parse(nextSnapshot);
       state.year = parsed.year;
       state.month = parsed.month;
-      state.habits = parsed.habits;
+      state.monthlyHabits = parsed.monthlyHabits || {};
+      syncCurrentMonthHabits();
       state.logs = parsed.logs;
       state.theme = parsed.theme;
       saveStateToStorage();
@@ -995,12 +1078,14 @@
 
   function switchMonth(newMonth) {
     state.month = parseInt(newMonth, 10);
+    syncCurrentMonthHabits();
     saveStateToStorage();
     renderApp();
   }
 
   function switchYear(newYear) {
     state.year = parseInt(newYear, 10);
+    syncCurrentMonthHabits();
     saveStateToStorage();
     renderApp();
   }
@@ -1049,7 +1134,7 @@
 
   // --- Habit Form Modals (Add / Edit / Delete) ---
   function openAddHabitModal() {
-    document.getElementById('modalHabitTitle').textContent = 'Add New Habit';
+    document.getElementById('modalHabitTitle').textContent = `Add Habit (${MONTH_NAMES[state.month]} ${state.year})`;
     document.getElementById('habitEditId').value = '';
     document.getElementById('habitNameInput').value = '';
     document.getElementById('habitEmojiInput').value = '✨';
@@ -1064,12 +1149,12 @@
     const habit = state.habits.find(h => h.id === habitId);
     if (!habit) return;
 
-    document.getElementById('modalHabitTitle').textContent = 'Edit Habit';
+    document.getElementById('modalHabitTitle').textContent = `Edit Habit (${MONTH_NAMES[state.month]} ${state.year})`;
     document.getElementById('habitEditId').value = habit.id;
     document.getElementById('habitNameInput').value = habit.name;
     document.getElementById('habitEmojiInput').value = habit.emoji || '✨';
     document.getElementById('habitCategoryInput').value = habit.category || 'Health';
-    document.getElementById('habitTargetDaysInput').value = habit.targetDays || 31;
+    document.getElementById('habitTargetDaysInput').value = habit.targetDays || getDaysInMonth(state.year, state.month);
 
     document.getElementById('habitModal').classList.remove('hidden');
     document.getElementById('habitNameInput').focus();
@@ -1081,13 +1166,17 @@
     const name = document.getElementById('habitNameInput').value.trim();
     const emoji = document.getElementById('habitEmojiInput').value.trim() || '✨';
     const category = document.getElementById('habitCategoryInput').value;
-    const targetDays = parseInt(document.getElementById('habitTargetDaysInput').value, 10) || 31;
+    const targetDays = parseInt(document.getElementById('habitTargetDaysInput').value, 10) || getDaysInMonth(state.year, state.month);
 
     if (!name) return;
     pushHistory();
 
+    const currentKey = getCurrentMonthKey();
+    if (!state.monthlyHabits) state.monthlyHabits = {};
+    if (!state.monthlyHabits[currentKey]) state.monthlyHabits[currentKey] = [];
+
     if (editId) {
-      const habit = state.habits.find(h => h.id === editId);
+      const habit = state.monthlyHabits[currentKey].find(h => h.id === editId);
       if (habit) {
         habit.name = name;
         habit.emoji = emoji;
@@ -1097,43 +1186,91 @@
       showToast('Habit updated successfully!');
     } else {
       const newHabit = {
-        id: 'h_' + Date.now(),
+        id: 'h_' + Date.now() + '_' + Math.random().toString(36).substr(2, 4),
         name,
         emoji,
         category,
         targetDays
       };
-      state.habits.push(newHabit);
-      showToast('New habit added!');
+      state.monthlyHabits[currentKey].push(newHabit);
+      showToast(`New habit added to ${MONTH_NAMES[state.month]} ${state.year}! ✨`);
     }
 
+    syncCurrentMonthHabits();
     saveStateToStorage();
     document.getElementById('habitModal').classList.add('hidden');
     renderApp();
   }
 
   function deleteHabit(habitId) {
-    const habit = state.habits.find(h => h.id === habitId);
+    const currentKey = getCurrentMonthKey();
+    const monthHabits = getMonthHabits(currentKey);
+    const habit = monthHabits.find(h => h.id === habitId);
     if (!habit) return;
 
-    if (confirm(`Delete habit "${habit.name}"?`)) {
+    if (confirm(`Delete habit "${habit.name}" from ${MONTH_NAMES[state.month]} ${state.year}?`)) {
       pushHistory();
-      state.habits = state.habits.filter(h => h.id !== habitId);
+      state.monthlyHabits[currentKey] = monthHabits.filter(h => h.id !== habitId);
+      syncCurrentMonthHabits();
       saveStateToStorage();
       renderApp();
       showToast(`Deleted "${habit.name}"`);
     }
   }
 
+  function importPreviousMonthHabits() {
+    const prevKey = getPreviousMonthKey(state.year, state.month);
+    const prevHabits = getMonthHabits(prevKey);
+    const [prevYearStr, prevMonthIdxStr] = prevKey.split('-');
+    const prevMonthName = MONTH_NAMES[parseInt(prevMonthIdxStr, 10)];
+    const prevYear = prevYearStr;
+
+    if (!prevHabits || prevHabits.length === 0) {
+      showToast(`No habits found in ${prevMonthName} ${prevYear} to import.`, 'warning');
+      return;
+    }
+
+    pushHistory();
+    const currentKey = getCurrentMonthKey();
+    const currentDays = getDaysInMonth(state.year, state.month);
+
+    // Deep clone previous month habits with new IDs and fresh month goals without copying checkmarks
+    const imported = prevHabits.map((h, idx) => ({
+      id: 'h_' + Date.now() + '_' + idx + '_' + Math.random().toString(36).substr(2, 4),
+      name: h.name,
+      emoji: h.emoji || '✨',
+      category: h.category || 'General',
+      targetDays: Math.min(h.targetDays || 31, currentDays)
+    }));
+
+    if (!state.monthlyHabits) state.monthlyHabits = {};
+    state.monthlyHabits[currentKey] = imported;
+    syncCurrentMonthHabits();
+
+    saveStateToStorage();
+    renderApp();
+    showToast(`Imported ${imported.length} habits from ${prevMonthName} ${prevYear}! 🚀`, 'success');
+  }
+
   function applyPreset(presetKey) {
     if (!PRESETS[presetKey]) return;
-    if (confirm('Load this routine? You can add, edit, or customize habits anytime.')) {
+    if (confirm(`Load this routine into ${MONTH_NAMES[state.month]} ${state.year}?`)) {
       pushHistory();
-      state.habits = JSON.parse(JSON.stringify(PRESETS[presetKey]));
+      const currentKey = getCurrentMonthKey();
+      const currentDays = getDaysInMonth(state.year, state.month);
+      const presetList = JSON.parse(JSON.stringify(PRESETS[presetKey])).map((h, i) => ({
+        ...h,
+        id: 'h_' + Date.now() + '_' + i + '_' + Math.random().toString(36).substr(2, 4),
+        targetDays: Math.min(h.targetDays || 31, currentDays)
+      }));
+
+      if (!state.monthlyHabits) state.monthlyHabits = {};
+      state.monthlyHabits[currentKey] = presetList;
+      syncCurrentMonthHabits();
       saveStateToStorage();
       document.getElementById('presetsModal').classList.add('hidden');
       renderApp();
-      showToast('Routine preset applied! 🚀');
+      showToast(`Preset routine applied to ${MONTH_NAMES[state.month]} ${state.year}! 🚀`);
     }
   }
 
@@ -1160,7 +1297,7 @@
       let actual = 0;
       let dayChecks = [];
       for (let d = 1; d <= daysCount; d++) {
-        const isChecked = !!(monthLog.habits[h.id] && monthLog.habits[h.id][d]);
+        const isChecked = !!(monthLog.habits[h.id] && monthLog.habits[h.id][day]);
         if (isChecked) actual++;
         dayChecks.push(isChecked ? '1' : '0');
       }
@@ -1179,33 +1316,65 @@
     showToast('CSV report downloaded! 📊');
   }
 
+  function isLegacyDefaultHabit(h) {
+    if (!h || !h.name) return true;
+    const legacyNames = [
+      'wake up at 05:00',
+      'gym / workout',
+      'reading / learning',
+      'day planning',
+      'stretching & mobility',
+      'social media detox',
+      'meditation & breath',
+      '2l water intake',
+      'no added sugar',
+      '8 hours sleep',
+      'deep work sprint',
+      'evening reflection'
+    ];
+    const lower = String(h.name).trim().toLowerCase();
+    if (legacyNames.includes(lower) && h.id && /^h\d+$/.test(h.id)) {
+      return true;
+    }
+    return false;
+  }
+
   function validateAndSanitizeState(raw) {
     if (!raw || typeof raw !== 'object') {
       throw new Error('Invalid state format: expected an object.');
     }
 
     const cleanState = {
-      version: 1,
+      version: 2,
       year: typeof raw.year === 'number' && raw.year >= 2026 && raw.year <= 2100 ? raw.year : 2026,
       month: typeof raw.month === 'number' && raw.month >= 0 && raw.month <= 11 ? raw.month : new Date().getMonth(),
       habits: [],
+      monthlyHabits: {},
       logs: {},
       theme: raw.theme === 'light' ? 'light' : 'dark',
       lastSynced: new Date().toISOString()
     };
 
-    // Sanitize Habits
-    if (Array.isArray(raw.habits) && raw.habits.length > 0) {
-      cleanState.habits = raw.habits.map((h, i) => ({
-        id: String(h.id || 'h_' + (Date.now() + i)),
-        name: String(h.name || 'Habit ' + (i + 1)).trim(),
-        emoji: String(h.emoji || '✨').trim(),
-        category: String(h.category || 'General').trim(),
-        targetDays: typeof h.targetDays === 'number' && h.targetDays > 0 ? h.targetDays : 31
-      }));
-    } else {
-      cleanState.habits = JSON.parse(JSON.stringify(PRESETS.reference));
+    // Sanitize Monthly Habits
+    if (raw.monthlyHabits && typeof raw.monthlyHabits === 'object') {
+      Object.keys(raw.monthlyHabits).forEach(key => {
+        const list = raw.monthlyHabits[key];
+        if (Array.isArray(list)) {
+          cleanState.monthlyHabits[key] = list
+            .filter(h => h && h.name && !isLegacyDefaultHabit(h))
+            .map((h, i) => ({
+              id: String(h.id || 'h_' + (Date.now() + i)),
+              name: String(h.name || 'Habit ' + (i + 1)).trim(),
+              emoji: String(h.emoji || '✨').trim(),
+              category: String(h.category || 'General').trim(),
+              targetDays: typeof h.targetDays === 'number' && h.targetDays > 0 ? h.targetDays : 31
+            }));
+        }
+      });
     }
+
+    const currentKey = `${cleanState.year}-${cleanState.month}`;
+    cleanState.habits = cleanState.monthlyHabits[currentKey] || [];
 
     // Sanitize Logs
     if (raw.logs && typeof raw.logs === 'object') {
@@ -1248,7 +1417,7 @@
               Object.keys(monthLog.wellness.sleep).forEach(day => {
                 const hours = parseFloat(monthLog.wellness.sleep[day]);
                 if (!isNaN(hours) && hours >= 0 && hours <= 24) {
-                  cleanState.logs[key].wellness.sleep[day] = hours;
+                  cleanState.logs[key].wellness.sleep[day] = Math.round(hours * 10) / 10;
                 }
               });
             }
@@ -1310,6 +1479,7 @@
       const now = new Date();
       state.year = now.getFullYear();
       state.month = now.getMonth();
+      syncCurrentMonthHabits();
       saveStateToStorage();
       renderApp();
       setTimeout(() => highlightDayColumn(now.getDate()), 150);
@@ -1321,6 +1491,10 @@
     });
 
     // Quick Matrix Actions
+    const importPrevMonthBtn = document.getElementById('importPrevMonthBtn');
+    if (importPrevMonthBtn) {
+      importPrevMonthBtn.addEventListener('click', importPreviousMonthHabits);
+    }
     document.getElementById('batchCheckTodayBtn').addEventListener('click', checkAllToday);
     document.getElementById('clearMonthBtn').addEventListener('click', clearMonthData);
 
