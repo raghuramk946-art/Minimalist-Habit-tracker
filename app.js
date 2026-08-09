@@ -1240,9 +1240,9 @@
     document.getElementById('habitEmojiInput').value = '✨';
     document.getElementById('habitCategoryInput').value = 'Health';
     
-    // Reset day selector to all days active
-    document.querySelectorAll('#habitDaySelector .day-pill').forEach(pill => pill.classList.add('active'));
-    document.getElementById('habitTargetDaysInput').value = getDaysInMonth(state.year, state.month);
+    // Reset day selector to no days active
+    document.querySelectorAll('#habitDaySelector .day-pill').forEach(pill => pill.classList.remove('active'));
+    document.getElementById('habitTargetDaysInput').value = 0;
 
     document.getElementById('habitModal').classList.remove('hidden');
     document.getElementById('habitNameInput').focus();
