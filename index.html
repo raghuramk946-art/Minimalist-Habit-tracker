@@ -80,7 +80,6 @@
                 <span class="user-avatar-badge" id="userAvatarLetter">U</span>
               </div>
               <span class="user-name-text" id="userNameDisplay">User</span>
-              <span class="saas-plan-badge" id="userPlanBadge">PRO</span>
               <span class="sync-status-dot synced" id="syncStatusDot" title="Cloud Synced"></span>
               <svg class="chevron-icon" width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><polyline points="6 9 12 15 18 9"></polyline></svg>
             </button>
@@ -92,7 +91,6 @@
                 <div class="header-user-meta">
                   <div class="meta-name-row">
                     <span class="meta-display-name" id="menuDisplayName">User</span>
-                    <span class="saas-plan-badge-mini" id="menuPlanBadge">PRO</span>
                   </div>
                   <div class="meta-email" id="menuEmail">user@example.com</div>
                 </div>
@@ -116,15 +114,6 @@
                   </div>
                   <button id="menuForceSyncBtn" class="btn-mini-sync" title="Force Sync Now" type="button">Sync Now</button>
                 </div>
-
-                <button id="menuSubscriptionBtn" class="account-menu-item highlight-upgrade" type="button">
-                  <span class="menu-item-icon">💳</span>
-                  <div class="menu-item-stacked">
-                    <span class="menu-item-label">Subscription</span>
-                    <span class="menu-item-subtag" id="menuSubtag">Pro Plan &bull; Active</span>
-                  </div>
-                  <span class="badge-upgrade-glow" id="menuUpgradeActionLabel">Manage</span>
-                </button>
               </div>
 
               <div class="account-menu-divider"></div>
@@ -655,100 +644,7 @@
     </div>
   </div>
 
-  <!-- 6. Stripe-Inspired Subscription & Pricing Modal -->
-  <div id="subscriptionModal" class="modal-backdrop hidden" role="dialog" aria-modal="true" aria-labelledby="modalSubTitle">
-    <div class="modal-dialog modal-pricing-dialog">
-      <div class="modal-header pricing-header">
-        <div>
-          <div class="pricing-badge-pill">⚡ UPGRADE YOUR PRODUCTIVITY</div>
-          <h2 id="modalSubTitle" class="pricing-title">Simple, transparent SaaS plans</h2>
-          <p class="pricing-subtitle">Supercharge your habit building with cloud sync, unlimited metrics & AI insights.</p>
-        </div>
-        <button class="modal-close-btn" id="closeSubModalBtn" aria-label="Close">&times;</button>
-      </div>
 
-      <div class="modal-body">
-        <div class="pricing-deck-grid">
-          
-          <!-- Plan 1: Free -->
-          <div class="pricing-card free-card" id="planCardFree">
-            <div class="card-plan-header">
-              <span class="plan-name">Free</span>
-              <span class="plan-tag">Casual tracking</span>
-            </div>
-            <div class="plan-price">
-              <span class="currency">$</span><span class="amount">0</span>
-              <span class="period">/ forever</span>
-            </div>
-            <p class="plan-desc">Essential daily matrix and local progress tracking on a single device.</p>
-            <button class="btn btn-plan-action btn-plan-current" id="btnPlanFree" disabled>Current Plan</button>
-            <ul class="plan-features">
-              <li><span class="check-icon">✓</span> Up to 5 Active Habits</li>
-              <li><span class="check-icon">✓</span> Daily Progress Bar Chart</li>
-              <li><span class="check-icon">✓</span> Monthly Matrix (Current Year)</li>
-              <li><span class="check-icon">✓</span> Local Storage Persistence</li>
-              <li class="disabled"><span class="cross-icon">✕</span> Multi-Device Cloud Sync</li>
-              <li class="disabled"><span class="cross-icon">✕</span> Advanced Heatmaps & Wellness</li>
-            </ul>
-          </div>
-
-          <!-- Plan 2: Pro (Featured / Most Popular) -->
-          <div class="pricing-card pro-card popular" id="planCardPro">
-            <div class="popular-ribbon">⭐ MOST POPULAR</div>
-            <div class="card-plan-header">
-              <span class="plan-name">Pro</span>
-              <span class="plan-tag">For serious builders</span>
-            </div>
-            <div class="plan-price">
-              <span class="currency">$</span><span class="amount">9</span>
-              <span class="period">/ month</span>
-            </div>
-            <p class="plan-desc">Real-time cloud sync across phone, tablet, PC and full analytics matrix 2026–2100.</p>
-            <button class="btn btn-plan-action btn-plan-pro" id="btnPlanPro" type="button">
-              <span>Upgrade to Pro</span>
-              <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><polyline points="9 18 15 12 9 6"></polyline></svg>
-            </button>
-            <ul class="plan-features">
-              <li><span class="check-icon">✓</span> <strong>Unlimited Habits</strong> & Routines</li>
-              <li><span class="check-icon">✓</span> <strong>Instant Cloud Sync</strong> (All devices)</li>
-              <li><span class="check-icon">✓</span> <strong>Full 2026–2100 Matrix</strong> & History</li>
-              <li><span class="check-icon">✓</span> <strong>Mood & Sleep Analytics</strong></li>
-              <li><span class="check-icon">✓</span> <strong>Notion Table & PDF Export</strong></li>
-              <li><span class="check-icon">✓</span> <strong>Undo & Redo Engine</strong></li>
-            </ul>
-          </div>
-
-          <!-- Plan 3: Premium / Lifetime -->
-          <div class="pricing-card premium-card" id="planCardPremium">
-            <div class="card-plan-header">
-              <span class="plan-name">Lifetime</span>
-              <span class="plan-tag">Pay once, own forever</span>
-            </div>
-            <div class="plan-price">
-              <span class="currency">$</span><span class="amount">199</span>
-              <span class="period">/ one-time</span>
-            </div>
-            <p class="plan-desc">For power users who want lifetime access, AI insights, and concierge support.</p>
-            <button class="btn btn-plan-action btn-plan-premium" id="btnPlanPremium" type="button">
-              <span>Get Lifetime Access</span>
-            </button>
-            <ul class="plan-features">
-              <li><span class="check-icon">✓</span> <strong>Everything in Pro Plan</strong></li>
-              <li><span class="check-icon">✓</span> <strong>AI Routine Recommendations</strong></li>
-              <li><span class="check-icon">✓</span> <strong>Shared Accountability</strong></li>
-              <li><span class="check-icon">✓</span> <strong>Custom Themes & Colors</strong></li>
-              <li><span class="check-icon">✓</span> <strong>Concierge 1-on-1 Support</strong></li>
-            </ul>
-          </div>
-
-        </div>
-
-        <div class="pricing-guarantee-footer">
-          <span>🔒 30-day money-back guarantee &bull; Cancel anytime &bull; Powered by Stripe Checkout</span>
-        </div>
-      </div>
-    </div>
-  </div>
 
   <!-- 7. My Profile Modal -->
   <div id="profileModal" class="modal-backdrop hidden" role="dialog" aria-modal="true" aria-labelledby="modalProfileTitle">
@@ -763,7 +659,6 @@
           <div class="profile-meta">
             <h4 id="profileHeroName">User Name</h4>
             <p id="profileHeroEmail">user@example.com</p>
-            <span class="saas-plan-badge" id="profileHeroBadge">PRO PLAN</span>
           </div>
         </div>
 

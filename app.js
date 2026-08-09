@@ -1888,7 +1888,6 @@
   }
 
   // --- SaaS Authentication & Cloud Sync Engine ---
-  let userSubscription = { plan: 'pro', status: 'active', renewalDate: '2027-01-01' };
 
   function getFirebaseConfig() {
     try {
@@ -1959,9 +1958,6 @@
         metadata: user.metadata || {}
       };
 
-      // Load user subscription tier
-      loadUserSubscription(user.uid);
-
       // Load user's isolated workspace
       loadStateFromStorage();
       attachCloudListener(user.uid);
@@ -1971,27 +1967,12 @@
         cloudUnsubscribe();
         cloudUnsubscribe = null;
       }
-      userSubscription = { plan: 'free', status: 'guest' };
       loadStateFromStorage();
     }
 
     updateAuthUi();
-    updateSubscriptionUI();
     populateCalendarDropdowns();
     renderApp();
-  }
-
-  function loadUserSubscription(uid) {
-    try {
-      const savedSub = localStorage.getItem(`notion_habit_sub_${uid}`);
-      if (savedSub) {
-        userSubscription = JSON.parse(savedSub);
-      } else {
-        userSubscription = { plan: 'pro', status: 'active', renewalDate: '2027-01-01' };
-      }
-    } catch (e) {
-      userSubscription = { plan: 'pro', status: 'active', renewalDate: '2027-01-01' };
-    }
   }
 
   function updateAuthUi() {
@@ -2026,84 +2007,6 @@
       if (profileWrapper) profileWrapper.classList.add('hidden');
       updateSyncBadge('guest');
     }
-  }
-
-  function updateSubscriptionUI() {
-    const plan = (userSubscription && userSubscription.plan) ? userSubscription.plan.toLowerCase() : 'free';
-    const planLabel = plan.toUpperCase();
-
-    const userBadge = document.getElementById('userPlanBadge');
-    const menuBadge = document.getElementById('menuPlanBadge');
-    const menuSubtag = document.getElementById('menuSubtag');
-    const profileHeroBadge = document.getElementById('profileHeroBadge');
-
-    if (userBadge) {
-      userBadge.textContent = planLabel;
-      userBadge.className = `saas-plan-badge ${plan}`;
-    }
-
-    if (menuBadge) {
-      menuBadge.textContent = planLabel;
-    }
-
-    if (menuSubtag) {
-      menuSubtag.textContent = `${planLabel} Plan • Active`;
-    }
-
-    if (profileHeroBadge) {
-      profileHeroBadge.textContent = `${planLabel} PLAN`;
-      profileHeroBadge.className = `saas-plan-badge ${plan}`;
-    }
-
-    // Update Pricing Modal buttons state
-    const btnFree = document.getElementById('btnPlanFree');
-    const btnPro = document.getElementById('btnPlanPro');
-    const btnPrem = document.getElementById('btnPlanPremium');
-
-    if (btnFree && btnPro && btnPrem) {
-      btnFree.disabled = plan === 'free';
-      btnFree.textContent = plan === 'free' ? 'Current Plan' : 'Downgrade to Free';
-      btnFree.className = plan === 'free' ? 'btn btn-plan-action btn-plan-current' : 'btn btn-plan-action btn-subtle';
-
-      btnPro.disabled = plan === 'pro';
-      btnPro.innerHTML = plan === 'pro' ? 'Current Plan' : '<span>Upgrade to Pro</span>';
-      btnPro.className = plan === 'pro' ? 'btn btn-plan-action btn-plan-current' : 'btn btn-plan-action btn-plan-pro';
-
-      btnPrem.disabled = plan === 'premium';
-      btnPrem.innerHTML = plan === 'premium' ? 'Current Plan' : '<span>Get Lifetime Access</span>';
-      btnPrem.className = plan === 'premium' ? 'btn btn-plan-action btn-plan-current' : 'btn btn-plan-action btn-plan-premium';
-    }
-  }
-
-  function handlePlanUpgrade(newPlan) {
-    if (!currentUser) {
-      openSaasAuthModal('signup');
-      showToast('Create an account to activate your subscription! 🚀', 'info');
-      return;
-    }
-
-    userSubscription = {
-      plan: newPlan,
-      status: 'active',
-      updatedAt: new Date().toISOString()
-    };
-
-    try {
-      localStorage.setItem(`notion_habit_sub_${currentUser.uid}`, JSON.stringify(userSubscription));
-    } catch (e) {}
-
-    // Save to Firestore subscription document
-    if (firestoreDb && currentUser) {
-      try {
-        firestoreDb.collection('users').doc(currentUser.uid).collection('subscription').doc('current').set(userSubscription, { merge: true });
-      } catch (err) {
-        console.warn('Subscription sync note:', err);
-      }
-    }
-
-    updateSubscriptionUI();
-    closeSubscriptionModal();
-    showToast(`🎉 Upgraded to ${newPlan.toUpperCase()} Plan! All features unlocked.`, 'success');
   }
 
   function updateSyncBadge(status) {
@@ -2508,7 +2411,6 @@
     }
 
     updateAuthUi();
-    updateSubscriptionUI();
     populateCalendarDropdowns();
     renderApp();
   }
@@ -2626,7 +2528,6 @@
       }
       seedInitialState();
       updateAuthUi();
-      updateSubscriptionUI();
       populateCalendarDropdowns();
       renderApp();
       showToast('Logged out successfully. Switched to guest workspace.', 'info');
@@ -2690,15 +2591,7 @@
     showToast('Profile updated successfully! ✨', 'success');
   }
 
-  // --- Pricing & Subscription Modal Controls ---
-  function openSubscriptionModal() {
-    updateSubscriptionUI();
-    document.getElementById('subscriptionModal').classList.remove('hidden');
-  }
 
-  function closeSubscriptionModal() {
-    document.getElementById('subscriptionModal').classList.add('hidden');
-  }
 
   // --- Keyboard Shortcuts Modal Controls ---
   function openShortcutsModal() {
