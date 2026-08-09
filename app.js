@@ -1243,6 +1243,7 @@
     // Reset day selector to no days active
     document.querySelectorAll('#habitDaySelector .day-pill').forEach(pill => pill.classList.remove('active'));
     document.getElementById('habitTargetDaysInput').value = 0;
+    document.getElementById('saveHabitBtn').textContent = 'Save Habit';
 
     document.getElementById('habitModal').classList.remove('hidden');
     document.getElementById('habitNameInput').focus();
@@ -1270,6 +1271,7 @@
     });
     
     document.getElementById('habitTargetDaysInput').value = calculateTargetDaysForMonth(state.year, state.month, activeDays);
+    document.getElementById('saveHabitBtn').textContent = 'Save Changes';
 
     document.getElementById('habitModal').classList.remove('hidden');
     document.getElementById('habitNameInput').focus();
