@@ -1525,7 +1525,9 @@
               name: String(h.name || 'Habit ' + (i + 1)).trim(),
               emoji: String(h.emoji || '✨').trim(),
               category: String(h.category || 'General').trim(),
-              targetDays: typeof h.targetDays === 'number' && h.targetDays > 0 ? h.targetDays : 31
+              targetDays: typeof h.targetDays === 'number' && h.targetDays > 0 ? h.targetDays : 31,
+              targetDaysOfWeek: Array.isArray(h.targetDaysOfWeek) ? h.targetDaysOfWeek : undefined,
+              createdAt: h.createdAt || undefined
             }));
         }
       });
