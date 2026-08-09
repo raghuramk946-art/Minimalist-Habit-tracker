@@ -169,11 +169,13 @@
     return renderDate < creationDate;
   }
 
-  function calculateTargetDaysForMonth(year, month, targetDaysOfWeek) {
+  function calculateTargetDaysForMonth(year, month, targetDaysOfWeek, createdAtISO = null) {
     if (!targetDaysOfWeek || targetDaysOfWeek.length === 0) return 0;
     let count = 0;
     const daysInMonth = getDaysInMonth(year, month);
     for (let day = 1; day <= daysInMonth; day++) {
+      if (isDateBeforeCreation(year, month, day, createdAtISO)) continue;
+
       const dayOfWeek = new Date(year, month, day).getDay();
       if (targetDaysOfWeek.includes(dayOfWeek)) {
         count++;
@@ -1293,7 +1295,7 @@
     });
     
     document.getElementById('habitModal').dataset.createdAt = habit.createdAt || new Date().toISOString();
-    document.getElementById('habitTargetDaysInput').value = calculateTargetDaysForMonth(state.year, state.month, activeDays);
+    document.getElementById('habitTargetDaysInput').value = calculateTargetDaysForMonth(state.year, state.month, activeDays, document.getElementById('habitModal').dataset.createdAt);
     document.getElementById('saveHabitBtn').textContent = 'Save Changes';
 
     document.getElementById('habitModal').classList.remove('hidden');
@@ -1317,7 +1319,7 @@
       return;
     }
 
-    const targetDays = calculateTargetDaysForMonth(state.year, state.month, targetDaysOfWeek);
+    const targetDays = calculateTargetDaysForMonth(state.year, state.month, targetDaysOfWeek, document.getElementById('habitModal').dataset.createdAt);
 
     if (!name) return;
     pushHistory();
@@ -1394,7 +1396,7 @@
       emoji: h.emoji || '✨',
       category: h.category || 'General',
       targetDaysOfWeek: h.targetDaysOfWeek || [0,1,2,3,4,5,6],
-      targetDays: calculateTargetDaysForMonth(state.year, state.month, h.targetDaysOfWeek || [0,1,2,3,4,5,6])
+      targetDays: calculateTargetDaysForMonth(state.year, state.month, h.targetDaysOfWeek || [0,1,2,3,4,5,6], h.createdAt || new Date().toISOString())
     }));
 
     if (!state.monthlyHabits) state.monthlyHabits = {};
@@ -1418,7 +1420,7 @@
           ...h,
           id: 'h_' + Date.now() + '_' + i + '_' + Math.random().toString(36).substr(2, 4),
           targetDaysOfWeek: activeDays,
-          targetDays: calculateTargetDaysForMonth(state.year, state.month, activeDays)
+          targetDays: calculateTargetDaysForMonth(state.year, state.month, activeDays, new Date().toISOString())
         };
       });
 
@@ -1676,7 +1678,8 @@
         // Recalculate target days based on active pills
         const activeDays = Array.from(document.querySelectorAll('#habitDaySelector .day-pill.active'))
                                 .map(p => parseInt(p.getAttribute('data-day'), 10));
-        document.getElementById('habitTargetDaysInput').value = calculateTargetDaysForMonth(state.year, state.month, activeDays);
+        const createdAt = document.getElementById('habitModal').dataset.createdAt;
+        document.getElementById('habitTargetDaysInput').value = calculateTargetDaysForMonth(state.year, state.month, activeDays, createdAt);
       });
     });
 
