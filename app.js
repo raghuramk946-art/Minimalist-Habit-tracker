@@ -160,6 +160,15 @@
     return new Date(year, month + 1, 0).getDate();
   }
 
+  function isDateBeforeCreation(year, month, day, createdAtISO) {
+    if (!createdAtISO) return false;
+    const renderDate = new Date(year, month, day);
+    const creationDate = new Date(createdAtISO);
+    creationDate.setHours(0, 0, 0, 0);
+    renderDate.setHours(0, 0, 0, 0);
+    return renderDate < creationDate;
+  }
+
   function calculateTargetDaysForMonth(year, month, targetDaysOfWeek) {
     if (!targetDaysOfWeek || targetDaysOfWeek.length === 0) return 0;
     let count = 0;
@@ -345,6 +354,8 @@
       const dayOfWeek = new Date(state.year, state.month, day).getDay();
 
       state.habits.forEach(habit => {
+        if (isDateBeforeCreation(state.year, state.month, day, habit.createdAt)) return;
+        
         const activeDays = habit.targetDaysOfWeek || [0,1,2,3,4,5,6];
         if (activeDays.includes(dayOfWeek)) {
           activeHabitsToday++;
@@ -436,6 +447,8 @@
       for (let day = w.start; day <= actualEnd; day++) {
         const dayOfWeek = new Date(state.year, state.month, day).getDay();
         state.habits.forEach(habit => {
+          if (isDateBeforeCreation(state.year, state.month, day, habit.createdAt)) return;
+          
           const activeDays = habit.targetDaysOfWeek || [0,1,2,3,4,5,6];
           if (activeDays.includes(dayOfWeek)) {
             totalPossible++;
@@ -680,12 +693,14 @@
         }
 
         const dayOfWeek = new Date(state.year, state.month, day).getDay();
+        const isBeforeCreation = isDateBeforeCreation(state.year, state.month, day, habit.createdAt);
         const activeDays = habit.targetDaysOfWeek || [0,1,2,3,4,5,6];
-        
-        if (!activeDays.includes(dayOfWeek)) {
+        const isNotActiveDay = !activeDays.includes(dayOfWeek);
+
+        if (isBeforeCreation || isNotActiveDay) {
           checkTd.classList.add('disabled-day');
-          // Add a subtle dash to indicate it's not applicable
-          checkTd.innerHTML = '<span style="color: var(--text-muted); opacity: 0.5;">-</span>';
+          // Add an X mark for unselected or before-creation days
+          checkTd.innerHTML = '<span style="color: var(--text-muted); opacity: 0.6; font-size: 14px; font-weight: bold;">&#10005;</span>';
           tr.appendChild(checkTd);
           continue;
         }
@@ -1210,6 +1225,12 @@
     const monthLog = getMonthLogData();
 
     state.habits.forEach(habit => {
+      if (isDateBeforeCreation(todayObj.getFullYear(), todayObj.getMonth(), day, habit.createdAt)) return;
+      
+      const dayOfWeek = todayObj.getDay();
+      const activeDays = habit.targetDaysOfWeek || [0,1,2,3,4,5,6];
+      if (!activeDays.includes(dayOfWeek)) return;
+
       if (!monthLog.habits[habit.id]) monthLog.habits[habit.id] = {};
       monthLog.habits[habit.id][day] = true;
     });
@@ -1243,6 +1264,7 @@
     // Reset day selector to no days active
     document.querySelectorAll('#habitDaySelector .day-pill').forEach(pill => pill.classList.remove('active'));
     document.getElementById('habitTargetDaysInput').value = 0;
+    document.getElementById('habitModal').dataset.createdAt = new Date().toISOString();
     document.getElementById('saveHabitBtn').textContent = 'Save Habit';
 
     document.getElementById('habitModal').classList.remove('hidden');
@@ -1270,6 +1292,7 @@
       }
     });
     
+    document.getElementById('habitModal').dataset.createdAt = habit.createdAt || new Date().toISOString();
     document.getElementById('habitTargetDaysInput').value = calculateTargetDaysForMonth(state.year, state.month, activeDays);
     document.getElementById('saveHabitBtn').textContent = 'Save Changes';
 
@@ -1321,7 +1344,7 @@
         category,
         targetDays,
         targetDaysOfWeek,
-        createdAt: new Date().toISOString()
+        createdAt: document.getElementById('habitModal').dataset.createdAt || new Date().toISOString()
       };
       state.monthlyHabits[currentKey].push(newHabit);
       showToast(`New habit added to ${MONTH_NAMES[state.month]} ${state.year}! ✨`);
