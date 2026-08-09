@@ -1363,13 +1363,13 @@
     const currentKey = getCurrentMonthKey();
     const currentDays = getDaysInMonth(state.year, state.month);
 
-    // Deep clone previous month habits with new IDs and fresh month goals without copying checkmarks
     const imported = prevHabits.map((h, idx) => ({
       id: 'h_' + Date.now() + '_' + idx + '_' + Math.random().toString(36).substr(2, 4),
       name: h.name,
       emoji: h.emoji || '✨',
       category: h.category || 'General',
-      targetDays: Math.min(h.targetDays || 31, currentDays)
+      targetDaysOfWeek: h.targetDaysOfWeek || [0,1,2,3,4,5,6],
+      targetDays: calculateTargetDaysForMonth(state.year, state.month, h.targetDaysOfWeek || [0,1,2,3,4,5,6])
     }));
 
     if (!state.monthlyHabits) state.monthlyHabits = {};
@@ -1387,11 +1387,15 @@
       pushHistory();
       const currentKey = getCurrentMonthKey();
       const currentDays = getDaysInMonth(state.year, state.month);
-      const presetList = JSON.parse(JSON.stringify(PRESETS[presetKey])).map((h, i) => ({
-        ...h,
-        id: 'h_' + Date.now() + '_' + i + '_' + Math.random().toString(36).substr(2, 4),
-        targetDays: Math.min(h.targetDays || 31, currentDays)
-      }));
+      const presetList = JSON.parse(JSON.stringify(PRESETS[presetKey])).map((h, i) => {
+        const activeDays = h.targetDaysOfWeek || [0,1,2,3,4,5,6];
+        return {
+          ...h,
+          id: 'h_' + Date.now() + '_' + i + '_' + Math.random().toString(36).substr(2, 4),
+          targetDaysOfWeek: activeDays,
+          targetDays: calculateTargetDaysForMonth(state.year, state.month, activeDays)
+        };
+      });
 
       if (!state.monthlyHabits) state.monthlyHabits = {};
       state.monthlyHabits[currentKey] = presetList;
