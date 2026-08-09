@@ -1307,6 +1307,10 @@ body {
   transition: opacity var(--transition-fast);
 }
 
+.hidden {
+  display: none !important;
+}
+
 .modal-backdrop.hidden {
   display: none;
   opacity: 0;
