@@ -160,6 +160,19 @@
     return new Date(year, month + 1, 0).getDate();
   }
 
+  function calculateTargetDaysForMonth(year, month, targetDaysOfWeek) {
+    if (!targetDaysOfWeek || targetDaysOfWeek.length === 0) return 0;
+    let count = 0;
+    const daysInMonth = getDaysInMonth(year, month);
+    for (let day = 1; day <= daysInMonth; day++) {
+      const dayOfWeek = new Date(year, month, day).getDay();
+      if (targetDaysOfWeek.includes(dayOfWeek)) {
+        count++;
+      }
+    }
+    return count;
+  }
+
   function getFirstDayOfWeek(year, month) {
     return new Date(year, month, 1).getDay(); // 0 = Sun
   }
@@ -328,19 +341,26 @@
       col.style.pointerEvents = 'auto';
 
       let completedToday = 0;
+      let activeHabitsToday = 0;
+      const dayOfWeek = new Date(state.year, state.month, day).getDay();
+
       state.habits.forEach(habit => {
-        if (monthLog.habits[habit.id] && monthLog.habits[habit.id][day]) {
-          completedToday++;
+        const activeDays = habit.targetDaysOfWeek || [0,1,2,3,4,5,6];
+        if (activeDays.includes(dayOfWeek)) {
+          activeHabitsToday++;
+          if (monthLog.habits[habit.id] && monthLog.habits[habit.id][day]) {
+            completedToday++;
+          }
         }
       });
 
-      const pct = totalHabits > 0 ? Math.round((completedToday / totalHabits) * 100) : 0;
+      const pct = activeHabitsToday > 0 ? Math.round((completedToday / activeHabitsToday) * 100) : 0;
       if (completedToday > 0) {
         sumPct += pct;
         daysWithEntries++;
       }
 
-      if (tooltip) tooltip.textContent = `Day ${day}: ${completedToday}/${totalHabits} (${pct}%)`;
+      if (tooltip) tooltip.textContent = `Day ${day}: ${completedToday}/${activeHabitsToday} (${pct}%)`;
       
       // Delay height application slightly on initial render to trigger CSS animation
       if (!isReusing) {
@@ -410,13 +430,18 @@
       col.style.opacity = '1';
 
       const actualEnd = Math.min(w.end, daysCount);
-      const totalPossible = (actualEnd - w.start + 1) * totalHabits;
+      let totalPossible = 0;
       let completedInWeek = 0;
 
       for (let day = w.start; day <= actualEnd; day++) {
+        const dayOfWeek = new Date(state.year, state.month, day).getDay();
         state.habits.forEach(habit => {
-          if (monthLog.habits[habit.id] && monthLog.habits[habit.id][day]) {
-            completedInWeek++;
+          const activeDays = habit.targetDaysOfWeek || [0,1,2,3,4,5,6];
+          if (activeDays.includes(dayOfWeek)) {
+            totalPossible++;
+            if (monthLog.habits[habit.id] && monthLog.habits[habit.id][day]) {
+              completedInWeek++;
+            }
           }
         });
       }
@@ -445,10 +470,11 @@
     const monthLog = getMonthLogData();
     const totalHabits = state.habits.length;
 
-    const totalGoal = totalHabits * daysCount;
+    let totalGoal = 0;
     let totalCompleted = 0;
 
     state.habits.forEach(habit => {
+      totalGoal += habit.targetDays || getDaysInMonth(state.year, state.month);
       if (monthLog.habits[habit.id]) {
         for (let day = 1; day <= daysCount; day++) {
           if (monthLog.habits[habit.id][day]) {
@@ -649,6 +675,17 @@
 
         if (day > daysCount) {
           checkTd.classList.add('disabled-day');
+          tr.appendChild(checkTd);
+          continue;
+        }
+
+        const dayOfWeek = new Date(state.year, state.month, day).getDay();
+        const activeDays = habit.targetDaysOfWeek || [0,1,2,3,4,5,6];
+        
+        if (!activeDays.includes(dayOfWeek)) {
+          checkTd.classList.add('disabled-day');
+          // Add a subtle dash to indicate it's not applicable
+          checkTd.innerHTML = '<span style="color: var(--text-muted); opacity: 0.5;">-</span>';
           tr.appendChild(checkTd);
           continue;
         }
@@ -1202,6 +1239,9 @@
     document.getElementById('habitNameInput').value = '';
     document.getElementById('habitEmojiInput').value = '✨';
     document.getElementById('habitCategoryInput').value = 'Health';
+    
+    // Reset day selector to all days active
+    document.querySelectorAll('#habitDaySelector .day-pill').forEach(pill => pill.classList.add('active'));
     document.getElementById('habitTargetDaysInput').value = getDaysInMonth(state.year, state.month);
 
     document.getElementById('habitModal').classList.remove('hidden');
@@ -1217,7 +1257,19 @@
     document.getElementById('habitNameInput').value = habit.name;
     document.getElementById('habitEmojiInput').value = habit.emoji || '✨';
     document.getElementById('habitCategoryInput').value = habit.category || 'Health';
-    document.getElementById('habitTargetDaysInput').value = habit.targetDays || getDaysInMonth(state.year, state.month);
+    
+    // Set active pills based on habit data
+    const activeDays = habit.targetDaysOfWeek || [0,1,2,3,4,5,6];
+    document.querySelectorAll('#habitDaySelector .day-pill').forEach(pill => {
+      const d = parseInt(pill.getAttribute('data-day'), 10);
+      if (activeDays.includes(d)) {
+        pill.classList.add('active');
+      } else {
+        pill.classList.remove('active');
+      }
+    });
+    
+    document.getElementById('habitTargetDaysInput').value = calculateTargetDaysForMonth(state.year, state.month, activeDays);
 
     document.getElementById('habitModal').classList.remove('hidden');
     document.getElementById('habitNameInput').focus();
@@ -1229,7 +1281,18 @@
     const name = document.getElementById('habitNameInput').value.trim();
     const emoji = document.getElementById('habitEmojiInput').value.trim() || '✨';
     const category = document.getElementById('habitCategoryInput').value;
-    const targetDays = parseInt(document.getElementById('habitTargetDaysInput').value, 10) || getDaysInMonth(state.year, state.month);
+    
+    // Read selected days
+    const targetDaysOfWeek = Array.from(document.querySelectorAll('#habitDaySelector .day-pill.active'))
+                                  .map(pill => parseInt(pill.getAttribute('data-day'), 10));
+                                  
+    // Ensure at least one day is selected, fallback to all days
+    if (targetDaysOfWeek.length === 0) {
+      showToast('Please select at least one day to track.', 'warning');
+      return;
+    }
+
+    const targetDays = calculateTargetDaysForMonth(state.year, state.month, targetDaysOfWeek);
 
     if (!name) return;
     pushHistory();
@@ -1245,6 +1308,7 @@
         habit.emoji = emoji;
         habit.category = category;
         habit.targetDays = targetDays;
+        habit.targetDaysOfWeek = targetDaysOfWeek;
       }
       showToast('Habit updated successfully!');
     } else {
@@ -1253,7 +1317,9 @@
         name,
         emoji,
         category,
-        targetDays
+        targetDays,
+        targetDaysOfWeek,
+        createdAt: new Date().toISOString()
       };
       state.monthlyHabits[currentKey].push(newHabit);
       showToast(`New habit added to ${MONTH_NAMES[state.month]} ${state.year}! ✨`);
@@ -1570,6 +1636,18 @@
       document.getElementById('habitModal').classList.add('hidden');
     });
     document.getElementById('habitForm').addEventListener('submit', handleSaveHabit);
+    
+    // Day Selector in Habit Modal
+    document.querySelectorAll('#habitDaySelector .day-pill').forEach(pill => {
+      pill.addEventListener('click', (e) => {
+        e.target.classList.toggle('active');
+        
+        // Recalculate target days based on active pills
+        const activeDays = Array.from(document.querySelectorAll('#habitDaySelector .day-pill.active'))
+                                .map(p => parseInt(p.getAttribute('data-day'), 10));
+        document.getElementById('habitTargetDaysInput').value = calculateTargetDaysForMonth(state.year, state.month, activeDays);
+      });
+    });
 
     // Presets Modal
     document.getElementById('presetTemplatesBtn').addEventListener('click', () => {
