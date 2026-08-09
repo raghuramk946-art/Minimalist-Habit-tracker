@@ -374,7 +374,16 @@ body {
   width: 100%;
   background: var(--text-primary);
   border-radius: 2px 2px 0 0;
-  transition: height var(--transition-normal);
+  transition: height 0.6s cubic-bezier(0.34, 1.56, 0.64, 1);
+}
+
+@keyframes barGrow {
+  0% { transform: scaleY(0); }
+  100% { transform: scaleY(1); }
+}
+.animate-bar-grow {
+  transform-origin: bottom;
+  animation: barGrow 0.8s cubic-bezier(0.34, 1.56, 0.64, 1) forwards;
 }
 
 .daily-bar-col.is-today .daily-bar-fill {
@@ -453,7 +462,7 @@ body {
   width: 100%;
   background: var(--text-primary);
   border-radius: 3px 3px 0 0;
-  transition: height var(--transition-normal);
+  transition: height 0.6s cubic-bezier(0.34, 1.56, 0.64, 1);
 }
 
 .weekly-bar-label {

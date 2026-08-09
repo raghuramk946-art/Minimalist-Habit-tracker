@@ -99,7 +99,7 @@
     loadStateFromStorage();
     setupEventListeners();
     populateCalendarDropdowns();
-    renderApp();
+    renderApp(true);
     updateAuthUi();
   }
 
@@ -228,12 +228,16 @@
   }
 
   // --- Main Render Dispatcher ---
-  function renderApp() {
+  function renderApp(isFullRefresh = false) {
+    if (isFullRefresh) {
+      document.getElementById('dailyBarsWrapper').innerHTML = '';
+      document.getElementById('weeklyBarsWrapper').innerHTML = '';
+    }
     applyTheme();
     updateHeaderDisplay();
     renderDailyProgressChart();
     renderWeeklyProgressChart();
-    renderOverallStatsAndKpis();
+    renderOverallStatsAndKpis(isFullRefresh);
     renderHabitMatrix();
     renderWellnessMatrix();
     renderAnalysisTable();
@@ -264,7 +268,11 @@
   function renderDailyProgressChart() {
     const container = document.getElementById('dailyBarsWrapper');
     const avgBadge = document.getElementById('dailyAvgBadge');
-    container.innerHTML = '';
+    
+    const isReusing = container.children.length === 31;
+    if (!isReusing) {
+      container.innerHTML = '';
+    }
 
     const daysCount = getDaysInMonth(state.year, state.month);
     const monthLog = getMonthLogData();
@@ -278,8 +286,32 @@
     let daysWithEntries = 0;
 
     for (let day = 1; day <= 31; day++) {
-      const col = document.createElement('div');
-      col.className = 'daily-bar-col';
+      let col, fill, tooltip;
+      
+      if (isReusing) {
+        col = container.children[day - 1];
+        fill = col.querySelector('.daily-bar-fill');
+        tooltip = col.querySelector('.bar-tooltip');
+        col.className = 'daily-bar-col';
+      } else {
+        col = document.createElement('div');
+        col.className = 'daily-bar-col';
+        col.innerHTML = `
+          <div class="bar-tooltip"></div>
+          <div class="daily-bar-track">
+            <div class="daily-bar-fill animate-bar-grow" style="height: 0%"></div>
+          </div>
+          <span class="daily-bar-label">${day}</span>
+        `;
+        fill = col.querySelector('.daily-bar-fill');
+        tooltip = col.querySelector('.bar-tooltip');
+        
+        col.addEventListener('click', () => {
+          highlightDayColumn(day);
+        });
+        container.appendChild(col);
+      }
+
       if (isCurrentRealMonth && day === realDay) {
         col.classList.add('is-today');
       }
@@ -287,13 +319,13 @@
       if (day > daysCount) {
         col.style.opacity = '0.2';
         col.style.pointerEvents = 'none';
-        col.innerHTML = `
-          <div class="daily-bar-track"><div class="daily-bar-fill" style="height: 0%"></div></div>
-          <span class="daily-bar-label">${day}</span>
-        `;
-        container.appendChild(col);
+        if (tooltip) tooltip.textContent = '';
+        if (fill) fill.style.height = '0%';
         continue;
       }
+
+      col.style.opacity = '1';
+      col.style.pointerEvents = 'auto';
 
       let completedToday = 0;
       state.habits.forEach(habit => {
@@ -308,20 +340,14 @@
         daysWithEntries++;
       }
 
-      col.innerHTML = `
-        <div class="bar-tooltip">Day ${day}: ${completedToday}/${totalHabits} (${pct}%)</div>
-        <div class="daily-bar-track">
-          <div class="daily-bar-fill" style="height: ${pct}%"></div>
-        </div>
-        <span class="daily-bar-label">${day}</span>
-      `;
-
-      col.addEventListener('click', () => {
-        // Quick focus on day column in matrix
-        highlightDayColumn(day);
-      });
-
-      container.appendChild(col);
+      if (tooltip) tooltip.textContent = `Day ${day}: ${completedToday}/${totalHabits} (${pct}%)`;
+      
+      // Delay height application slightly on initial render to trigger CSS animation
+      if (!isReusing) {
+        setTimeout(() => { if (fill) fill.style.height = `${pct}%`; }, 10);
+      } else {
+        if (fill) fill.style.height = `${pct}%`;
+      }
     }
 
     const avgPct = daysWithEntries > 0 ? Math.round(sumPct / daysWithEntries) : 0;
@@ -332,7 +358,11 @@
   function renderWeeklyProgressChart() {
     const container = document.getElementById('weeklyBarsWrapper');
     const bestWeekBadge = document.getElementById('bestWeekBadge');
-    container.innerHTML = '';
+    
+    const isReusing = container.children.length === 5;
+    if (!isReusing) {
+      container.innerHTML = '';
+    }
 
     const daysCount = getDaysInMonth(state.year, state.month);
     const monthLog = getMonthLogData();
@@ -349,10 +379,36 @@
     let bestWeekName = 'Week 1';
     let bestWeekPct = -1;
 
-    weeks.forEach((w) => {
+    weeks.forEach((w, idx) => {
+      let col, fill, label;
+      
+      if (isReusing) {
+        col = container.children[idx];
+        fill = col.querySelector('.weekly-bar-fill');
+        label = col.querySelector('.weekly-bar-label');
+      } else {
+        col = document.createElement('div');
+        col.className = 'weekly-bar-col';
+        col.innerHTML = `
+          <div class="weekly-bar-track">
+            <div class="weekly-bar-fill animate-bar-grow" style="height: 0%"></div>
+          </div>
+          <span class="weekly-bar-label"></span>
+        `;
+        fill = col.querySelector('.weekly-bar-fill');
+        label = col.querySelector('.weekly-bar-label');
+        container.appendChild(col);
+      }
+
       if (w.start > daysCount) {
+        col.style.opacity = '0.2';
+        if (fill) fill.style.height = '0%';
+        if (label) label.innerHTML = `${w.name}<br><small>0%</small>`;
         return;
       }
+      
+      col.style.opacity = '1';
+
       const actualEnd = Math.min(w.end, daysCount);
       const totalPossible = (actualEnd - w.start + 1) * totalHabits;
       let completedInWeek = 0;
@@ -371,22 +427,20 @@
         bestWeekName = w.name;
       }
 
-      const col = document.createElement('div');
-      col.className = 'weekly-bar-col';
-      col.innerHTML = `
-        <div class="weekly-bar-track">
-          <div class="weekly-bar-fill" style="height: ${pct}%"></div>
-        </div>
-        <span class="weekly-bar-label">${w.name}<br><small>${pct}%</small></span>
-      `;
-      container.appendChild(col);
+      if (label) label.innerHTML = `${w.name}<br><small>${pct}%</small>`;
+      
+      if (!isReusing) {
+        setTimeout(() => { if (fill) fill.style.height = `${pct}%`; }, 10);
+      } else {
+        if (fill) fill.style.height = `${pct}%`;
+      }
     });
 
     bestWeekBadge.textContent = `Best: ${bestWeekName} (${Math.max(0, bestWeekPct)}%)`;
   }
 
   // --- 3. Overall Stats & KPI Block Calculation ---
-  function renderOverallStatsAndKpis() {
+  function renderOverallStatsAndKpis(isFullRefresh = false) {
     const daysCount = getDaysInMonth(state.year, state.month);
     const monthLog = getMonthLogData();
     const totalHabits = state.habits.length;
@@ -417,7 +471,16 @@
     const circle = document.getElementById('donutFillCircle');
     const circumference = 2 * Math.PI * 54; // r=54 -> 339.292
     const offset = circumference - (overallPct / 100) * circumference;
+    
     circle.style.strokeDasharray = `${circumference}`;
+    
+    if (isFullRefresh) {
+      circle.style.transition = 'none';
+      circle.style.strokeDashoffset = `${circumference}`;
+      circle.offsetHeight; // trigger reflow
+      circle.style.transition = ''; // restore CSS defined transition
+    }
+    
     circle.style.strokeDashoffset = `${offset}`;
   }
 
@@ -1080,14 +1143,14 @@
     state.month = parseInt(newMonth, 10);
     syncCurrentMonthHabits();
     saveStateToStorage();
-    renderApp();
+    renderApp(true);
   }
 
   function switchYear(newYear) {
     state.year = parseInt(newYear, 10);
     syncCurrentMonthHabits();
     saveStateToStorage();
-    renderApp();
+    renderApp(true);
   }
 
   function highlightDayColumn(day) {
